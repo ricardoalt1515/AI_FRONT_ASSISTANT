@@ -175,23 +175,27 @@ export default function ChatContainer() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto relative">
-      {/* Fondo dinámico de agua */}
+      {/* Fondo dinámico mejorado con gradientes más intensos y partículas animadas */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="fixed w-full h-full bg-gradient-to-b from-hydrous-50/50 to-white">
-          {/* Elementos de agua digitales */}
-          <div className="absolute top-1/4 left-1/3 w-[30rem] h-[30rem] rounded-full 
-               bg-gradient-to-br from-hydrous-200/10 to-hydrous-400/5 
+        <div className="fixed w-full h-full bg-gradient-to-b from-blue-50 via-hydrous-50/50 to-white">
+          {/* Elementos de agua digitales mejorados */}
+          <div className="absolute top-1/4 left-1/3 w-[35rem] h-[35rem] rounded-full 
+               bg-gradient-to-br from-hydrous-200/30 to-hydrous-400/20 
                filter blur-3xl opacity-70 animate-water-float"></div>
-          <div className="absolute top-2/3 right-1/4 w-[20rem] h-[20rem] rounded-full 
-               bg-gradient-to-br from-hydrous-300/10 to-hydrous-500/5 
-               filter blur-2xl opacity-60 animate-water-float animation-delay-2000"></div>
-          <div className="absolute bottom-1/3 left-1/4 w-[15rem] h-[15rem] rounded-full 
-               bg-gradient-to-r from-hydrous-400/10 to-transparent 
-               filter blur-xl opacity-50 animate-water-pulse"></div>
+          <div className="absolute top-2/3 right-1/4 w-[30rem] h-[30rem] rounded-full 
+               bg-gradient-to-br from-hydrous-300/25 to-hydrous-500/15 
+               filter blur-2xl opacity-70 animate-water-float animation-delay-2000"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-[20rem] h-[20rem] rounded-full 
+               bg-gradient-to-r from-hydrous-400/20 to-hydrous-200/10 
+               filter blur-xl opacity-60 animate-water-pulse"></div>
 
-          {/* Partículas de agua - visible solo en desktop */}
-          <div className="hidden lg:block absolute inset-0 z-0 opacity-30">
-            <div id="water-particles" className="h-full w-full"></div>
+          {/* Patrón de burbujas pequeñas de agua */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-[15%] left-[10%] w-3 h-3 bg-hydrous-300 rounded-full animate-water-float"></div>
+            <div className="absolute top-[45%] left-[35%] w-2 h-2 bg-hydrous-400 rounded-full animate-water-float animation-delay-1000"></div>
+            <div className="absolute top-[75%] left-[15%] w-4 h-4 bg-hydrous-200 rounded-full animate-water-float animation-delay-2000"></div>
+            <div className="absolute top-[25%] right-[20%] w-3 h-3 bg-hydrous-300 rounded-full animate-water-float animation-delay-500"></div>
+            <div className="absolute top-[65%] right-[35%] w-2 h-2 bg-hydrous-400 rounded-full animate-water-float animation-delay-1500"></div>
           </div>
         </div>
       </div>
@@ -199,28 +203,36 @@ export default function ChatContainer() {
       {/* Área de mensajes con efecto de fondo sutil */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4 bg-gradient-to-b from-hydrous-50/50 to-white backdrop-blur-sm scrollbar-thin scrollbar-thumb-hydrous-200 scrollbar-track-transparent"
+        className="flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4 bg-gradient-to-b from-hydrous-50/50 via-white/80 to-white/90 backdrop-blur-sm scrollbar-thin scrollbar-thumb-hydrous-200 scrollbar-track-transparent"
       >
         {isInitializing ? (
           <div className="h-full flex items-center justify-center">
             <div className="flex flex-col items-center">
               <div className="relative">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-hydrous-200 to-hydrous-400 flex items-center justify-center">
-                  <WaterIcon className="h-10 w-10 text-white animate-water-wave" />
+                {/* Logo de carga mejorado con efectos de agua */}
+                <div className="h-24 w-24 rounded-full bg-gradient-to-br from-hydrous-300 to-hydrous-600 shadow-xl shadow-hydrous-300/20 flex items-center justify-center overflow-hidden">
+                  {/* Efecto de agua dentro del logo */}
+                  <div className="absolute inset-0 h-full w-full overflow-hidden">
+                    <div className="absolute bottom-0 w-full h-16 bg-white/10 rounded-t-full transform-gpu animate-water-sine"></div>
+                    <div className="absolute bottom-0 w-full h-10 bg-white/10 rounded-t-full transform-gpu animate-water-sine animation-delay-500"></div>
+                  </div>
+                  <WaterIcon className="h-12 w-12 text-white animate-water-wave relative z-10" />
                 </div>
-                <div className="absolute inset-0 rounded-full bg-hydrous-300/40 animate-water-ripple"></div>
+                <div className="absolute inset-0 rounded-full bg-hydrous-400/40 animate-water-ripple"></div>
 
                 {/* Partículas de agua alrededor del logo */}
-                <div className="absolute -top-3 left-2 h-4 w-4 bg-hydrous-200/80 rounded-full animate-water-float"></div>
-                <div className="absolute bottom-1 -right-3 h-5 w-5 bg-hydrous-300/70 rounded-full animate-water-float animation-delay-1000"></div>
+                <div className="absolute -top-3 -left-3 h-5 w-5 bg-hydrous-200/80 rounded-full animate-water-float"></div>
+                <div className="absolute bottom-0 -right-3 h-6 w-6 bg-hydrous-300/70 rounded-full animate-water-float animation-delay-1000"></div>
+                <div className="absolute top-1/2 right-0 h-4 w-4 bg-hydrous-400/60 rounded-full animate-water-float animation-delay-2000"></div>
               </div>
-              <p className="mt-5 text-base text-hydrous-700 font-medium bg-white px-4 py-2 rounded-full shadow-sm border border-hydrous-100">
-                Inicializando H2O Allegiant AI...
+              <p className="mt-5 text-base text-hydrous-700 font-medium bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-md border border-hydrous-100">
+                Inicializando H<sub>2</sub>O Allegiant AI...
               </p>
 
-              {/* Indicador de progreso */}
-              <div className="mt-3 w-48 h-1.5 bg-hydrous-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-hydrous-300 to-hydrous-500 rounded-full animate-progress"></div>
+              {/* Indicador de progreso mejorado */}
+              <div className="mt-4 relative w-56 h-2 bg-hydrous-100/50 rounded-full overflow-hidden shadow-inner">
+                <div className="h-full bg-gradient-to-r from-hydrous-300 via-hydrous-400 to-hydrous-500 rounded-full animate-progress-bar"></div>
+                <div className="absolute inset-0 bg-gradient-radial from-white/20 to-transparent"></div>
               </div>
             </div>
           </div>
@@ -230,15 +242,15 @@ export default function ChatContainer() {
           <div className="space-y-6 pb-2">
             {/* Añadir un indicador de flujo de conversación entre mensajes */}
             {messages.length > 0 && (
-              <div className="flex justify-center mb-4">
-                <div className="inline-flex items-center gap-2 bg-hydrous-50 text-hydrous-700 text-xs font-medium px-3 py-1 rounded-full border border-hydrous-100">
+              <div className="flex justify-center mb-6">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-hydrous-50 to-white text-hydrous-700 text-xs font-medium px-4 py-1.5 rounded-full border border-hydrous-200 shadow-sm">
                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <span>{new Date().toLocaleDateString()}</span>
                   <span className="inline-block h-1 w-1 rounded-full bg-hydrous-300"></span>
-                  <span>Nueva Conversación</span>
+                  <span>Nueva Consulta Técnica</span>
                 </div>
               </div>
             )}
@@ -260,15 +272,15 @@ export default function ChatContainer() {
         )}
       </div>
 
-      {/* Input con efecto de glass */}
-      <div className="border-t border-hydrous-100 bg-white/90 backdrop-blur-sm py-3 px-2 sm:px-4">
+      {/* Input con efecto de glass mejorado */}
+      <div className="border-t border-hydrous-200 bg-white/90 backdrop-blur-md shadow-md py-4 px-3 sm:px-5">
         <ChatInput
           onSendMessage={sendMessage}
           isTyping={isTyping}
           isDisabled={isInitializing || !conversationId}
         />
-        <div className="mt-2 text-center text-xs text-gray-400">
-          <p>Desarrollado por H2O Allegiant — Soluciones de Tratamiento de Agua de Vanguardia</p>
+        <div className="mt-2 text-center text-xs text-gray-500">
+          <p>Desarrollado por H<sub>2</sub>O Allegiant — Soluciones Avanzadas de Tratamiento de Agua</p>
         </div>
       </div>
     </div>

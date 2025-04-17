@@ -1,4 +1,7 @@
-// En src/components/chat/typing-indicator.tsx
+"use client";
+
+import { Card } from "@/components/ui/card";
+
 export default function TypingIndicator() {
   return (
     <Card className="inline-flex items-center px-4 py-3 max-w-fit bg-white border-hydrous-100 rounded-2xl rounded-tl-sm shadow-sm">
