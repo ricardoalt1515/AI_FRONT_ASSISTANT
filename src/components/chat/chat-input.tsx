@@ -85,11 +85,11 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      {/* Visualización de archivo adjunto */}
+      {/* Visualización de archivo adjunto con mejor diseño */}
       {file && (
-        <div className="mb-2 p-2 rounded-lg border border-hydrous-200 bg-hydrous-50 flex items-center justify-between">
+        <div className="mb-2 p-2 rounded-lg border border-hydrous-200 bg-gradient-to-r from-hydrous-50 to-white flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-hydrous-100 rounded-full flex items-center justify-center">
+            <div className="h-9 w-9 bg-gradient-to-br from-hydrous-100 to-hydrous-200 rounded-full flex items-center justify-center shadow-sm">
               <FileIcon className="h-4 w-4 text-hydrous-700" fileType={file.name.split('.').pop() || ''} />
             </div>
             <div>
@@ -102,7 +102,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
             variant="ghost"
             size="sm"
             onClick={() => setFile(null)}
-            className="h-7 w-7 rounded-full p-0 text-gray-500 hover:text-gray-700"
+            className="h-7 w-7 rounded-full p-0 text-gray-500 hover:text-gray-700 transition-colors"
           >
             <span className="sr-only">Eliminar archivo</span>
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
@@ -112,8 +112,8 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
         </div>
       )}
 
-      {/* Campo principal de entrada */}
-      <div className="flex items-end gap-2 rounded-xl border border-hydrous-200 focus-within:border-hydrous-400 focus-within:ring-1 focus-within:ring-hydrous-300 bg-white p-1">
+      {/* Campo principal de entrada con efectos mejorados */}
+      <div className="flex items-end gap-2 rounded-xl border border-hydrous-200 focus-within:border-hydrous-400 focus-within:ring-2 focus-within:ring-hydrous-300/30 bg-white/90 backdrop-blur-sm p-1 transition-all duration-200 shadow-sm">
         {/* Botón de adjuntar archivo */}
         <Button
           type="button"
@@ -121,7 +121,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={isTyping || isDisabled}
-          className="h-9 w-9 rounded-lg text-gray-500 hover:text-hydrous-700 hover:bg-hydrous-50"
+          className="h-10 w-10 rounded-lg text-gray-500 hover:text-hydrous-700 hover:bg-hydrous-50 transition-colors"
         >
           <span className="sr-only">Adjuntar archivo</span>
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -138,42 +138,58 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
           accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
         />
 
-        {/* Área de texto expandible */}
+        {/* Área de texto expandible con efectos mejorados */}
         <Textarea
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isTyping || isDisabled}
-          placeholder={isDisabled ? "Iniciando conversación..." : "Escribe tu consulta técnica..."}
-          className="min-h-[40px] max-h-[140px] resize-none border-0 p-2 focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
+          placeholder={isDisabled ? "Iniciando conversación..." : "¿Qué solución de agua estás buscando? Describe tu proyecto..."}
+          className="min-h-[44px] max-h-[140px] resize-none border-0 p-3 focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 text-gray-700 transition-all rounded-lg"
           rows={rows}
         />
 
-        {/* Botón de enviar con diferentes estados */}
+        {/* Botón de enviar con diferentes estados y animación */}
         <Button
           type="submit"
           size="icon"
           disabled={(!message.trim() && !file) || isTyping || isDisabled}
           className={cn(
-            "h-9 w-9 rounded-lg shrink-0 transition-all duration-200",
+            "h-10 w-10 rounded-lg shrink-0 transition-all duration-300",
             (!message.trim() && !file) || isTyping || isDisabled
               ? "bg-gray-100 text-gray-400"
-              : "bg-gradient-to-r from-hydrous-500 to-hydrous-600 text-white hover:from-hydrous-600 hover:to-hydrous-700 shadow-sm"
+              : "bg-gradient-to-r from-hydrous-500 to-hydrous-600 text-white hover:from-hydrous-600 hover:to-hydrous-700 shadow-sm hover:shadow-md hover:shadow-hydrous-400/20"
           )}
         >
           <span className="sr-only">Enviar mensaje</span>
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+          <svg className={cn(
+            "h-5 w-5 transition-transform duration-300",
+            message.length > 0 && !isDisabled ? "scale-110" : ""
+          )} viewBox="0 0 24 24" fill="none">
             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
               stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Button>
       </div>
 
-      {/* Texto de ayuda */}
+      {/* Texto de ayuda enriquecido */}
       <div className="mt-2 text-xs text-gray-500 flex justify-between px-2">
-        <span>Shift+Enter para nueva línea</span>
-        <span>{message.length > 0 ? `${message.length} caracteres` : ""}</span>
+        <span className="flex items-center gap-1">
+          <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Shift+Enter para nueva línea
+        </span>
+
+        {/* Contador de caracteres con animación */}
+        <span className={cn(
+          "transition-all duration-300",
+          message.length > 500 ? "text-hydrous-600 font-medium" : ""
+        )}>
+          {message.length > 0 ? `${message.length} caracteres` : ""}
+        </span>
       </div>
     </form>
   );

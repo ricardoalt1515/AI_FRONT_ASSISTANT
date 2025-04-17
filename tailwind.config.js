@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -17,7 +18,6 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Añadir esta paleta de colores personalizada
         hydrous: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -30,7 +30,6 @@ module.exports = {
           800: '#075985',
           900: '#0c4a6e',
         },
-        // Colores existentes de ShadCN
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -44,12 +43,12 @@ module.exports = {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
-        // ... resto de tus colores de ShadCN
       },
-      // Añadir animaciones de agua
       animation: {
         'water-ripple': 'water-ripple 2s linear infinite',
         'water-wave': 'water-wave 3s ease-in-out infinite',
+        'water-float': 'water-float 15s ease-in-out infinite',
+        'water-pulse': 'water-pulse 10s ease-in-out infinite',
       },
       keyframes: {
         'water-ripple': {
@@ -60,8 +59,19 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-5px)' },
         },
+        'water-float': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '25%': { transform: 'translate(15px, -10px)' },
+          '50%': { transform: 'translate(5px, 10px)' },
+          '75%': { transform: 'translate(-10px, -7px)' },
+        },
+        'water-pulse': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+          '50%': { transform: 'scale(1.1)', opacity: '0.7' },
+        },
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
 }
+

@@ -71,7 +71,7 @@ export default function ChatContainer() {
       // Retraso artificial para animación de carga suave
       setTimeout(() => {
         setIsInitializing(false);
-      }, 800);
+      }, 1200);
 
     } catch (error) {
       console.error("Error iniciando chat:", error);
@@ -174,28 +174,75 @@ export default function ChatContainer() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto">
+    <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto relative">
+      {/* Fondo dinámico de agua */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="fixed w-full h-full bg-gradient-to-b from-hydrous-50/50 to-white">
+          {/* Elementos de agua digitales */}
+          <div className="absolute top-1/4 left-1/3 w-[30rem] h-[30rem] rounded-full 
+               bg-gradient-to-br from-hydrous-200/10 to-hydrous-400/5 
+               filter blur-3xl opacity-70 animate-water-float"></div>
+          <div className="absolute top-2/3 right-1/4 w-[20rem] h-[20rem] rounded-full 
+               bg-gradient-to-br from-hydrous-300/10 to-hydrous-500/5 
+               filter blur-2xl opacity-60 animate-water-float animation-delay-2000"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-[15rem] h-[15rem] rounded-full 
+               bg-gradient-to-r from-hydrous-400/10 to-transparent 
+               filter blur-xl opacity-50 animate-water-pulse"></div>
+
+          {/* Partículas de agua - visible solo en desktop */}
+          <div className="hidden lg:block absolute inset-0 z-0 opacity-30">
+            <div id="water-particles" className="h-full w-full"></div>
+          </div>
+        </div>
+      </div>
+
       {/* Área de mensajes con efecto de fondo sutil */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-2 sm:px-4 py-5 space-y-4 bg-gradient-to-b from-gray-50 to-white"
+        className="flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4 bg-gradient-to-b from-hydrous-50/50 to-white backdrop-blur-sm scrollbar-thin scrollbar-thumb-hydrous-200 scrollbar-track-transparent"
       >
         {isInitializing ? (
           <div className="h-full flex items-center justify-center">
             <div className="flex flex-col items-center">
               <div className="relative">
-                <div className="h-16 w-16 rounded-full bg-hydrous-100 flex items-center justify-center">
-                  <WaterIcon className="h-8 w-8 text-hydrous-500 animate-water-wave" />
+                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-hydrous-200 to-hydrous-400 flex items-center justify-center">
+                  <WaterIcon className="h-10 w-10 text-white animate-water-wave" />
                 </div>
-                <div className="absolute inset-0 rounded-full bg-hydrous-200/50 animate-water-ripple"></div>
+                <div className="absolute inset-0 rounded-full bg-hydrous-300/40 animate-water-ripple"></div>
+
+                {/* Partículas de agua alrededor del logo */}
+                <div className="absolute -top-3 left-2 h-4 w-4 bg-hydrous-200/80 rounded-full animate-water-float"></div>
+                <div className="absolute bottom-1 -right-3 h-5 w-5 bg-hydrous-300/70 rounded-full animate-water-float animation-delay-1000"></div>
               </div>
-              <p className="mt-4 text-sm text-hydrous-700 font-medium">Iniciando conversación...</p>
+              <p className="mt-5 text-base text-hydrous-700 font-medium bg-white px-4 py-2 rounded-full shadow-sm border border-hydrous-100">
+                Inicializando H2O Allegiant AI...
+              </p>
+
+              {/* Indicador de progreso */}
+              <div className="mt-3 w-48 h-1.5 bg-hydrous-100 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-hydrous-300 to-hydrous-500 rounded-full animate-progress"></div>
+              </div>
             </div>
           </div>
         ) : messages.length === 0 ? (
           <WelcomeScreen onStartConversation={(message) => sendMessage(message)} />
         ) : (
           <div className="space-y-6 pb-2">
+            {/* Añadir un indicador de flujo de conversación entre mensajes */}
+            {messages.length > 0 && (
+              <div className="flex justify-center mb-4">
+                <div className="inline-flex items-center gap-2 bg-hydrous-50 text-hydrous-700 text-xs font-medium px-3 py-1 rounded-full border border-hydrous-100">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{new Date().toLocaleDateString()}</span>
+                  <span className="inline-block h-1 w-1 rounded-full bg-hydrous-300"></span>
+                  <span>Nueva Conversación</span>
+                </div>
+              </div>
+            )}
+
             {messages.map((message, index) => (
               <MessageItem
                 key={message.id}
@@ -221,7 +268,7 @@ export default function ChatContainer() {
           isDisabled={isInitializing || !conversationId}
         />
         <div className="mt-2 text-center text-xs text-gray-400">
-          <p>Desarrollado por Hydrous Management Group — Soluciones de Tratamiento de Agua de Vanguardia</p>
+          <p>Desarrollado por H2O Allegiant — Soluciones de Tratamiento de Agua de Vanguardia</p>
         </div>
       </div>
     </div>

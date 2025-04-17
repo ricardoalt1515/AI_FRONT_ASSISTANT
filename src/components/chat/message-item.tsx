@@ -62,10 +62,10 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
         {/* Burbuja de mensaje con estilos mejorados */}
         <Card
           className={cn(
-            "px-4 py-3 shadow-sm",
+            "px-4 py-3 shadow-sm transition-all duration-300",
             isUser
-              ? "bg-gradient-to-br from-hydrous-500 to-hydrous-600 text-white border-hydrous-400 rounded-2xl rounded-tr-sm"
-              : "bg-white border-hydrous-100 hover:border-hydrous-200 rounded-2xl rounded-tl-sm"
+              ? "bg-gradient-to-br from-hydrous-500 to-hydrous-600 text-white border-hydrous-400 rounded-2xl rounded-tr-sm hover:shadow-md hover:shadow-hydrous-200/30"
+              : "bg-white border-hydrous-100 hover:border-hydrous-200 rounded-2xl rounded-tl-sm hover:shadow-md"
           )}
         >
           {isUser ? (
@@ -75,47 +75,54 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  // Personalizar estilos de Markdown para mejor legibilidad
+                  // Mantén los componentes existentes pero mejora algunos
+
+                  // Mejoras para las tablas
                   table: ({ node, ...props }) => (
-                    <div className="overflow-x-auto my-3 border border-hydrous-100 rounded-md">
+                    <div className="overflow-x-auto my-4 border border-hydrous-100 rounded-lg shadow-sm">
                       <table className="w-full border-collapse text-sm" {...props} />
                     </div>
                   ),
                   thead: ({ node, ...props }) => (
-                    <thead className="bg-hydrous-50" {...props} />
+                    <thead className="bg-gradient-to-r from-hydrous-50 to-hydrous-100/50" {...props} />
                   ),
                   th: ({ node, ...props }) => (
                     <th className="border-b border-hydrous-200 px-4 py-2 text-left font-medium text-hydrous-800" {...props} />
                   ),
-                  td: ({ node, ...props }) => (
-                    <td className="border-b border-hydrous-100 px-4 py-2" {...props} />
-                  ),
+
+                  // Mejoras para el código
                   pre: ({ node, ...props }) => (
-                    <pre className="bg-gray-50 border border-gray-100 p-3 rounded-md overflow-x-auto text-xs my-3 text-gray-800" {...props} />
+                    <pre className="bg-gray-50 border border-gray-100 p-3 rounded-md overflow-x-auto text-xs my-3 text-gray-800 shadow-inner" {...props} />
                   ),
-                  code: ({ node, inline, ...props }) => (
-                    inline
-                      ? <code className="bg-gray-100 px-1.5 py-0.5 rounded text-hydrous-700 text-xs font-mono" {...props} />
-                      : <code className="font-mono" {...props} />
-                  ),
-                  h3: ({ node, ...props }) => (
-                    <h3 className="text-base font-semibold text-hydrous-700 mt-4 mb-2" {...props} />
-                  ),
-                  ul: ({ node, ...props }) => (
-                    <ul className="list-disc pl-6 my-2 space-y-1" {...props} />
-                  ),
-                  ol: ({ node, ...props }) => (
-                    <ol className="list-decimal pl-6 my-2 space-y-1" {...props} />
-                  ),
-                  a: ({ node, ...props }) => (
-                    <a className="text-hydrous-600 hover:underline" {...props} />
-                  ),
-                  p: ({ node, ...props }) => (
-                    <p className="mb-2 leading-relaxed" {...props} />
-                  ),
-                  strong: ({ node, ...props }) => (
-                    <strong className="font-semibold text-hydrous-900" {...props} />
-                  ),
+
+                  // Detector de parámetros técnicos para visualizaciones
+                  p: ({ node, children, ...props }) => {
+                    // Detección básica de parámetros técnicos para mostrar barras de visualización
+                    if (typeof children === 'string') {
+                      // Detección de parámetro DBO 
+                      if (children.includes('DBO:') || children.includes('DBO =')) {
+                        const match = children.match(/DBO:?\s*=?\s*(\d+)/);
+                        const dboValue = match ? parseInt(match[1]) : 0;
+                        const percentage = Math.min(100, Math.max(0, dboValue / 10)); // Escala para visualización
+
+                        return (
+                          <div className="mb-3 p-2 bg-hydrous-50/50 rounded-lg">
+                            <p className="mb-1 leading-relaxed text-hydrous-900">{children}</p>
+                            <div className="mt-1 h-2 bg-hydrous-100 rounded-full w-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-hydrous-300 to-hydrous-500 rounded-full transition-all duration-700"
+                                style={{ width: `${percentage}%` }}
+                              ></div>
+                            </div>
+                            <div className="text-xs text-right text-hydrous-600 mt-0.5">
+                              {dboValue < 100 ? "Bajo" : dboValue < 500 ? "Moderado" : "Alto"}
+                            </div>
+                          </div>
+                        );
+                      }
+                    }
+                    return <p className="mb-2 leading-relaxed" {...props}>{children}</p>;
+                  },
                 }}
               >
                 {message.content}
