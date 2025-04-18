@@ -1,0 +1,269 @@
+/* Efectos avanzados de agua para H2O Allegiant AI */
+
+/* Animaciones específicas para agua */
+@keyframes water-ripple {
+  0% { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes water-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes water-float {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15px, -10px); }
+  50% { transform: translate(5px, 10px); }
+  75% { transform: translate(-10px, -7px); }
+}
+
+@keyframes water-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+@keyframes water-sine {
+  0%, 100% { transform: translateY(0) skewX(0); }
+  25% { transform: translateY(-5px) skewX(2deg); }
+  50% { transform: translateY(0) skewX(0); }
+  75% { transform: translateY(5px) skewX(-2deg); }
+}
+
+@keyframes water-indicator-wave {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50% { transform: scaleY(1.2) translateY(-2px); }
+}
+
+@keyframes droplet-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.05); }
+}
+
+@keyframes micro-bubbles {
+  0% { opacity: 0.4; transform: translateY(0) scale(1); }
+  50% { opacity: 0.7; transform: translateY(-10px) scale(0.8); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.6); }
+}
+
+/* Clases para aplicar las animaciones */
+.animate-water-ripple {
+  animation: water-ripple 2s linear infinite;
+}
+
+.animate-water-wave {
+  animation: water-wave 3s ease-in-out infinite;
+}
+
+.animate-water-float {
+  animation: water-float 15s ease-in-out infinite;
+}
+
+.animate-water-pulse {
+  animation: water-pulse 10s ease-in-out infinite;
+}
+
+.animate-water-sine {
+  animation: water-sine 4s ease-in-out infinite;
+}
+
+.animate-droplet-bounce {
+  animation: droplet-bounce 2s ease-in-out infinite;
+}
+
+.animate-micro-bubbles {
+  animation: micro-bubbles 3s ease-in-out infinite;
+}
+
+/* Delays para animaciones */
+.animation-delay-150 {
+  animation-delay: 150ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1500ms;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2000ms;
+}
+
+/* Estilos específicos para burbujas de chat en forma de gota */
+.droplet-message {
+  position: relative;
+  border-top-left-radius: 4px !important;
+}
+
+.droplet-message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 20px;
+  height: 20px;
+  background: inherit;
+  border-left: 1px solid var(--color-hydrous-100);
+  border-bottom: 1px solid var(--color-hydrous-100);
+  border-bottom-left-radius: 20px;
+  border-top: 0;
+  border-right: 0;
+  z-index: -1;
+}
+
+/* Efectos de resplandor para mensajes y elementos interactivos */
+.glow-hydrous {
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-hydrous:hover {
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+}
+
+/* Fondos con gradientes de agua */
+.bg-water-gradient {
+  background: linear-gradient(135deg, var(--color-hydrous-400), var(--color-hydrous-600));
+}
+
+.bg-water-light-gradient {
+  background: linear-gradient(135deg, var(--color-hydrous-50), var(--color-hydrous-200));
+}
+
+/* Efectos de vidrio para paneles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Efectos de ondulación para hover */
+.ripple-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-on-hover::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(56, 189, 248, 0.4);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.ripple-on-hover:hover::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(100, 100);
+    opacity: 0;
+  }
+}
+
+/* Mejoras para la lista personalizada con íconos de gota */
+.custom-water-list {
+  list-style: none;
+  padding-left: 1.5rem;
+}
+
+.custom-water-list li {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.custom-water-list li::before {
+  content: '';
+  position: absolute;
+  left: -1.25rem;
+  top: 0.25rem;
+  width: 0.5rem;
+  height: 0.75rem;
+  background-color: var(--color-hydrous-400);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+/* Mejoras para contenido técnico */
+.technical-data-panel {
+  border-radius: 8px;
+  background: linear-gradient(to right, rgba(240, 249, 255, 0.7), rgba(255, 255, 255, 0.9));
+  border: 1px solid var(--color-hydrous-200);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.water-meter {
+  height: 8px;
+  background-color: rgba(224, 242, 254, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.water-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(to right, var(--color-hydrous-300), var(--color-hydrous-500));
+  transition: width 1s ease-out;
+}
+
+/* Efectos de hover para enlaces y botones */
+.water-link {
+  position: relative;
+  color: var(--color-hydrous-600);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.water-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: p0ax;
+  background-color: var(--color-hydrous-400);
+  transition: width 0.3s ease;
+}
+
+.water-link:hover {
+  color: var(--color-hydrous-800);
+}
+
+.water-link:hover::after {
+  width: 100%;
+}
+
+/* Variable CSS para colores Hydrous */
+:root {
+  --color-hydrous-50: #f0f9ff;
+  --color-hydrous-100: #e0f2fe;
+  --color-hydrous-200: #bae6fd;
+  --color-hydrous-300: #7dd3fc;
+  --color-hydrous-400: #38bdf8;
+  --color-hydrous-500: #0ea5e9;
+  --color-hydrous-600: #0284c7;
+  --color-hydrous-700: #0369a1;
+  --color-hydrous-800: #075985;
+  --color-hydrous-900: #0c4a6e;
+}

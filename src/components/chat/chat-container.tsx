@@ -5,14 +5,16 @@ import MessageItem from "./message-item";
 import ChatInput from "./chat-input";
 import TypingIndicator from "./typing-indicator";
 import { Message } from "@/types/chat";
-import WelcomeScreen from "./welcome-screen";
 import { cn } from "@/lib/utils";
+import DropletAvatar from "./droplet-avatar";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [dropletMood, setDropletMood] = useState<'default' | 'thinking' | 'happy' | 'explaining' | 'processing'>('default');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +39,37 @@ export default function ChatContainer() {
       scrollToBottom();
     }
   }, [messages, isTyping]);
+
+  // Efecto para cambiar el humor de Droplet según el contexto
+  useEffect(() => {
+    if (isTyping) {
+      setDropletMood('thinking');
+    } else if (messages.length === 0) {
+      setDropletMood('default');
+    } else if (messages.length > 0 && messages[messages.length - 1].role === 'assistant') {
+      // Alternar entre different moods basados en el contenido del mensaje
+      const lastContent = messages[messages.length - 1].content.toLowerCase();
+
+      if (lastContent.includes('perfecto') ||
+        lastContent.includes('excelente') ||
+        lastContent.includes('genial')) {
+        setDropletMood('happy');
+      } else if (lastContent.includes('análisis') ||
+        lastContent.includes('calculando') ||
+        lastContent.includes('procesando')) {
+        setDropletMood('processing');
+      } else {
+        setDropletMood('explaining');
+      }
+
+      // Volver al estado default después de un tiempo
+      const timer = setTimeout(() => {
+        setDropletMood('default');
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isTyping, messages]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -71,6 +104,17 @@ export default function ChatContainer() {
       // Retraso artificial para animación de carga suave
       setTimeout(() => {
         setIsInitializing(false);
+
+        // Si no hay mensajes iniciales, añadimos un mensaje de bienvenida
+        if (!data.messages || data.messages.length === 0) {
+          const welcomeMessage: Message = {
+            id: `welcome-${Date.now()}`,
+            role: "assistant",
+            content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué proyecto puedo ayudarte hoy?",
+            created_at: new Date().toISOString(),
+          };
+          setMessages([welcomeMessage]);
+        }
       }, 1200);
 
     } catch (error) {
@@ -175,132 +219,265 @@ export default function ChatContainer() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto relative">
-      {/* Fondo dinámico mejorado con gradientes más intensos y partículas animadas */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="fixed w-full h-full bg-gradient-to-b from-blue-50 via-hydrous-50/50 to-white">
-          {/* Elementos de agua digitales mejorados */}
-          <div className="absolute top-1/4 left-1/3 w-[35rem] h-[35rem] rounded-full 
-               bg-gradient-to-br from-hydrous-200/30 to-hydrous-400/20 
-               filter blur-3xl opacity-70 animate-water-float"></div>
-          <div className="absolute top-2/3 right-1/4 w-[30rem] h-[30rem] rounded-full 
-               bg-gradient-to-br from-hydrous-300/25 to-hydrous-500/15 
-               filter blur-2xl opacity-70 animate-water-float animation-delay-2000"></div>
-          <div className="absolute bottom-1/3 left-1/4 w-[20rem] h-[20rem] rounded-full 
-               bg-gradient-to-r from-hydrous-400/20 to-hydrous-200/10 
-               filter blur-xl opacity-60 animate-water-pulse"></div>
+      {/* Background with enhanced water effects */}
+      <motion.div
+        className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        {/* Refined gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-white/80 to-white/90 opacity-80"></div>
 
-          {/* Patrón de burbujas pequeñas de agua */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-[15%] left-[10%] w-3 h-3 bg-hydrous-300 rounded-full animate-water-float"></div>
-            <div className="absolute top-[45%] left-[35%] w-2 h-2 bg-hydrous-400 rounded-full animate-water-float animation-delay-1000"></div>
-            <div className="absolute top-[75%] left-[15%] w-4 h-4 bg-hydrous-200 rounded-full animate-water-float animation-delay-2000"></div>
-            <div className="absolute top-[25%] right-[20%] w-3 h-3 bg-hydrous-300 rounded-full animate-water-float animation-delay-500"></div>
-            <div className="absolute top-[65%] right-[35%] w-2 h-2 bg-hydrous-400 rounded-full animate-water-float animation-delay-1500"></div>
-          </div>
-        </div>
-      </div>
+        {/* Subtle water pattern */}
+        <div className="absolute inset-0 bg-water-pattern opacity-30"></div>
 
-      {/* Área de mensajes con efecto de fondo sutil */}
+        {/* Abstract fluid shapes */}
+        <motion.div
+          className="absolute top-1/3 left-1/4 w-[45rem] h-[45rem] rounded-full bg-blue-200/10
+                   filter blur-3xl opacity-40"
+          animate={{
+            x: [0, 20, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 30,
+            ease: "easeInOut"
+          }}
+        ></motion.div>
+
+        <motion.div
+          className="absolute bottom-1/4 right-1/3 w-[40rem] h-[40rem] rounded-full bg-blue-300/10
+                   filter blur-3xl opacity-30"
+          animate={{
+            x: [0, -30, 0],
+            y: [0, 20, 0],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 25,
+            ease: "easeInOut"
+          }}
+        ></motion.div>
+
+        {/* Light streak effect */}
+        <div className="absolute inset-0 bg-gradient-radial from-blue-100/20 via-transparent to-transparent opacity-80"></div>
+      </motion.div>
+
+      {/* Chat area with improved glass effect */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4 bg-gradient-to-b from-hydrous-50/50 via-white/80 to-white/90 backdrop-blur-sm scrollbar-thin scrollbar-thumb-hydrous-200 scrollbar-track-transparent"
+        className={cn(
+          "flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4",
+          "rounded-xl backdrop-blur-md",
+          "glass-blue scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent"
+        )}
       >
         {isInitializing ? (
           <div className="h-full flex items-center justify-center">
-            <div className="flex flex-col items-center">
-              <div className="relative">
-                {/* Logo de carga mejorado con efectos de agua */}
-                <div className="h-24 w-24 rounded-full bg-gradient-to-br from-hydrous-300 to-hydrous-600 shadow-xl shadow-hydrous-300/20 flex items-center justify-center overflow-hidden">
-                  {/* Efecto de agua dentro del logo */}
-                  <div className="absolute inset-0 h-full w-full overflow-hidden">
-                    <div className="absolute bottom-0 w-full h-16 bg-white/10 rounded-t-full transform-gpu animate-water-sine"></div>
-                    <div className="absolute bottom-0 w-full h-10 bg-white/10 rounded-t-full transform-gpu animate-water-sine animation-delay-500"></div>
-                  </div>
-                  <WaterIcon className="h-12 w-12 text-white animate-water-wave relative z-10" />
-                </div>
-                <div className="absolute inset-0 rounded-full bg-hydrous-400/40 animate-water-ripple"></div>
-
-                {/* Partículas de agua alrededor del logo */}
-                <div className="absolute -top-3 -left-3 h-5 w-5 bg-hydrous-200/80 rounded-full animate-water-float"></div>
-                <div className="absolute bottom-0 -right-3 h-6 w-6 bg-hydrous-300/70 rounded-full animate-water-float animation-delay-1000"></div>
-                <div className="absolute top-1/2 right-0 h-4 w-4 bg-hydrous-400/60 rounded-full animate-water-float animation-delay-2000"></div>
-              </div>
-              <p className="mt-5 text-base text-hydrous-700 font-medium bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-md border border-hydrous-100">
-                Inicializando H<sub>2</sub>O Allegiant AI...
-              </p>
-
-              {/* Indicador de progreso mejorado */}
-              <div className="mt-4 relative w-56 h-2 bg-hydrous-100/50 rounded-full overflow-hidden shadow-inner">
-                <div className="h-full bg-gradient-to-r from-hydrous-300 via-hydrous-400 to-hydrous-500 rounded-full animate-progress-bar"></div>
-                <div className="absolute inset-0 bg-gradient-radial from-white/20 to-transparent"></div>
-              </div>
-            </div>
+            <LoadingScreen />
           </div>
-        ) : messages.length === 0 ? (
-          <WelcomeScreen onStartConversation={(message) => sendMessage(message)} />
         ) : (
-          <div className="space-y-6 pb-2">
-            {/* Añadir un indicador de flujo de conversación entre mensajes */}
-            {messages.length > 0 && (
-              <div className="flex justify-center mb-6">
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-hydrous-50 to-white text-hydrous-700 text-xs font-medium px-4 py-1.5 rounded-full border border-hydrous-200 shadow-sm">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{new Date().toLocaleDateString()}</span>
-                  <span className="inline-block h-1 w-1 rounded-full bg-hydrous-300"></span>
-                  <span>Nueva Consulta Técnica</span>
-                </div>
-              </div>
-            )}
+          <AnimatePresence mode="popLayout">
+            <div className="space-y-6 pb-2">
+              {/* Message timeline indicator */}
+              {messages.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex justify-center mb-6"
+                >
+                  <div className="inline-flex items-center gap-2 bg-white/80 text-blue-700 text-xs font-medium px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{new Date().toLocaleDateString()}</span>
+                    <span className="inline-block h-1 w-1 rounded-full bg-blue-300"></span>
+                    <span>Consulta Técnica</span>
+                  </div>
+                </motion.div>
+              )}
 
-            {messages.map((message, index) => (
-              <MessageItem
-                key={message.id}
-                message={message}
-                isSequential={
-                  index > 0 && messages[index - 1].role === message.role
-                }
-                isLast={index === messages.length - 1}
-              />
-            ))}
+              {/* Message items with animations */}
+              {messages.map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{
+                    duration: 0.4,
+                    ease: [0.4, 0.0, 0.2, 1]
+                  }}
+                >
+                  <MessageItem
+                    message={message}
+                    isSequential={
+                      index > 0 && messages[index - 1].role === message.role
+                    }
+                    isLast={index === messages.length - 1}
+                    dropletMood={message.role === 'assistant' ? dropletMood : undefined}
+                  />
+                </motion.div>
+              ))}
 
-            {isTyping && <TypingIndicator />}
-            <div ref={messagesEndRef} />
-          </div>
+              {/* Enhanced typing indicator */}
+              {isTyping && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <TypingIndicator mood={dropletMood} />
+                </motion.div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          </AnimatePresence>
         )}
       </div>
 
-      {/* Input con efecto de glass mejorado */}
-      <div className="border-t border-hydrous-200 bg-white/90 backdrop-blur-md shadow-md py-4 px-3 sm:px-5">
+      {/* Enhanced chat input area */}
+      <motion.div
+        className="bg-white/90 backdrop-blur-lg border-t border-blue-100 py-4 px-3 sm:px-5 rounded-b-xl shadow-md"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         <ChatInput
           onSendMessage={sendMessage}
           isTyping={isTyping}
           isDisabled={isInitializing || !conversationId}
         />
-        <div className="mt-2 text-center text-xs text-gray-500">
-          <p>Desarrollado por H<sub>2</sub>O Allegiant — Soluciones Avanzadas de Tratamiento de Agua</p>
+        <div className="mt-2 text-center flex items-center justify-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center text-blue-600">
+            <DropletAvatar size="sm" animate={false} className="h-5 w-5 mr-1" />
+            <p className="font-medium">H₂O Allegiant — Soluciones Avanzadas de Tratamiento de Agua</p>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-// Icono de agua
-function WaterIcon({ className }: { className?: string }) {
+// Enhanced loading screen with more sophisticated animations
+function LoadingScreen() {
+  const [progress, setProgress] = useState(0);
+
+  // Simulación de progreso para UX
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(prev => Math.min(prev + Math.random() * 8, 100));
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      className={className}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <motion.div
+      className="flex flex-col items-center justify-center p-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
     >
-      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-    </svg>
+      {/* Contenedor animado de Droplet */}
+      <div className="relative mb-10">
+        {/* Halo de luz con mejor efecto */}
+        <motion.div
+          className="absolute inset-0 bg-blue-300/20 rounded-full blur-xl scale-150"
+          animate={{
+            scale: [1.5, 1.8, 1.5],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 3,
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Droplet principal animado */}
+        <motion.div
+          animate={{
+            y: [0, -10, 0],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 3,
+            ease: "easeInOut"
+          }}
+          className="relative z-10"
+        >
+          <DropletAvatar
+            mood="processing"
+            size="lg"
+            pulse={true}
+          />
+        </motion.div>
+
+        {/* Anillos de ondulación con mejores efectos */}
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-blue-300/40 scale-110"
+          animate={{ scale: [1.1, 2, 1.1], opacity: [0.4, 0, 0.4] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
+        />
+
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-blue-300/30 scale-110"
+          animate={{ scale: [1.1, 2, 1.1], opacity: [0.3, 0, 0.3] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeOut", delay: 0.5 }}
+        />
+      </div>
+
+      {/* Texto de inicialización con mejor estilo */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mb-8"
+      >
+        <div className="glass-blue px-8 py-4 rounded-xl text-center">
+          <h3 className="text-xl text-blue-700 font-medium">
+            Inicializando H₂O Allegiant AI
+          </h3>
+          <p className="text-gray-600 mt-1">
+            Preparando modelos de ingeniería hídrica...
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Barra de progreso con efecto de agua */}
+      <div className="w-64 relative">
+        <div className="h-2 bg-white/50 rounded-full overflow-hidden shadow-inner border border-blue-100">
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: `${progress}%` }}
+            className="h-full bg-gradient-to-r from-blue-300 to-blue-500 rounded-full relative overflow-hidden"
+          >
+            {/* Efecto de brillo que se mueve */}
+            <motion.div
+              className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-30deg]"
+              animate={{ x: [-80, 260] }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.5,
+                ease: "easeInOut",
+                repeatDelay: 0.5
+              }}
+            />
+          </motion.div>
+        </div>
+
+        {/* Porcentaje */}
+        <div className="mt-2 text-sm text-blue-600 text-center">
+          {Math.round(progress)}%
+        </div>
+      </div>
+    </motion.div>
   );
 }

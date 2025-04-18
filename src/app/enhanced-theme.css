@@ -1,0 +1,228 @@
+/* Enhanced Blue Theme for H2O Allegiant AI */
+
+:root {
+  /* Nueva paleta azul dominante */
+  --blue-50: #f0f9ff;
+  --blue-100: #e0f7ff;
+  --blue-200: #bae8fd;
+  --blue-300: #7dd3fc;
+  --blue-400: #38bdf8;
+  --blue-500: #0ea5e9;
+  --blue-600: #0284c7;
+  --blue-700: #036aa1;
+  --blue-800: #075985;
+  --blue-900: #0c4a6e;
+  
+  /* Acentos complementarios */
+  --teal-400: #2dd4bf;
+  --teal-500: #14b8a6;
+  
+  /* Gradientes refinados */
+  --gradient-blue-surface: linear-gradient(to right, var(--blue-400), var(--blue-600));
+  --gradient-blue-light: linear-gradient(135deg, var(--blue-50), var(--blue-200));
+  --gradient-blue-deep: linear-gradient(135deg, var(--blue-700), var(--blue-900));
+  --gradient-blue-glass: linear-gradient(to right, rgba(56, 189, 248, 0.05), rgba(2, 132, 199, 0.15));
+  
+  /* Sombras mejoradas */
+  --shadow-sm-blue: 0 2px 8px rgba(7, 89, 133, 0.08);
+  --shadow-md-blue: 0 4px 12px rgba(7, 89, 133, 0.12);
+  --shadow-lg-blue: 0 8px 24px rgba(7, 89, 133, 0.16);
+  --shadow-inner-blue: inset 0 2px 6px rgba(7, 89, 133, 0.1);
+  
+  /* Efectos de agua */
+  --water-highlight: rgba(255, 255, 255, 0.7);
+  --water-surface: rgba(125, 211, 252, 0.2);
+  --water-depth: rgba(2, 132, 199, 0.08);
+  
+  /* Animaciones refinadas */
+  --transition-water: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-ripple: all 0.6s cubic-bezier(0, 0.55, 0.45, 1);
+}
+
+/* Mejoras para fondos azules */
+.bg-enhanced-blue-50 { background-color: var(--blue-50); }
+.bg-enhanced-blue-100 { background-color: var(--blue-100); }
+.bg-enhanced-blue-200 { background-color: var(--blue-200); }
+.bg-enhanced-blue-300 { background-color: var(--blue-300); }
+.bg-enhanced-blue-400 { background-color: var(--blue-400); }
+.bg-enhanced-blue-500 { background-color: var(--blue-500); }
+.bg-enhanced-blue-600 { background-color: var(--blue-600); }
+.bg-enhanced-blue-700 { background-color: var(--blue-700); }
+.bg-enhanced-blue-800 { background-color: var(--blue-800); }
+.bg-enhanced-blue-900 { background-color: var(--blue-900); }
+
+/* Gradientes mejorados */
+.bg-gradient-blue-surface { background: var(--gradient-blue-surface); }
+.bg-gradient-blue-light { background: var(--gradient-blue-light); }
+.bg-gradient-blue-deep { background: var(--gradient-blue-deep); }
+.bg-gradient-blue-glass { background: var(--gradient-blue-glass); }
+
+/* Fondos con patrones sutiles de agua */
+.bg-water-pattern {
+  background-color: var(--blue-50);
+  background-image: 
+    radial-gradient(circle at 25% 25%, var(--water-surface) 1%, transparent 8%),
+    radial-gradient(circle at 75% 44%, var(--water-surface) 2%, transparent 10%),
+    radial-gradient(circle at 46% 67%, var(--water-surface) 1%, transparent 6%),
+    radial-gradient(circle at 33% 89%, var(--water-surface) 1.5%, transparent 7%),
+    radial-gradient(circle at 80% 15%, var(--water-surface) 1%, transparent 5%);
+  background-size: 120px 120px;
+  background-position: 0 0;
+}
+
+.bg-water-subtle {
+  background: linear-gradient(to bottom, var(--blue-50), white);
+  background-image: 
+    linear-gradient(to right, var(--water-surface), transparent 80%),
+    linear-gradient(to bottom, var(--water-depth), transparent 70%);
+  background-size: 100% 100%;
+}
+
+/* Efectos de vidrio mejorados */
+.glass-blue {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  box-shadow: var(--shadow-sm-blue);
+}
+
+.glass-dark-blue {
+  background: rgba(7, 89, 133, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(12, 74, 110, 0.3);
+  box-shadow: var(--shadow-sm-blue);
+  color: white;
+}
+
+/* Animaciones refinadas */
+@keyframes water-flow {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-5px) rotate(-1deg); }
+  75% { transform: translateY(5px) rotate(1deg); }
+}
+
+@keyframes water-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  33% { transform: translateY(-8px) translateX(3px); }
+  66% { transform: translateY(4px) translateX(-3px); }
+}
+
+@keyframes water-ripple-enhanced {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.animate-water-flow {
+  animation: water-flow 8s ease-in-out infinite;
+}
+
+.animate-water-pulse {
+  animation: water-pulse 6s ease-in-out infinite;
+}
+
+.animate-subtle-float {
+  animation: subtle-float 12s ease-in-out infinite;
+}
+
+.animate-ripple-enhanced {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-ripple-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, var(--blue-200) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0s;
+}
+
+.animate-ripple-enhanced:active::after {
+  transform: translate(-50%, -50%) scale(2);
+  opacity: 0;
+  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+}
+
+/* Elementos decorativos */
+.blue-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--blue-300), transparent);
+  margin: 1rem 0;
+  opacity: 0.5;
+}
+
+.water-dot {
+  position: relative;
+}
+
+.water-dot::before {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--blue-400);
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Mejoras de interacción */
+.hover-ripple {
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-water);
+}
+
+.hover-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  padding-bottom: 150%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--blue-200) 0%, transparent 70%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition: var(--transition-ripple);
+}
+
+.hover-ripple:hover::after {
+  opacity: 0.6;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Líneas de flujo de agua */
+.water-flow-line {
+  position: relative;
+}
+
+.water-flow-line::after {
+  content: '';
+  position: absolute;
+  height: 1px;
+  width: 100%;
+  bottom: -4px;
+  left: 0;
+  background: linear-gradient(to right, var(--blue-300), var(--blue-200));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.water-flow-line:hover::after {
+  transform: scaleX(1);
+}

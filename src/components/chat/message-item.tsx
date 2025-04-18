@@ -1,32 +1,29 @@
 "use client";
 
-import { Avatar } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
+import { useState } from "react";
 import { Message } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import DropletAvatar from "./droplet-avatar";
+import { motion } from "framer-motion";
 
 interface MessageItemProps {
   message: Message;
   isSequential?: boolean; // Si es parte de una secuencia de mensajes del mismo rol
   isLast?: boolean; // Si es el último mensaje
+  dropletMood?: 'default' | 'thinking' | 'happy' | 'explaining' | 'processing';
 }
 
-export default function MessageItem({ message, isSequential = false, isLast = false }: MessageItemProps) {
+export default function MessageItem({
+  message,
+  isSequential = false,
+  isLast = false,
+  dropletMood = 'default'
+}: MessageItemProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const isUser = message.role === "user";
-
-  // Efecto de aparición animada
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Formar hora legible
   const formattedTime = (() => {
@@ -48,51 +45,65 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
   // Detectar si el mensaje contiene código para darle un tratamiento especial
   const containsCode = message.content.includes("```");
 
+  // Detectar si el mensaje contiene datos técnicos específicos
+  const containsParameters = message.content.toLowerCase().includes("dbo:") ||
+    message.content.toLowerCase().includes("dqo:") ||
+    message.content.toLowerCase().includes("sst:");
+
   return (
     <div
       className={cn(
-        "flex items-start gap-2 transition-all duration-500 ease-out",
+        "flex items-start gap-3",
         isUser ? "justify-end" : "justify-start",
-        isSequential ? "mt-2" : "mt-6",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        isSequential ? "mt-2" : "mt-6"
       )}
     >
-      {/* Avatar - solo mostrar si no es mensaje secuencial */}
+      {/* Avatar para la IA - solo mostrar si no es mensaje secuencial */}
       {!isUser && !isSequential && (
-        <div className="relative">
-          <Avatar className="h-9 w-9 bg-gradient-to-br from-hydrous-400 to-hydrous-600 border-2 border-white shadow-sm">
-            <WaterIcon className="h-5 w-5 text-white" />
-          </Avatar>
-
-          {/* Efecto de aura alrededor del avatar */}
-          <div className="absolute inset-0 bg-hydrous-400/20 rounded-full animate-pulse-slow -z-10"></div>
-        </div>
+        <motion.div
+          className="flex-shrink-0 relative"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <DropletAvatar mood={dropletMood} />
+        </motion.div>
       )}
 
-      {/* Spacer para alinear mensajes secuenciales */}
-      {!isUser && isSequential && <div className="w-9 flex-shrink-0" />}
+      {/* Spacer para alinear mensajes secuenciales de la IA */}
+      {!isUser && isSequential && <div className="w-12 flex-shrink-0" />}
 
       {/* Contenido del mensaje */}
       <div
         className={cn(
-          "relative flex flex-col gap-1 max-w-[85%]",
-          isUser ? "items-end" : "items-start"
+          "relative flex flex-col gap-1",
+          isUser ? "items-end" : "items-start",
+          isUser ? "max-w-[75%] md:max-w-[70%]" : "max-w-[80%] md:max-w-[75%]"
         )}
       >
-        {/* Burbuja de mensaje con estilos mejorados */}
-        <Card
+        {/* Burbuja de mensaje con estilo mejorado */}
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.3 }}
           className={cn(
-            "px-4 py-3 transition-all duration-300 hover:z-10",
+            "px-5 py-3 transition-all duration-300",
             isUser
-              ? "bg-gradient-to-br from-hydrous-500 to-hydrous-600 text-white border-hydrous-400 rounded-2xl rounded-tr-sm shadow-md shadow-hydrous-500/10 hover:shadow-lg hover:shadow-hydrous-500/20"
-              : "bg-white border-hydrous-100 hover:border-hydrous-200 rounded-2xl rounded-tl-sm shadow-sm hover:shadow-md hover:shadow-hydrous-200/10",
-            containsCode && !isUser ? "hover:shadow-lg" : ""
+              ? "bg-gradient-blue-surface text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-600/10 hover:shadow-lg border border-blue-500"
+              : "relative backdrop-blur-sm rounded-2xl rounded-tl-sm hover:shadow-lg overflow-hidden border",
+            containsCode && !isUser ? "shadow-md shadow-blue-200/30" : "shadow-sm",
+            !isUser && "droplet-message bg-white/95 border-blue-100"
           )}
         >
+          {/* Fondo animado sutil para los mensajes de la IA */}
+          {!isUser && (
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-white/90 -z-10"></div>
+          )}
+
           {isUser ? (
             <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
           ) : (
-            <div className="text-sm markdown-content">
+            <div className="text-sm markdown-content z-10">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -100,18 +111,18 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
                   // Tablas con diseño profesional
                   table: ({ node, ...props }) => (
-                    <div className="overflow-x-auto my-4 border border-hydrous-100 rounded-lg shadow-sm bg-white">
+                    <div className="overflow-x-auto my-4 border border-blue-100 rounded-lg shadow-sm bg-white">
                       <table className="w-full border-collapse text-sm table-technical" {...props} />
                     </div>
                   ),
                   thead: ({ node, ...props }) => (
-                    <thead className="bg-gradient-to-r from-hydrous-50 to-hydrous-100/50 sticky top-0" {...props} />
+                    <thead className="bg-gradient-to-r from-blue-50 to-blue-100/50 sticky top-0" {...props} />
                   ),
                   th: ({ node, ...props }) => (
-                    <th className="border-b border-hydrous-200 px-4 py-2 text-left font-medium text-hydrous-800" {...props} />
+                    <th className="border-b border-blue-200 px-4 py-2 text-left font-medium text-blue-800" {...props} />
                   ),
                   td: ({ node, ...props }) => (
-                    <td className="border-b border-hydrous-100/70 px-4 py-2.5 text-gray-700" {...props} />
+                    <td className="border-b border-blue-100/70 px-4 py-2.5 text-gray-700" {...props} />
                   ),
 
                   // Bloques de código con mejor diseño
@@ -125,7 +136,7 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
                               ((props.children as any)?.props?.children || '').toString()
                             );
                           }}
-                          className="text-xs bg-white p-1 rounded border border-gray-200 text-gray-500 hover:text-hydrous-600 hover:border-hydrous-300 transition-colors"
+                          className="text-xs bg-white p-1 rounded border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-colors"
                         >
                           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -149,7 +160,7 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
                         </code>
                       </div>
                     ) : (
-                      <code className="bg-gray-100 text-hydrous-800 px-1 py-0.5 rounded text-sm font-mono" {...props}>
+                      <code className="bg-gray-100 text-blue-800 px-1 py-0.5 rounded text-sm font-mono" {...props}>
                         {children}
                       </code>
                     );
@@ -157,16 +168,16 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
                   // Detectar y mejorar secciones especiales
                   h1: ({ node, ...props }) => (
-                    <h1 className="text-xl font-semibold text-hydrous-900 mt-4 mb-2" {...props} />
+                    <h1 className="text-xl font-semibold text-blue-800 mt-4 mb-2" {...props} />
                   ),
                   h2: ({ node, ...props }) => (
-                    <h2 className="text-lg font-semibold text-hydrous-800 mt-4 mb-2" {...props} />
+                    <h2 className="text-lg font-semibold text-blue-700 mt-4 mb-2" {...props} />
                   ),
                   h3: ({ node, ...props }) => (
-                    <h3 className="text-base font-semibold text-hydrous-700 mt-3 mb-1.5" {...props} />
+                    <h3 className="text-base font-semibold text-blue-600 mt-3 mb-1.5" {...props} />
                   ),
 
-                  // Crear visualizaciones para datos técnicos
+                  // Párrafos con detección de datos técnicos
                   p: ({ node, children, ...props }) => {
                     // Detección de parámetros técnicos para mostrar barras de visualización
                     if (typeof children === 'string') {
@@ -189,8 +200,8 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
                         if (parameters.length > 0) {
                           return (
-                            <div className="mb-3 p-3 bg-gradient-to-r from-hydrous-50/70 to-white rounded-lg border border-hydrous-100">
-                              <p className="mb-2 text-sm leading-relaxed text-hydrous-900">{children}</p>
+                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
+                              <p className="mb-2 text-sm leading-relaxed text-blue-900">{children}</p>
 
                               {/* Visualizaciones de parámetros */}
                               <div className="space-y-2.5 mt-3">
@@ -208,16 +219,15 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
                                     <div key={index}>
                                       <div className="flex justify-between text-xs font-medium mb-1">
                                         <span className="text-gray-600">{param.name}</span>
-                                        <span className="text-hydrous-800">{param.value} mg/L</span>
+                                        <span className="text-blue-800">{param.value} mg/L</span>
                                       </div>
-                                      <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden">
-                                        <div
-                                          className={`h-full bg-gradient-to-r ${colorClass} rounded-full transition-all duration-1000 ease-out`}
-                                          style={{
-                                            width: `${percentage}%`,
-                                            transitionDelay: `${index * 300}ms`
-                                          }}
-                                        ></div>
+                                      <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
+                                        <motion.div
+                                          initial={{ width: 0 }}
+                                          animate={{ width: `${percentage}%` }}
+                                          transition={{ duration: 1, delay: index * 0.3 }}
+                                          className={`h-full bg-gradient-to-r ${colorClass} rounded-full`}
+                                        ></motion.div>
                                       </div>
                                       <div className="flex justify-between text-xs mt-0.5 text-gray-500">
                                         <span>Mínimo</span>
@@ -253,14 +263,19 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
                         if (savings || roi) {
                           return (
-                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100">
+                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
                               <p className="mb-2 text-sm leading-relaxed text-blue-900">{children}</p>
 
                               {savings && (
                                 <div className="flex items-end gap-3 mt-3">
-                                  <div className="text-blue-700 text-xl font-bold">
+                                  <motion.div
+                                    className="text-blue-700 text-xl font-bold"
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                  >
                                     ${parseInt(savings).toLocaleString()}
-                                  </div>
+                                  </motion.div>
                                   <div className="text-blue-600 text-sm">
                                     ahorro estimado
                                   </div>
@@ -279,13 +294,13 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
                                   <div className="text-xs text-blue-700 font-medium mb-1">
                                     Periodo de recuperación de inversión
                                   </div>
-                                  <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden">
-                                    <div
-                                      className="h-full bg-gradient-to-r from-blue-300 to-blue-500 rounded-full transition-all duration-1000 ease-out"
-                                      style={{
-                                        width: `${Math.min(100, Math.max(0, (roi / 36) * 100))}%`,
-                                      }}
-                                    ></div>
+                                  <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${Math.min(100, Math.max(0, (roi / 36) * 100))}%` }}
+                                      transition={{ duration: 1 }}
+                                      className="h-full bg-gradient-to-r from-blue-300 to-blue-500 rounded-full"
+                                    ></motion.div>
                                   </div>
                                   <div className="flex justify-between text-xs mt-0.5 text-gray-500">
                                     <span className="font-medium text-blue-700">{roi} meses</span>
@@ -305,7 +320,7 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
                   // Enlaces mejorados
                   a: ({ node, ...props }) => (
                     <a
-                      className="text-hydrous-600 hover:text-hydrous-800 hover:underline font-medium"
+                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium water-flow-line"
                       target="_blank"
                       rel="noopener noreferrer"
                       {...props}
@@ -314,18 +329,18 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
                   // Listas mejoradas
                   ul: ({ node, ...props }) => (
-                    <ul className="pl-6 my-2 space-y-1 list-disc" {...props} />
+                    <ul className="pl-6 my-2 space-y-1 custom-list" {...props} />
                   ),
                   ol: ({ node, ...props }) => (
                     <ol className="pl-6 my-2 space-y-1 list-decimal" {...props} />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="pl-1 my-0.5" {...props} />
+                    <li className="pl-1 my-0.5 relative water-dot" {...props} />
                   ),
 
                   // Citas con estilo
                   blockquote: ({ node, ...props }) => (
-                    <blockquote className="border-l-4 border-hydrous-300 pl-4 py-1 my-3 italic text-gray-600 bg-hydrous-50/50 rounded-r-md" {...props} />
+                    <blockquote className="border-l-4 border-blue-300 pl-4 py-1 my-3 italic text-gray-600 bg-blue-50/50 rounded-r-md" {...props} />
                   ),
                 }}
               >
@@ -334,11 +349,23 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
             </div>
           )}
 
-          {/* Pequeño indicador técnico de agua en mensajes del asistente */}
+          {/* Elementos decorativos para mensajes del asistente */}
           {!isUser && (
-            <div className="absolute top-0 left-0 -ml-1 -mt-1 h-2 w-2 rounded-full bg-hydrous-400"></div>
+            <>
+              {/* Pequeñas burbujas decorativas en los mensajes de la IA */}
+              <motion.div
+                className="absolute top-1.5 left-2 w-1.5 h-1.5 rounded-full bg-blue-200/60"
+                animate={{ y: [-1, -3, -1], opacity: [0.6, 0.3, 0.6] }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute bottom-2 right-3 w-2 h-2 rounded-full bg-blue-300/40"
+                animate={{ y: [0, -2, 0], opacity: [0.4, 0.2, 0.4] }}
+                transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}
+              />
+            </>
           )}
-        </Card>
+        </motion.div>
 
         {/* Hora y acciones - solo para mensajes no secuenciales o último mensaje */}
         {(!isSequential || isLast) && (
@@ -359,28 +386,36 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
             {/* Botón de copiar para mensajes del asistente con animación */}
             {!isUser && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-6 w-6 rounded-full transition-all duration-300",
-                  isCopied
-                    ? "bg-hydrous-100 text-hydrous-700"
-                    : "opacity-70 hover:opacity-100 hover:bg-hydrous-100"
-                )}
-                onClick={copyToClipboard}
-              >
-                <span className="sr-only">Copiar mensaje</span>
-                {isCopied ? (
-                  <svg className="h-3.5 w-3.5 text-hydrous-700" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                ) : (
-                  <svg className="h-3.5 w-3.5 text-hydrous-600" viewBox="0 0 24 24" fill="none">
-                    <path d="M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V18M8 5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V5M8 5V5C8 6.10457 8.89543 7 10 7H14C15.1046 7 16 6.10457 16 5V5M16 5H18C19.1046 5 20 5.89543 20 7V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                )}
-              </Button>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-6 w-6 rounded-full transition-all duration-300",
+                    isCopied
+                      ? "bg-blue-100 text-blue-700"
+                      : "opacity-70 hover:opacity-100 hover:bg-blue-100"
+                  )}
+                  onClick={copyToClipboard}
+                >
+                  <span className="sr-only">Copiar mensaje</span>
+                  {isCopied ? (
+                    <motion.svg
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="h-3.5 w-3.5 text-blue-700"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </motion.svg>
+                  ) : (
+                    <svg className="h-3.5 w-3.5 text-blue-600" viewBox="0 0 24 24" fill="none">
+                      <path d="M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V18M8 5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V5M8 5V5C8 6.10457 8.89543 7 10 7H14C15.1046 7 16 6.10457 16 5V5M16 5H18C19.1046 5 20 5.89543 20 7V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  )}
+                </Button>
+              </motion.div>
             )}
           </div>
         )}
@@ -388,54 +423,70 @@ export default function MessageItem({ message, isSequential = false, isLast = fa
 
       {/* Avatar para el usuario con efecto mejorado */}
       {isUser && !isSequential && (
-        <div className="relative">
-          <Avatar className="h-9 w-9 bg-gradient-to-br from-hydrous-600 to-hydrous-800 text-white border-2 border-white shadow-sm">
-            <UserIcon className="h-5 w-5" />
-          </Avatar>
-
-          {/* Pequeño indicador de estado online */}
-          <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-500 border-2 border-white rounded-full"></div>
-        </div>
+        <motion.div
+          className="relative flex-shrink-0"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-700 
+                       rounded-full flex items-center justify-center shadow-md border-2 border-white">
+            <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+          {/* Indicador de estado */}
+          <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+        </motion.div>
       )}
 
-      {/* Spacer para alinear mensajes secuenciales */}
-      {isUser && isSequential && <div className="w-9 flex-shrink-0" />}
+      {/* Spacer para alinear mensajes secuenciales del usuario */}
+      {isUser && isSequential && <div className="w-10 flex-shrink-0" />}
     </div>
   );
 }
 
-// Iconos
-function WaterIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      className={className}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-    </svg>
-  );
-}
+// Estilos CSS específicos para burbujas de estilo de gota de agua
+// Estos estilos se deben incluir en un archivo CSS o como parte de un componente de estilo
+const styles = `
+  .droplet-message {
+    position: relative;
+    border-top-left-radius: 4px !important;
+  }
+  
+  .droplet-message::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 16px;
+    height: 16px;
+    background: inherit;
+    border-left: 1px solid var(--blue-100);
+    border-bottom: 1px solid var(--blue-100);
+    border-bottom-left-radius: 16px;
+    border-top: 0;
+    border-right: 0;
+    z-index: -1;
+  }
+  
+  .custom-list li::before {
+    content: '';
+    position: absolute;
+    left: -1.25rem;
+    top: 0.6rem;
+    width: 0.35rem;
+    height: 0.45rem;
+    background-color: #38bdf8;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+  }
+`;
 
-function UserIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      className={className}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
+// Insertar estilos
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = styles;
+  document.head.appendChild(styleElement);
 }
