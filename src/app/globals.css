@@ -516,3 +516,92 @@
     font-size: 1.1rem;
   }
 }
+
+/* Variables CSS mejoradas para efectos de agua */
+:root {
+  /* Efectos estandarizados */
+  --depth-shadow-sm: 0 2px 15px rgba(7, 89, 133, 0.06);
+  --depth-shadow-md: 0 8px 30px rgba(7, 89, 133, 0.12);
+  --depth-shadow-lg: 0 15px 50px rgba(7, 89, 133, 0.18);
+  
+  /* Efectos de agua */
+  --water-highlight: rgba(255, 255, 255, 0.7);
+  --water-glow: 0 0 20px rgba(56, 189, 248, 0.4);
+  
+  /* Animaciones unificadas */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Efectos de vidrio */
+  --glass-background: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(12px);
+}
+
+/* Nuevos efectos para elementos comunes */
+.shadow-depth-sm {
+  box-shadow: var(--depth-shadow-sm);
+}
+
+.shadow-depth-md {
+  box-shadow: var(--depth-shadow-md);
+}
+
+.shadow-depth-lg {
+  box-shadow: var(--depth-shadow-lg);
+}
+
+.glass-effect {
+  background: var(--glass-background);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mejorar la apariencia de los elementos con efecto de elevación */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--depth-shadow-md);
+}
+
+/* Efectos mejorados para contenedores de mensajes */
+.message-container {
+  transition: var(--transition-smooth);
+  position: relative;
+}
+
+.message-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--water-highlight), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: var(--transition-smooth);
+  border-radius: inherit;
+}
+
+.message-container:hover::before {
+  opacity: 0.1;
+}
+
+/* Animación mejorada de pulsación */
+@keyframes enhanced-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+  50% { transform: scale(1.05); opacity: 0.7; box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); }
+}
+
+.animate-enhanced-pulse {
+  animation: enhanced-pulse 3s ease-in-out infinite;
+}

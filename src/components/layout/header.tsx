@@ -54,88 +54,92 @@ export default function Header() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className={cn(
-        "sticky top-0 z-50 transition-all duration-500 backdrop-blur-lg border-b",
+        "sticky top-0 z-50 transition-all duration-500",
         scrolled
-          ? "bg-white/95 border-blue-200/50 shadow-sm"
-          : "bg-gradient-to-r from-white/90 via-white/95 to-white/90 border-blue-100/40"
+          ? "bg-white/95 backdrop-blur-md border-b border-blue-200/50 shadow-md"
+          : "bg-transparent border-b border-blue-100/20"
       )}
     >
-      {/* Ondas sutiles animadas en el fondo */}
-      <div className="absolute inset-0 overflow-hidden -z-10 opacity-60">
+      {/* Efecto de ondas de agua bajo el header */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
+
+      {/* Fondo de agua sutil */}
+      <div className="absolute inset-0 overflow-hidden -z-10">
+        <motion.div
+          className="absolute inset-0 bg-blue-50/30"
+          style={{
+            backgroundImage: `radial-gradient(circle at 30% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%), 
+                            radial-gradient(circle at 70% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)`
+          }}
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%'],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut"
+          }}
+        />
+
+        {/* Patrón de ondas sutiles */}
         <svg
-          className="absolute bottom-0 left-0 w-full h-8 text-blue-100"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1440 320"
+          className="absolute bottom-0 left-0 w-full h-12 text-blue-400 opacity-[0.03]"
           preserveAspectRatio="none"
+          viewBox="0 0 1440 74"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <path
+            d="M456.464 0.0433865C277.158 -1.70575 0 50.0141 0 50.0141V74H1440V50.0141C1440 50.0141 1320.4 31.1925 1243.09 27.0276C1099.33 19.2816 1019.08 53.1981 875.138 50.0141C710.527 46.3727 621.108 1.64949 456.464 0.0433865Z"
             fill="currentColor"
-            fillOpacity="0.2"
-            d="M0,128L48,144C96,160,192,192,288,192C384,192,480,160,576,133.3C672,107,768,85,864,96C960,107,1056,149,1152,149.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          >
-            <animate
-              attributeName="d"
-              dur="10s"
-              repeatCount="indefinite"
-              values="
-                M0,128L48,144C96,160,192,192,288,192C384,192,480,160,576,133.3C672,107,768,85,864,96C960,107,1056,149,1152,149.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;
-                M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,192C672,213,768,203,864,192C960,181,1056,171,1152,165.3C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;
-                M0,128L48,144C96,160,192,192,288,192C384,192,480,160,576,133.3C672,107,768,85,864,96C960,107,1056,149,1152,149.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;
-              "
-            />
-          </path>
+          />
         </svg>
       </div>
 
-      <div className="container py-3 px-4 sm:px-6 lg:px-8">
+      <div className="container py-3 px-4 sm:px-6 lg:px-8 transition-all duration-500">
         <div className="flex items-center justify-between">
-          {/* Logo y título con DropletAvatar integrado */}
+          {/* Logo mejorado y título */}
           <motion.div
             className="flex items-center gap-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="relative flex items-center"
-            >
+            <div className="relative flex items-center">
+              {/* Resplandor detrás del avatar */}
+              <div className="absolute inset-0 rounded-full bg-blue-400/20 filter blur-xl scale-150"></div>
+
               <DropletAvatar
                 size={scrolled ? "sm" : "md"}
                 mood="default"
                 pulse={false}
                 className={cn(
-                  "transition-all duration-300",
+                  "transition-all duration-300 relative z-10",
                   scrolled ? "h-10 w-10" : "h-12 w-12"
                 )}
               />
 
-              <div className="ml-3">
+              <div className="ml-3 relative">
+                {/* Efecto de brillo detrás del título */}
+                <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-blue-50 to-transparent opacity-50 filter blur-sm"></div>
+
                 <h1
                   className={cn(
-                    "font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500 transition-all duration-300",
+                    "relative z-10 font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-blue-500 transition-all duration-300",
                     scrolled ? "text-2xl" : "text-3xl"
                   )}
                 >
-                  <span className="relative">
-                    H₂O Allegiant
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/50 to-transparent"></span>
-                  </span>
-                  <span className="ml-1 font-light text-blue-600">AI</span>
+                  H₂O Allegiant
+                  <span className="ml-1 font-light text-blue-600 bg-blue-50/80 px-1.5 py-0.5 rounded-sm text-sm">AI</span>
                 </h1>
 
-                <div className="flex items-center flex-wrap gap-3 mt-0.5">
+                <div className="flex items-center flex-wrap gap-3 mt-0.5 relative z-10">
                   <p className="text-sm font-medium text-blue-600">
-                    <span className="inline-block">Ingeniero Hidráulico Virtual</span>
+                    <span className="inline-block">Ingeniería de Soluciones Hídricas</span>
                   </p>
-
-                  <div className="bg-gradient-to-r from-blue-100 to-blue-200 px-2 py-0.5 
-                      text-blue-700 text-xs rounded-md font-medium shadow-inner border border-blue-200/50">
-                    Expert
-                  </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
 
           {/* Métricas y botones de acción */}
