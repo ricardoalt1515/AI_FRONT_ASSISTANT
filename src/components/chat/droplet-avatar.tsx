@@ -17,7 +17,7 @@ interface EnhancedDropletAvatarProps {
  * EnhancedDropletAvatar - Versión mejorada del avatar con físicas más realistas y expresiones
  * más definidas para representar a H2O Allegiant AI
  */
-export default function EnhancedDropletAvatar({
+export default function DropletAvatar({
   mood = 'default',
   size = 'md',
   className,
@@ -402,7 +402,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Boca animada que habla */}
+            {/* Boca animada que habla con mejor visualización de ondas */}
             <motion.ellipse
               cx={12}
               cy={15}
@@ -422,18 +422,19 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Pequeñas ondas sonoras cuando habla */}
+            {/* Pequeñas ondas sonoras cuando habla - Mejoradas */}
             {(waveAmplitude > 0) && (
               <>
                 <motion.path
-                  d="M19 10C21 8 21 12 19 11"
+                  d="M19.5 10C21.5 8 21.5 12 19.5 11"
                   stroke="white"
                   strokeWidth="1"
                   strokeLinecap="round"
                   fill="none"
                   animate={{
                     opacity: [1, 0.3, 1],
-                    x: [0, 0.5, 0]
+                    x: [0, 0.5, 0],
+                    scale: [1, 1.1, 1]
                   }}
                   transition={{
                     repeat: Infinity,
@@ -442,20 +443,59 @@ export default function EnhancedDropletAvatar({
                   }}
                 />
                 <motion.path
-                  d="M4 10C2 8 2 12 4 11"
+                  d="M4.5 10C2.5 8 2.5 12 4.5 11"
                   stroke="white"
                   strokeWidth="1"
                   strokeLinecap="round"
                   fill="none"
                   animate={{
                     opacity: [1, 0.3, 1],
-                    x: [0, -0.5, 0]
+                    x: [0, -0.5, 0],
+                    scale: [1, 1.1, 1]
                   }}
                   transition={{
                     repeat: Infinity,
                     duration: 1.5,
                     ease: "easeInOut",
                     delay: 0.3
+                  }}
+                />
+                <motion.path
+                  d="M21 9.5C23 7.5 23 12.5 21 11"
+                  stroke="white"
+                  strokeWidth="0.7"
+                  strokeLinecap="round"
+                  strokeDasharray="1,1"
+                  fill="none"
+                  animate={{
+                    opacity: [0.7, 0.2, 0.7],
+                    x: [0, 1, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 2,
+                    ease: "easeInOut",
+                    delay: 0.6
+                  }}
+                />
+                <motion.path
+                  d="M3 9.5C1 7.5 1 12.5 3 11"
+                  stroke="white"
+                  strokeWidth="0.7"
+                  strokeLinecap="round"
+                  strokeDasharray="1,1"
+                  fill="none"
+                  animate={{
+                    opacity: [0.7, 0.2, 0.7],
+                    x: [0, -1, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 2,
+                    ease: "easeInOut",
+                    delay: 0.9
                   }}
                 />
               </>
@@ -466,7 +506,7 @@ export default function EnhancedDropletAvatar({
       case 'processing':
         return (
           <g>
-            {/* Ojos girando */}
+            {/* Ojos girando con efecto más fluido */}
             <motion.circle
               cx={leftEyePos.x}
               cy={leftEyePos.y}
@@ -479,7 +519,7 @@ export default function EnhancedDropletAvatar({
               transition={{
                 repeat: Infinity,
                 duration: 3,
-                ease: "linear",
+                ease: "easeInOut",
                 times: [0, 0.25, 0.5, 0.75, 1]
               }}
             />
@@ -495,19 +535,19 @@ export default function EnhancedDropletAvatar({
               transition={{
                 repeat: Infinity,
                 duration: 3,
-                ease: "linear",
+                ease: "easeInOut",
                 times: [0, 0.25, 0.5, 0.75, 1]
               }}
             />
 
-            {/* Boca procesando (barra de progreso) */}
+            {/* Boca procesando con animación de progreso */}
             <motion.rect
               x={8.5}
               y={15}
-              width={7}
-              height={1.5}
               rx={0.75}
+              height={1.5}
               fill="white"
+              initial={{ width: 3, x: 10.5 }}
               animate={{
                 width: [3, 7, 3],
                 x: [10.5, 8.5, 10.5]
@@ -520,7 +560,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Partículas de datos */}
+            {/* Partículas de datos mejoradas con efecto de resplandor */}
             <motion.g
               animate={{ opacity: [0.6, 1, 0.6] }}
               transition={{
@@ -537,7 +577,14 @@ export default function EnhancedDropletAvatar({
                   r={0.8}
                   fill="white"
                   fillOpacity="0.7"
-                  animate={{ scale: [1, 1.3, 1] }}
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    filter: [
+                      "drop-shadow(0 0 0px rgba(255,255,255,0))",
+                      "drop-shadow(0 0 1.5px rgba(255,255,255,0.5))",
+                      "drop-shadow(0 0 0px rgba(255,255,255,0))"
+                    ]
+                  }}
                   transition={{
                     repeat: Infinity,
                     duration: 1.5,
@@ -548,7 +595,7 @@ export default function EnhancedDropletAvatar({
               ))}
             </motion.g>
 
-            {/* Líneas de circuito */}
+            {/* Líneas de circuito con un efecto de pulso de datos */}
             <motion.path
               d="M4 12 H7 M17 12 H20"
               stroke="white"
@@ -557,10 +604,29 @@ export default function EnhancedDropletAvatar({
               strokeDasharray="1,1"
               animate={{
                 strokeDashoffset: [0, 4, 0],
+                opacity: [0.7, 1, 0.7]
               }}
               transition={{
                 repeat: Infinity,
                 duration: 3,
+                ease: "linear"
+              }}
+            />
+
+            {/* Circuito adicional para más complejidad */}
+            <motion.path
+              d="M4 8 V11 M20 8 V11"
+              stroke="white"
+              strokeWidth="0.8"
+              strokeLinecap="round"
+              strokeDasharray="1,1"
+              animate={{
+                strokeDashoffset: [0, -4, 0],
+                opacity: [0.5, 0.8, 0.5]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 4,
                 ease: "linear"
               }}
             />
@@ -621,11 +687,11 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Ondas sonoras entrantes */}
+            {/* Ondas sonoras entrantes mejoradas */}
             <motion.path
               d="M3 9 Q4.5 12 3 15"
               stroke="white"
-              strokeWidth="0.8"
+              strokeWidth="0.9"
               strokeLinecap="round"
               fill="none"
               animate={{
@@ -643,7 +709,7 @@ export default function EnhancedDropletAvatar({
             <motion.path
               d="M21 9 Q19.5 12 21 15"
               stroke="white"
-              strokeWidth="0.8"
+              strokeWidth="0.9"
               strokeLinecap="round"
               fill="none"
               animate={{
@@ -657,6 +723,48 @@ export default function EnhancedDropletAvatar({
                 ease: "easeInOut",
                 times: [0, 0.5, 1],
                 delay: 0.5
+              }}
+            />
+
+            {/* Ondas secundarias más sutiles */}
+            <motion.path
+              d="M2 8 Q4 12 2 16"
+              stroke="white"
+              strokeWidth="0.6"
+              strokeLinecap="round"
+              strokeDasharray="1,1.5"
+              fill="none"
+              animate={{
+                opacity: [0, 0.7, 0],
+                pathLength: [0, 1, 0],
+                x: [0, 2.5, 5]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.5,
+                ease: "easeInOut",
+                times: [0, 0.5, 1],
+                delay: 0.25
+              }}
+            />
+            <motion.path
+              d="M22 8 Q20 12 22 16"
+              stroke="white"
+              strokeWidth="0.6"
+              strokeLinecap="round"
+              strokeDasharray="1,1.5"
+              fill="none"
+              animate={{
+                opacity: [0, 0.7, 0],
+                pathLength: [0, 1, 0],
+                x: [0, -2.5, -5]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.5,
+                ease: "easeInOut",
+                times: [0, 0.5, 1],
+                delay: 0.75
               }}
             />
           </g>
@@ -703,7 +811,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Boca ligeramente sonriente */}
+            {/* Boca ligeramente sonriente con mejor animación */}
             <motion.path
               d="M9 14.5C10.5 16 13.5 16 15 14.5"
               stroke="white"
@@ -722,6 +830,35 @@ export default function EnhancedDropletAvatar({
                 duration: 8,
                 ease: "easeInOut",
                 times: [0, 0.5, 1]
+              }}
+            />
+
+            {/* Líneas de expresión sutiles para más personalidad */}
+            <motion.path
+              d="M7.5 7C8 6.5 9 6.5 9.5 7"
+              stroke="white"
+              strokeWidth="0.5"
+              strokeLinecap="round"
+              opacity="0.5"
+              animate={{ opacity: [0.5, 0.2, 0.5] }}
+              transition={{
+                repeat: Infinity,
+                duration: 6,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.path
+              d="M14.5 7C15 6.5 16 6.5 16.5 7"
+              stroke="white"
+              strokeWidth="0.5"
+              strokeLinecap="round"
+              opacity="0.5"
+              animate={{ opacity: [0.5, 0.2, 0.5] }}
+              transition={{
+                repeat: Infinity,
+                duration: 6,
+                ease: "easeInOut",
+                delay: 0.5
               }}
             />
           </g>
@@ -749,7 +886,7 @@ export default function EnhancedDropletAvatar({
       waveParams.speed = 3;
     }
 
-    // Ola principal
+    // Ola principal con mejor efecto de fluido
     const mainWave = (
       <motion.div
         className="absolute bottom-0 w-full rounded-t-full bg-white/10"
@@ -778,10 +915,10 @@ export default function EnhancedDropletAvatar({
       />
     );
 
-    // Ola secundaria más pequeña
+    // Ola secundaria más pequeña con reflejos
     const secondWave = (
       <motion.div
-        className="absolute bottom-0 w-full rounded-t-full bg-white/15"
+        className="absolute bottom-0 w-full rounded-t-full bg-gradient-to-t from-white/15 to-white/10"
         style={{
           height: `${baseWaveHeight * 0.7}px`,
           transformOrigin: 'bottom'
@@ -808,10 +945,10 @@ export default function EnhancedDropletAvatar({
       />
     );
 
-    // Ola terciaria más pequeña
+    // Ola terciaria más pequeña con sutil movimiento lateral
     const thirdWave = (
       <motion.div
-        className="absolute bottom-0 w-full rounded-t-full bg-white/10"
+        className="absolute bottom-0 w-full rounded-t-full bg-gradient-to-t from-white/10 to-transparent"
         style={{
           height: `${baseWaveHeight * 0.5}px`,
           transformOrigin: 'bottom'
@@ -826,6 +963,11 @@ export default function EnhancedDropletAvatar({
             0,
             -waveParams.amplitude / 5,
             0
+          ] : 0,
+          x: animate ? [
+            0,
+            waveParams.amplitude / 10,
+            0
           ] : 0
         }}
         transition={{
@@ -838,7 +980,32 @@ export default function EnhancedDropletAvatar({
       />
     );
 
-    // Generar partículas internas
+    // Línea de brillo en la parte superior de las olas
+    const waveShineLine = (
+      <motion.div
+        className="absolute bottom-0 w-full h-px bg-white/40 z-10"
+        style={{
+          bottom: `${baseWaveHeight - 2}px`,
+        }}
+        animate={{
+          opacity: animate ? [0.4, 0.7, 0.4] : 0.4,
+          y: animate ? [
+            0,
+            -waveParams.amplitude / 6,
+            0
+          ] : 0
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: waveParams.speed * 0.7,
+          ease: "easeInOut",
+          times: [0, 0.5, 1],
+          delay: 0.2
+        }}
+      />
+    );
+
+    // Generar partículas internas para modo de procesamiento
     const particles = Array.from({ length: 5 }).map((_, i) => {
       // Distribuir partículas uniformemente
       const xPos = 20 + Math.sin(i / 5 * Math.PI * 2) * 60;
@@ -857,7 +1024,12 @@ export default function EnhancedDropletAvatar({
           animate={{
             y: [-pixelSize * 0.08, pixelSize * 0.08, -pixelSize * 0.08],
             x: [pixelSize * 0.04, -pixelSize * 0.04, pixelSize * 0.04],
-            opacity: [0.3, 0.6, 0.3]
+            opacity: [0.3, 0.6, 0.3],
+            boxShadow: [
+              "0 0 0px rgba(255,255,255,0)",
+              "0 0 2px rgba(255,255,255,0.3)",
+              "0 0 0px rgba(255,255,255,0)"
+            ]
           }}
           transition={{
             repeat: Infinity,
@@ -874,6 +1046,7 @@ export default function EnhancedDropletAvatar({
         {mainWave}
         {secondWave}
         {thirdWave}
+        {waveShineLine}
         {mood === 'processing' && particles}
       </>
     );
@@ -903,24 +1076,24 @@ export default function EnhancedDropletAvatar({
       sizeClasses[size],
       className
     )}>
-      {/* Resplandor externo */}
+      {/* Resplandor externo mejorado */}
       <motion.div
         className={cn(
           "absolute inset-0 rounded-full",
           "bg-gradient-radial from-blue-400/20 to-transparent"
         )}
         animate={{
-          scale: pulse ? [1, 1.4, 1] : 1,
-          opacity: pulse ? [0.3, 0, 0.3] : 0.3
+          scale: pulse ? [1, 1.4, 1] : [1, 1.2, 1],
+          opacity: pulse ? [0.3, 0, 0.3] : [0.3, 0.2, 0.3]
         }}
         transition={{
           repeat: Infinity,
-          duration: 2.5,
+          duration: pulse ? 2.5 : 4,
           ease: "easeInOut"
         }}
       />
 
-      {/* Contenedor principal con gradiente y efectos */}
+      {/* Contenedor principal con gradiente y efectos mejorados */}
       <motion.div
         className={cn(
           "relative h-full w-full",
@@ -931,12 +1104,22 @@ export default function EnhancedDropletAvatar({
         )}
         animate={{
           scale: rippleActive ? [1, 1.05, 1] : 1,
+          boxShadow: rippleActive ?
+            [
+              "0 4px 6px rgba(56, 189, 248, 0.1)",
+              "0 6px 15px rgba(56, 189, 248, 0.2)",
+              "0 4px 6px rgba(56, 189, 248, 0.1)"
+            ] :
+            "0 4px 6px rgba(56, 189, 248, 0.1)"
         }}
         transition={{
           duration: 1.5,
           ease: "easeInOut"
         }}
       >
+        {/* Efecto de iluminación desde arriba */}
+        <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent"></div>
+
         {/* Olas internas animadas */}
         <div className="absolute inset-0 overflow-hidden">
           {generateInternalWaves()}
@@ -955,7 +1138,7 @@ export default function EnhancedDropletAvatar({
             strokeOpacity="0"
           />
 
-          {/* Reflejo/Resplandor interno */}
+          {/* Reflejo/Resplandor interno mejorado */}
           <motion.path
             d="M12 5.5l3.5 3.5a5 5 0 1 1-7 0z"
             fill="white"
@@ -995,11 +1178,16 @@ export default function EnhancedDropletAvatar({
 
       {/* Partículas decorativas a su alrededor */}
       <motion.div
-        className="absolute -top-1 -left-1 h-2 w-2 bg-blue-200 rounded-full"
+        className="absolute -top-1 -left-1 h-2 w-2 bg-gradient-to-br from-blue-200 to-blue-300 rounded-full"
         animate={{
           y: animate ? [-2, -6, -2] : 0,
           x: animate ? [-2, 1, -2] : 0,
           opacity: animate ? [0.8, 0.4, 0.8] : 0.8,
+          boxShadow: animate ? [
+            "0 0 0px rgba(56, 189, 248, 0)",
+            "0 0 3px rgba(56, 189, 248, 0.3)",
+            "0 0 0px rgba(56, 189, 248, 0)"
+          ] : "none"
         }}
         transition={{
           repeat: Infinity,
@@ -1009,11 +1197,16 @@ export default function EnhancedDropletAvatar({
       />
 
       <motion.div
-        className="absolute bottom-0 -right-1 h-2.5 w-2.5 bg-blue-300/80 rounded-full"
+        className="absolute bottom-0 -right-1 h-2.5 w-2.5 bg-gradient-to-br from-blue-300 to-blue-400 rounded-full"
         animate={{
           y: animate ? [0, -4, 0] : 0,
           x: animate ? [0, 2, 0] : 0,
           opacity: animate ? [0.8, 0.5, 0.8] : 0.8,
+          boxShadow: animate ? [
+            "0 0 0px rgba(56, 189, 248, 0)",
+            "0 0 4px rgba(56, 189, 248, 0.4)",
+            "0 0 0px rgba(56, 189, 248, 0)"
+          ] : "none"
         }}
         transition={{
           repeat: Infinity,
@@ -1024,10 +1217,15 @@ export default function EnhancedDropletAvatar({
       />
 
       <motion.div
-        className="absolute top-1/3 -right-2 h-1.5 w-1.5 bg-blue-400/50 rounded-full"
+        className="absolute top-1/3 -right-2 h-1.5 w-1.5 bg-gradient-to-br from-blue-100 to-blue-300 rounded-full"
         animate={{
           y: animate ? [-5, -12, -5] : 0,
           opacity: animate ? [0.5, 0.1, 0.5] : 0.5,
+          boxShadow: animate ? [
+            "0 0 0px rgba(56, 189, 248, 0)",
+            "0 0 2px rgba(56, 189, 248, 0.2)",
+            "0 0 0px rgba(56, 189, 248, 0)"
+          ] : "none"
         }}
         transition={{
           repeat: Infinity,

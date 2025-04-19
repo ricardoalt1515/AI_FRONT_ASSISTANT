@@ -17,10 +17,24 @@ export default function ChatContainer() {
   const [dropletMood, setDropletMood] = useState<'default' | 'thinking' | 'happy' | 'explaining' | 'processing'>('default');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // Iniciar conversación cuando se carga el componente
     startConversation();
+  }, []);
+
+  useEffect(() => {
+    // Detectar scroll para efectos visuales
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setIsScrolled(container.scrollTop > 10);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -219,68 +233,31 @@ export default function ChatContainer() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto relative">
-      {/* Background with enhanced water effects */}
-      <motion.div
-        className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        {/* Refined gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-white/80 to-white/90 opacity-80"></div>
-
-        {/* Subtle water pattern */}
-        <div className="absolute inset-0 bg-water-pattern opacity-30"></div>
-
-        {/* Abstract fluid shapes */}
-        <motion.div
-          className="absolute top-1/3 left-1/4 w-[45rem] h-[45rem] rounded-full bg-blue-200/10
-                   filter blur-3xl opacity-40"
-          animate={{
-            x: [0, 20, 0],
-            y: [0, -20, 0],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 30,
-            ease: "easeInOut"
-          }}
-        ></motion.div>
-
-        <motion.div
-          className="absolute bottom-1/4 right-1/3 w-[40rem] h-[40rem] rounded-full bg-blue-300/10
-                   filter blur-3xl opacity-30"
-          animate={{
-            x: [0, -30, 0],
-            y: [0, 20, 0],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 25,
-            ease: "easeInOut"
-          }}
-        ></motion.div>
-
-        {/* Light streak effect */}
-        <div className="absolute inset-0 bg-gradient-radial from-blue-100/20 via-transparent to-transparent opacity-80"></div>
-      </motion.div>
-
       {/* Chat area with improved glass effect */}
       <div
         ref={containerRef}
         className={cn(
-          "flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4",
-          "rounded-xl backdrop-blur-md",
-          "glass-blue scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent"
+          "flex-1 overflow-y-auto relative",
+          "scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent",
+          "group"
         )}
       >
+        {/* Capa de fondo con glassmorphism mejorado */}
+        <div className="absolute inset-0 bg-white/70 backdrop-filter backdrop-blur-xl rounded-xl border border-blue-100/80 shadow-lg shadow-blue-200/10"></div>
+
+        {/* Indicador de scroll sutil en la parte superior */}
+        <div className={cn(
+          "sticky top-0 z-20 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent transition-opacity duration-300",
+          isScrolled ? "opacity-100" : "opacity-0"
+        )}></div>
+
         {isInitializing ? (
-          <div className="h-full flex items-center justify-center">
+          <div className="h-full flex items-center justify-center relative z-10">
             <LoadingScreen />
           </div>
         ) : (
           <AnimatePresence mode="popLayout">
-            <div className="space-y-6 pb-2">
+            <div className="space-y-6 pb-2 px-4 sm:px-6 py-6 relative z-10">
               {/* Message timeline indicator */}
               {messages.length > 0 && (
                 <motion.div
@@ -339,11 +316,18 @@ export default function ChatContainer() {
             </div>
           </AnimatePresence>
         )}
+
+        {/* Decoración de esquina - pequeño detalle de marca */}
+        <div className="absolute top-3 right-3 w-16 h-16 pointer-events-none opacity-10">
+          <svg viewBox="0 0 24 24" className="w-full h-full text-blue-500">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="currentColor" />
+          </svg>
+        </div>
       </div>
 
       {/* Enhanced chat input area */}
       <motion.div
-        className="bg-white/90 backdrop-blur-lg border-t border-blue-100 py-4 px-3 sm:px-5 rounded-b-xl shadow-md"
+        className="bg-white/95 backdrop-blur-lg border-t border-blue-100 py-4 px-3 sm:px-5 rounded-b-xl shadow-md mt-2"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -388,7 +372,7 @@ function LoadingScreen() {
       <div className="relative mb-10">
         {/* Halo de luz con mejor efecto */}
         <motion.div
-          className="absolute inset-0 bg-blue-300/20 rounded-full blur-xl scale-150"
+          className="absolute inset-0 rounded-full bg-gradient-radial from-blue-300/30 via-blue-400/10 to-transparent blur-xl scale-150"
           animate={{
             scale: [1.5, 1.8, 1.5],
             opacity: [0.2, 0.4, 0.2]
@@ -441,7 +425,7 @@ function LoadingScreen() {
         transition={{ delay: 0.3 }}
         className="mb-8"
       >
-        <div className="glass-blue px-8 py-4 rounded-xl text-center">
+        <div className="glass-blue px-8 py-4 rounded-xl text-center bg-white/80 backdrop-blur-md border border-blue-100 shadow-md">
           <h3 className="text-xl text-blue-700 font-medium">
             Inicializando H₂O Allegiant AI
           </h3>
@@ -453,11 +437,12 @@ function LoadingScreen() {
 
       {/* Barra de progreso con efecto de agua */}
       <div className="w-64 relative">
-        <div className="h-2 bg-white/50 rounded-full overflow-hidden shadow-inner border border-blue-100">
+        <div className="h-2.5 bg-gradient-to-r from-blue-50 to-white rounded-full overflow-hidden 
+             shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] border border-blue-100">
           <motion.div
             initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
-            className="h-full bg-gradient-to-r from-blue-300 to-blue-500 rounded-full relative overflow-hidden"
+            className="h-full bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 rounded-full relative overflow-hidden"
           >
             {/* Efecto de brillo que se mueve */}
             <motion.div
@@ -470,12 +455,16 @@ function LoadingScreen() {
                 repeatDelay: 0.5
               }}
             />
+
+            {/* Brillo superior */}
+            <div className="absolute inset-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent rounded-t-full"></div>
           </motion.div>
         </div>
 
         {/* Porcentaje */}
-        <div className="mt-2 text-sm text-blue-600 text-center">
-          {Math.round(progress)}%
+        <div className="mt-2 text-sm text-blue-600 text-center flex justify-between">
+          <span className="text-xs text-gray-500">Cargando recursos</span>
+          <span className="font-medium">{Math.round(progress)}%</span>
         </div>
       </div>
     </motion.div>

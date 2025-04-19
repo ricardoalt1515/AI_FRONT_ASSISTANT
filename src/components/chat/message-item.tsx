@@ -87,18 +87,21 @@ export default function MessageItem({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.3 }}
           className={cn(
-            "px-5 py-3 transition-all duration-300",
+            "px-5 py-3 transition-all duration-300 relative",
             isUser
-              ? "bg-gradient-blue-surface text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-600/10 hover:shadow-lg border border-blue-500"
-              : "relative backdrop-blur-sm rounded-2xl rounded-tl-sm hover:shadow-lg overflow-hidden border",
+              ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-600/10 hover:shadow-lg border border-blue-500/50"
+              : "rounded-2xl rounded-tl-sm hover:shadow-lg overflow-hidden border",
             containsCode && !isUser ? "shadow-md shadow-blue-200/30" : "shadow-sm",
             !isUser && "droplet-message bg-white/95 border-blue-100"
           )}
         >
-          {/* Fondo animado sutil para los mensajes de la IA */}
+          {/* Fondo para mensajes del asistente */}
           {!isUser && (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-white/90 -z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/70 rounded-2xl -z-10"></div>
           )}
+
+          {/* Decoración sutil en la parte superior */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
           {isUser ? (
             <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
@@ -152,8 +155,9 @@ export default function MessageItem({
 
                     return match ? (
                       <div className="font-mono rounded overflow-hidden">
-                        <div className="bg-gray-800 text-xs text-gray-200 px-3 py-1 font-sans flex items-center justify-between">
-                          <span>{match[1]}</span>
+                        <div className="bg-gradient-to-r from-gray-800 to-gray-700 text-xs text-gray-200 px-3 py-1 font-sans flex items-center justify-between">
+                          <span className="font-medium">{match[1]}</span>
+                          <span className="text-xs text-gray-400">código</span>
                         </div>
                         <code className={className} {...props}>
                           {children}
@@ -168,7 +172,7 @@ export default function MessageItem({
 
                   // Detectar y mejorar secciones especiales
                   h1: ({ node, ...props }) => (
-                    <h1 className="text-xl font-semibold text-blue-800 mt-4 mb-2" {...props} />
+                    <h1 className="text-xl font-semibold text-blue-800 mt-4 mb-2 border-b border-blue-100 pb-1" {...props} />
                   ),
                   h2: ({ node, ...props }) => (
                     <h2 className="text-lg font-semibold text-blue-700 mt-4 mb-2" {...props} />
@@ -200,7 +204,7 @@ export default function MessageItem({
 
                         if (parameters.length > 0) {
                           return (
-                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
+                            <div className="mb-3 p-4 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
                               <p className="mb-2 text-sm leading-relaxed text-blue-900">{children}</p>
 
                               {/* Visualizaciones de parámetros */}
@@ -216,12 +220,12 @@ export default function MessageItem({
                                   }
 
                                   return (
-                                    <div key={index}>
+                                    <div key={index} className="bg-white/50 backdrop-blur-sm p-2.5 rounded-lg border border-blue-50">
                                       <div className="flex justify-between text-xs font-medium mb-1">
-                                        <span className="text-gray-600">{param.name}</span>
-                                        <span className="text-blue-800">{param.value} mg/L</span>
+                                        <span className="text-blue-700">{param.name}</span>
+                                        <span className="text-blue-800 font-semibold">{param.value} mg/L</span>
                                       </div>
-                                      <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
+                                      <div className="h-2.5 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
                                         <motion.div
                                           initial={{ width: 0 }}
                                           animate={{ width: `${percentage}%` }}
@@ -231,7 +235,9 @@ export default function MessageItem({
                                       </div>
                                       <div className="flex justify-between text-xs mt-0.5 text-gray-500">
                                         <span>Mínimo</span>
-                                        <span>{percentage < 30 ? "Bajo" : percentage < 70 ? "Moderado" : "Alto"}</span>
+                                        <span className={percentage < 30 ? "text-green-600" : percentage < 70 ? "text-yellow-600" : "text-red-600"}>
+                                          {percentage < 30 ? "Bajo" : percentage < 70 ? "Moderado" : "Alto"}
+                                        </span>
                                         <span>Máximo</span>
                                       </div>
                                     </div>
@@ -263,23 +269,30 @@ export default function MessageItem({
 
                         if (savings || roi) {
                           return (
-                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
+                            <div className="mb-3 p-4 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
                               <p className="mb-2 text-sm leading-relaxed text-blue-900">{children}</p>
 
                               {savings && (
-                                <div className="flex items-end gap-3 mt-3">
-                                  <motion.div
-                                    className="text-blue-700 text-xl font-bold"
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                  >
-                                    ${parseInt(savings).toLocaleString()}
-                                  </motion.div>
-                                  <div className="text-blue-600 text-sm">
-                                    ahorro estimado
+                                <div className="flex items-center gap-3 mt-4 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-green-100">
+                                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-green-600">
+                                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <circle cx="12" cy="12" r="10" />
+                                      <line x1="12" y1="8" x2="12" y2="16" />
+                                      <line x1="8" y1="12" x2="16" y2="12" />
+                                    </svg>
                                   </div>
-                                  <div className="ml-auto flex items-center text-xs text-blue-700">
+                                  <div>
+                                    <div className="text-gray-600 text-xs">Ahorro estimado</div>
+                                    <motion.div
+                                      className="text-green-700 text-xl font-bold"
+                                      initial={{ opacity: 0, scale: 0.9 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      transition={{ duration: 0.5 }}
+                                    >
+                                      ${parseInt(savings).toLocaleString()}
+                                    </motion.div>
+                                  </div>
+                                  <div className="ml-auto flex items-center text-xs text-green-700 bg-green-50 px-2 py-1 rounded border border-green-100">
                                     <svg className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                       <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                                       <polyline points="17 6 23 6 23 12"></polyline>
@@ -290,11 +303,18 @@ export default function MessageItem({
                               )}
 
                               {roi && (
-                                <div className="mt-3">
-                                  <div className="text-xs text-blue-700 font-medium mb-1">
-                                    Periodo de recuperación de inversión
+                                <div className="mt-3 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-blue-100">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <svg className="h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <circle cx="12" cy="12" r="10" />
+                                      <polyline points="12 6 12 12 16 14" />
+                                    </svg>
+                                    <div className="text-sm text-blue-700 font-medium">
+                                      Período de recuperación de inversión
+                                    </div>
                                   </div>
-                                  <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
+
+                                  <div className="h-3 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
                                     <motion.div
                                       initial={{ width: 0 }}
                                       animate={{ width: `${Math.min(100, Math.max(0, (roi / 36) * 100))}%` }}
@@ -302,9 +322,10 @@ export default function MessageItem({
                                       className="h-full bg-gradient-to-r from-blue-300 to-blue-500 rounded-full"
                                     ></motion.div>
                                   </div>
-                                  <div className="flex justify-between text-xs mt-0.5 text-gray-500">
-                                    <span className="font-medium text-blue-700">{roi} meses</span>
-                                    <span>36 meses</span>
+
+                                  <div className="flex justify-between text-xs mt-2 text-gray-500">
+                                    <span className="font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">{roi} meses</span>
+                                    <span>Ciclo de análisis: 36 meses</span>
                                   </div>
                                 </div>
                               )}
@@ -320,27 +341,30 @@ export default function MessageItem({
                   // Enlaces mejorados
                   a: ({ node, ...props }) => (
                     <a
-                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium water-flow-line"
+                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium relative inline-block"
                       target="_blank"
                       rel="noopener noreferrer"
                       {...props}
-                    />
+                    >
+                      {props.children}
+                      <span className="absolute bottom-0 left-0 w-full h-px bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                    </a>
                   ),
 
                   // Listas mejoradas
                   ul: ({ node, ...props }) => (
-                    <ul className="pl-6 my-2 space-y-1 custom-list" {...props} />
+                    <ul className="pl-6 my-2.5 space-y-1.5 custom-water-list" {...props} />
                   ),
                   ol: ({ node, ...props }) => (
-                    <ol className="pl-6 my-2 space-y-1 list-decimal" {...props} />
+                    <ol className="pl-6 my-2.5 space-y-1.5 list-decimal marker:text-blue-500 marker:font-medium" {...props} />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="pl-1 my-0.5 relative water-dot" {...props} />
+                    <li className="pl-1 my-0.5 relative" {...props} />
                   ),
 
-                  // Citas con estilo
+                  // Citas con estilo mejorado
                   blockquote: ({ node, ...props }) => (
-                    <blockquote className="border-l-4 border-blue-300 pl-4 py-1 my-3 italic text-gray-600 bg-blue-50/50 rounded-r-md" {...props} />
+                    <blockquote className="border-l-4 border-blue-300 pl-4 py-2 my-3 italic text-gray-600 bg-gradient-to-r from-blue-50/50 to-transparent rounded-r-md" {...props} />
                   ),
                 }}
               >
@@ -471,13 +495,21 @@ const styles = `
     z-index: -1;
   }
   
-  .custom-list li::before {
+  .custom-water-list {
+    list-style: none;
+  }
+  
+  .custom-water-list li {
+    position: relative;
+  }
+  
+  .custom-water-list li::before {
     content: '';
     position: absolute;
     left: -1.25rem;
-    top: 0.6rem;
-    width: 0.35rem;
-    height: 0.45rem;
+    top: 0.45rem;
+    width: 0.45rem;
+    height: 0.6rem;
     background-color: #38bdf8;
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);

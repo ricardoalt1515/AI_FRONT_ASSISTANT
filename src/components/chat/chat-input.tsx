@@ -130,9 +130,9 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
         className={cn(
           "relative flex items-end gap-2 rounded-xl overflow-hidden transition-all duration-200",
           isFocused
-            ? "border-2 border-blue-400 shadow-md shadow-blue-300/20"
+            ? "border-2 border-blue-400 shadow-lg shadow-blue-300/20"
             : "border border-blue-200 hover:border-blue-300 shadow-sm",
-          "bg-white/95 backdrop-blur-sm p-1"
+          "bg-gradient-to-b from-white to-blue-50/30 p-2"
         )}
       >
         {/* Efecto de ondulación en el fondo cuando está enfocado */}
@@ -159,14 +159,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
               />
 
               <motion.div
-                className="absolute top-0 left-0 right-0 bottom-0 opacity-10"
-                initial={{ backgroundPosition: "0% 0%" }}
-                animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
-                transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-                style={{
-                  backgroundImage: 'radial-gradient(circle at center, rgba(56, 189, 248, 0.3) 0%, transparent 50%)',
-                  backgroundSize: '100% 100%'
-                }}
+                className="absolute top-0 right-0 w-32 h-32 bg-gradient-radial from-blue-200/30 to-transparent opacity-60 blur-xl"
               />
             </motion.div>
           )}
@@ -181,8 +174,8 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
             onClick={() => fileInputRef.current?.click()}
             disabled={isTyping || isDisabled}
             className={cn(
-              "h-10 w-10 rounded-lg z-10 transition-colors hover-ripple",
-              "text-gray-500 hover:text-blue-700 hover:bg-blue-50"
+              "h-10 w-10 rounded-lg z-10 transition-colors",
+              "bg-blue-100/50 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
             )}
           >
             <span className="sr-only">Adjuntar archivo</span>
@@ -232,7 +225,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
               "h-10 w-10 rounded-lg shrink-0 transition-all duration-300 z-10",
               (!message.trim() && !file) || isTyping || isDisabled
                 ? "bg-gray-100 text-gray-400"
-                : "bg-gradient-blue-surface text-white shadow-sm hover:shadow-md hover:shadow-blue-400/20"
+                : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm hover:shadow-md hover:shadow-blue-400/20"
             )}
           >
             <span className="sr-only">Enviar mensaje</span>
@@ -241,8 +234,10 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
 
-            {/* Efecto de ondas al hacer click */}
-            <span className="animate-ripple-enhanced"></span>
+            {/* Efecto de onda al enviar mensaje */}
+            <span className="absolute inset-0 rounded-lg overflow-hidden">
+              <span className="absolute inset-0 rounded-lg bg-white/10 opacity-0 hover:opacity-100 transition-opacity"></span>
+            </span>
           </Button>
         </motion.div>
       </div>
@@ -325,3 +320,38 @@ function FileIcon({ className, fileType }: { className?: string, fileType: strin
 
   return icon;
 }
+
+// Añadir estas animaciones a tu globals.css
+// @keyframes ripple {
+//   0% {
+//     transform: scale(0);
+//     opacity: 0.5;
+//   }
+//   100% {
+//     transform: scale(100);
+//     opacity: 0;
+//   }
+// }
+// 
+// .hover-ripple {
+//   position: relative;
+//   overflow: hidden;
+// }
+// 
+// .hover-ripple::after {
+//   content: '';
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   width: 5px;
+//   height: 5px;
+//   background: rgba(56, 189, 248, 0.3);
+//   opacity: 0;
+//   border-radius: 100%;
+//   transform: scale(1, 1) translate(-50%, -50%);
+//   transform-origin: 50% 50%;
+// }
+// 
+// .hover-ripple:hover::after {
+//   animation: ripple 0.8s ease-out;
+// }
