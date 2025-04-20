@@ -122,16 +122,19 @@
 
 /* Colores personalizados de Hydrous */
 :root {
-  --hydrous-50: #f0f9ff;
-  --hydrous-100: #e0f2fe;
-  --hydrous-200: #bae6fd;
-  --hydrous-300: #7dd3fc;
-  --hydrous-400: #38bdf8;
-  --hydrous-500: #0ea5e9;
-  --hydrous-600: #0284c7;
-  --hydrous-700: #0369a1;
-  --hydrous-800: #075985;
-  --hydrous-900: #0c4a6e;
+  /* Colores refinados de Hydrous */
+  --hydrous-primary: #0891d5;
+  --hydrous-dark: #0369a1;
+  --hydrous-light: #7dd3fc;
+  --hydrous-accent: #0d9488;
+  --hydrous-surface: rgba(255, 255, 255, 0.85);
+  
+  /* Efectos mejorados */
+  --shadow-soft: 0 2px 8px rgba(7, 89, 133, 0.07);
+  --shadow-medium: 0 4px 12px rgba(7, 89, 133, 0.12);
+  --shadow-strong: 0 8px 24px rgba(7, 89, 133, 0.15);
+  --glass-blur: 12px;
+  --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Estilos para Markdown */
@@ -604,4 +607,57 @@
 
 .animate-enhanced-pulse {
   animation: enhanced-pulse 3s ease-in-out infinite;
+}
+
+/* Efectos refinados - añade esto al final del archivo */
+.glass-panel-refined {
+  background: var(--hydrous-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  box-shadow: var(--shadow-soft);
+}
+
+.surface-refined {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.85));
+  border: 1px solid rgba(125, 211, 252, 0.2);
+}
+
+.button-refined {
+  transition: var(--transition-standard);
+  background: linear-gradient(to bottom, var(--hydrous-light), var(--hydrous-primary));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.button-refined:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(to bottom, var(--hydrous-light), var(--hydrous-dark));
+}
+
+.button-refined:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message-user-refined {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.message-assistant-refined {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.9));
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(186, 230, 253, 0.3);
+}
+
+/* Mejoras para texto */
+.text-enhanced {
+  letter-spacing: -0.01em;
+  line-height: 1.6;
+}
+
+.heading-enhanced {
+  letter-spacing: -0.03em;
+  font-weight: 600;
 }

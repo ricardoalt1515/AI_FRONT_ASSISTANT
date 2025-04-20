@@ -265,83 +265,91 @@ export default function ChatContainer() {
         <div className="absolute inset-0 bg-gradient-radial from-blue-100/20 via-transparent to-transparent opacity-80"></div>
       </motion.div>
 
-      {/* Chat area with improved glass effect */}
+      {/* Área de chat con efecto de cristal refinado */}
       <div
         ref={containerRef}
-        className={cn(
-          "flex-1 overflow-y-auto px-3 sm:px-6 py-6 space-y-4",
-          "rounded-xl backdrop-blur-md",
-          "glass-blue scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent"
-        )}
+        className="flex-1 overflow-y-auto relative rounded-xl backdrop-blur-md scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent"
       >
-        {isInitializing ? (
-          <div className="h-full flex items-center justify-center">
-            <LoadingScreen />
-          </div>
-        ) : (
-          <AnimatePresence mode="popLayout">
-            <div className="space-y-6 pb-2">
-              {/* Message timeline indicator */}
-              {messages.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="flex justify-center mb-6"
-                >
-                  <div className="inline-flex items-center gap-2 bg-white/80 text-blue-700 text-xs font-medium px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>{new Date().toLocaleDateString()}</span>
-                    <span className="inline-block h-1 w-1 rounded-full bg-blue-300"></span>
-                    <span>Consulta Técnica</span>
-                  </div>
-                </motion.div>
-              )}
+        {/* Fondo de cristal refinado */}
+        <div className="absolute inset-0 bg-white/80 rounded-xl border border-blue-100/70"></div>
 
-              {/* Message items with animations */}
-              {messages.map((message, index) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    ease: [0.4, 0.0, 0.2, 1]
-                  }}
-                >
-                  <MessageItem
-                    message={message}
-                    isSequential={
-                      index > 0 && messages[index - 1].role === message.role
-                    }
-                    isLast={index === messages.length - 1}
-                    dropletMood={message.role === 'assistant' ? dropletMood : undefined}
-                  />
-                </motion.div>
-              ))}
+        {/* Borde brillante sutil en la parte superior */}
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
 
-              {/* Enhanced typing indicator */}
-              {isTyping && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, height: 0 }}
-                >
-                  <TypingIndicator mood={dropletMood} />
-                </motion.div>
-              )}
-
-              <div ref={messagesEndRef} />
+        {/* Contenido */}
+        <div className="relative z-10 px-3 sm:px-6 py-6 space-y-6">
+          {isInitializing ? (
+            <div className="h-full flex items-center justify-center">
+              <LoadingScreen />
             </div>
-          </AnimatePresence>
-        )}
+          ) : (
+            <AnimatePresence mode="popLayout">
+              <div className="space-y-6 pb-2">
+                {/* Message timeline indicator */}
+                {messages.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex justify-center mb-6"
+                  >
+                    <div className="inline-flex items-center gap-2 bg-white/90 text-blue-700 text-xs font-medium px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{new Date().toLocaleDateString()}</span>
+                      <span className="inline-block h-1 w-1 rounded-full bg-blue-300"></span>
+                      <span>Consulta Técnica</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Resto del contenido igual */}
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{
+                      duration: 0.4,
+                      ease: [0.4, 0.0, 0.2, 1]
+                    }}
+                  >
+                    <MessageItem
+                      message={message}
+                      isSequential={
+                        index > 0 && messages[index - 1].role === message.role
+                      }
+                      isLast={index === messages.length - 1}
+                      dropletMood={message.role === 'assistant' ? dropletMood : undefined}
+                    />
+                  </motion.div>
+                ))}
+
+                {/* Enhanced typing indicator */}
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <TypingIndicator mood={dropletMood} />
+                  </motion.div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+            </AnimatePresence>
+          )}
+        </div>
+
+        {/* Sombra interna sutil en la parte inferior */}
+        <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-gray-100/20 to-transparent"></div>
       </div>
 
-      {/* Enhanced chat input area */}
+      {/* Área de input refinada */}
       <motion.div
         className="bg-white/90 backdrop-blur-lg border-t border-blue-100 py-4 px-3 sm:px-5 rounded-b-xl shadow-md"
         initial={{ y: 20, opacity: 0 }}
