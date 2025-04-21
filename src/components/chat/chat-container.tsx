@@ -14,13 +14,33 @@ export default function ChatContainer() {
   const [isTyping, setIsTyping] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [dropletMood, setDropletMood] = useState<'default' | 'thinking' | 'happy' | 'explaining' | 'processing'>('default');
+  const [dropletMood, setDropletMood] = useState<'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical'>('default');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Iniciar conversación cuando se carga el componente
     startConversation();
+  }, []);
+
+  // Escuchar el evento personalizado 'newConversationStarted'
+  useEffect(() => {
+    const handleNewConversation = (event: CustomEvent) => {
+      const newConversationId = event.detail?.conversationId;
+      if (newConversationId) {
+        resetConversation(newConversationId);
+      } else {
+        // Si no hay ID, iniciar desde cero
+        startConversation();
+      }
+    };
+
+    // Añadir oyente para el evento custom
+    window.addEventListener('newConversationStarted', handleNewConversation as EventListener);
+
+    return () => {
+      window.removeEventListener('newConversationStarted', handleNewConversation as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -58,6 +78,10 @@ export default function ChatContainer() {
         lastContent.includes('calculando') ||
         lastContent.includes('procesando')) {
         setDropletMood('processing');
+      } else if (lastContent.includes('técnico') ||
+        lastContent.includes('parámetros') ||
+        lastContent.includes('ingeniería')) {
+        setDropletMood('technical');
       } else {
         setDropletMood('explaining');
       }
@@ -77,6 +101,31 @@ export default function ChatContainer() {
         behavior: "smooth",
         block: "end"
       });
+    }
+  };
+
+  // Función para resetear el estado de la conversación con un ID existente
+  const resetConversation = (newId?: string) => {
+    setMessages([]);
+    setIsTyping(false);
+    setDropletMood('default');
+
+    if (newId) {
+      setConversationId(newId);
+      setIsInitializing(false);
+
+      // Agregar mensaje de bienvenida para la nueva conversación
+      const welcomeMessage: Message = {
+        id: `welcome-${Date.now()}`,
+        role: "assistant",
+        content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué proyecto puedo ayudarte hoy?",
+        created_at: new Date().toISOString(),
+      };
+      setMessages([welcomeMessage]);
+    } else {
+      setConversationId(null);
+      setIsInitializing(true);
+      startConversation();
     }
   };
 
@@ -189,6 +238,21 @@ export default function ChatContainer() {
           created_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, systemMessage]);
+        return;
+      }
+
+      // Si es descarga de propuesta
+      if (data.action === "download_proposal_pdf" && data.download_url) {
+        window.open(data.download_url, "_blank");
+
+        // Añadir mensaje de propuesta lista
+        const assistantMessage: Message = {
+          id: data.id || `assistant-${Date.now()}`,
+          role: "assistant",
+          content: data.message || "¡Tu propuesta está lista! Se ha abierto en una nueva pestaña.",
+          created_at: data.created_at || new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
         return;
       }
 

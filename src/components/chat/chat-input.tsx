@@ -145,6 +145,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
+              {/* Fondo de agua con patrón técnico */}
               <motion.div
                 className="absolute bottom-0 w-full h-1/3 bg-blue-50/60 rounded-t-full"
                 animate={{
@@ -155,6 +156,18 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
                   repeat: Infinity,
                   duration: 6,
                   ease: "easeInOut"
+                }}
+              />
+
+              {/* Patrones hexagonales técnicos */}
+              <div
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: `
+              repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(56, 189, 248, 0.05) 8px, rgba(56, 189, 248, 0.05) 9px),
+              repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(56, 189, 248, 0.05) 8px, rgba(56, 189, 248, 0.05) 9px)
+            `,
+                  backgroundSize: '12px 12px'
                 }}
               />
 

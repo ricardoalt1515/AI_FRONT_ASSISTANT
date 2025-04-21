@@ -89,10 +89,10 @@ export default function MessageItem({
           className={cn(
             "px-5 py-3 transition-all duration-300",
             isUser
-              ? "bg-gradient-blue-surface text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-600/10 hover:shadow-lg border border-blue-500"
+              ? "bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-600/15 hover:shadow-lg border border-blue-400/50 message-user-refined"
               : "relative backdrop-blur-sm rounded-2xl rounded-tl-sm hover:shadow-lg overflow-hidden border",
             containsCode && !isUser ? "shadow-md shadow-blue-200/30" : "shadow-sm",
-            !isUser && "droplet-message bg-white/95 border-blue-100"
+            !isUser && "droplet-message bg-white/95 border-blue-100 message-assistant-refined"
           )}
         >
           {/* Fondo animado sutil para los mensajes de la IA */}
@@ -100,6 +100,10 @@ export default function MessageItem({
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-white/90 -z-10"></div>
           )}
 
+          {/* Líneas decorativas técnicas para mensajes de la IA */}
+          {!isUser && (
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-50 via-blue-200/30 to-blue-50 opacity-50"></div>
+          )}
           {isUser ? (
             <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
           ) : (
@@ -450,6 +454,7 @@ export default function MessageItem({
 // Estilos CSS específicos para burbujas de estilo de gota de agua
 // Estos estilos se deben incluir en un archivo CSS o como parte de un componente de estilo
 const styles = `
+  /* Burbuja principal estilo "gota técnica" */
   .droplet-message {
     position: relative;
     border-top-left-radius: 4px !important;
@@ -459,18 +464,57 @@ const styles = `
     content: '';
     position: absolute;
     top: 0;
-    left: -8px;
-    width: 16px;
-    height: 16px;
+    left: -10px;
+    width: 18px;
+    height: 18px;
     background: inherit;
-    border-left: 1px solid var(--blue-100);
-    border-bottom: 1px solid var(--blue-100);
+    border-left: 1px solid var(--color-hydrous-100);
+    border-bottom: 1px solid var(--color-hydrous-100);
     border-bottom-left-radius: 16px;
     border-top: 0;
     border-right: 0;
     z-index: -1;
   }
   
+  /* Líneas técnicas sutiles en burbujas */
+  .message-assistant-refined::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background-image: 
+      radial-gradient(circle at center, rgba(56, 189, 248, 0.2) 2px, transparent 2px),
+      linear-gradient(to right, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+    background-size: 8px 8px, 10px 10px, 10px 10px;
+    background-position: center, 0 0, 0 0;
+    border-radius: 0 8px 0 0;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  /* Burbuja del usuario con estilo técnico */
+  .message-user-refined {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .message-user-refined::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(120deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%),
+      repeating-linear-gradient(60deg, rgba(255, 255, 255, 0) 0px, rgba(255, 255, 255, 0.1) 12px, rgba(255, 255, 255, 0) 24px);
+    background-size: 100% 100%, 120px 120px;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+  
+  /* Mejorar lista personalizada con gotas técnicas */
   .custom-list li::before {
     content: '';
     position: absolute;
@@ -479,8 +523,25 @@ const styles = `
     width: 0.35rem;
     height: 0.45rem;
     background-color: #38bdf8;
-    border-radius: 50% 50% 50% 0;
+    border-radius: 2px 50% 50% 1px;
     transform: rotate(-45deg);
+  }
+  
+  /* Bordes técnicos en tablas */
+  .technical-parameter {
+    position: relative;
+    border-left: 2px solid rgba(56, 189, 248, 0.3);
+  }
+  
+  .technical-parameter::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.3), transparent);
+    border-radius: 0 2px 2px 0;
   }
 `;
 

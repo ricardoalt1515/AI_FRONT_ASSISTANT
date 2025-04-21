@@ -4,6 +4,8 @@ import "./globals.css";
 import "./water-effects.css";
 import "./extras.css";
 import "./enhanced-theme.css"; // Nuevo tema mejorado
+import "./enhanced-colors.css"; // Agregar esta línea
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
