@@ -8,6 +8,7 @@ import { Message } from "@/types/chat";
 import { cn } from "@/lib/utils";
 import DropletAvatar from "./droplet-avatar";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiService } from "@/lib/api-client"; // Importamos el nuevo servicio API unificado
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -133,16 +134,14 @@ export default function ChatContainer() {
     try {
       setIsInitializing(true);
 
-      const response = await fetch("/api/chat/start", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // Verificar si el backend está inicializando
+      if (apiService.isInitializing && apiService.isInitializing()) {
+        // La pantalla de carga ya está mostrándose
+        console.log("Backend inicializándose, esperando...")
+      }
 
-      if (!response.ok) throw new Error("Error iniciando conversación");
-
-      const data = await response.json();
+      // Usamos el nuevo servicio API unificado
+      const data = await apiService.startConversation();
       setConversationId(data.id);
 
       // Si la API devuelve mensaje inicial, añadirlo
@@ -191,39 +190,16 @@ export default function ChatContainer() {
     await new Promise(resolve => setTimeout(resolve, 300));
 
     try {
-      let response;
+      let data;
 
       if (file) {
-        // Enviar mensaje con archivo
-        const formData = new FormData();
-        formData.append("conversation_id", conversationId);
-        formData.append("message", messageText);
-        formData.append("file", file);
-
-        response = await fetch("/api/documents/upload", {
-          method: "POST",
-          body: formData,
-        });
+        // Enviar mensaje con archivo usando el nuevo servicio
+        data = await apiService.uploadDocument(conversationId, file, messageText);
       } else {
-        // Enviar mensaje de texto normal
-        response = await fetch("/api/chat/message", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            conversation_id: conversationId,
-            message: messageText,
-          }),
-        });
+        // Enviar mensaje de texto normal usando el nuevo servicio
+        data = await apiService.sendMessage(conversationId, messageText);
       }
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.detail || `Error ${response.status}`);
-      }
-
-      const data = await response.json();
       setIsTyping(false);
 
       // Si es descarga de PDF
@@ -436,7 +412,7 @@ export default function ChatContainer() {
   );
 }
 
-// Enhanced loading screen with more sophisticated animations
+// Componente de pantalla de carga separado para resolver el error de sintaxis
 function LoadingScreen() {
   const [progress, setProgress] = useState(0);
 

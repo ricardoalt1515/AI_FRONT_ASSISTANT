@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 
+// Obtener URL del backend desde variable de entorno
+const BACKEND_URL = process.env.BACKEND_URL || "https://backend-chatbot-owzs.onrender.com/api";
+
 export async function POST() {
   try {
     // Hacer la petición a tu API real
-    const response = await fetch("https://backend-chatbot-owzs.onrender.com/api/chat/start", {
+    const response = await fetch(`${BACKEND_URL}/chat/start`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
