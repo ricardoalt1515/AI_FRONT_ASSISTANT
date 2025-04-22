@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "./water-effects.css";
-import "./extras.css";
-import "./enhanced-theme.css"; // Nuevo tema mejorado
-import "./enhanced-colors.css"; // Agregar esta línea
-
+import "./animations.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "H₂O Allegiant AI | Soluciones Inteligentes de Agua",
-  description: "Chatbot inteligente especializado en ingeniería y diseño de soluciones avanzadas de tratamiento de agua",
+  title: "H₂O Allegiant AI | Smart Water Solutions",
+  description: "Intelligent chatbot specialized in engineering and design of advanced water treatment solutions",
   icons: {
     icon: '/favicon.svg',
   },

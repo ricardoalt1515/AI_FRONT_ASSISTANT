@@ -136,13 +136,13 @@ export default function TypingIndicator({ mood = 'thinking' }: TypingIndicatorPr
 function getThinkingText(mood: string): string {
   switch (mood) {
     case 'thinking':
-      return 'Analizando tu consulta';
+      return 'Analyzing consultation';
     case 'processing':
-      return 'Procesando datos técnicos';
+      return 'processing technical data';
     case 'explaining':
-      return 'Elaborando respuesta';
+      return 'Elaborating answer';
     default:
-      return 'Generando solución';
+      return 'Generating solution';
   }
 }
 
@@ -150,12 +150,12 @@ function getThinkingText(mood: string): string {
 function getSubText(mood: string): string {
   switch (mood) {
     case 'thinking':
-      return 'Evaluando requerimientos técnicos';
+      return 'Evaluating technical requirements';
     case 'processing':
-      return 'Aplicando modelos de ingeniería hídrica';
+      return 'Applying water engineering models';
     case 'explaining':
-      return 'Preparando detalles técnicos';
+      return 'Preparing technical details';
     default:
-      return 'Optimizando parámetros';
+      return 'Optimizing parameters';
   }
 }

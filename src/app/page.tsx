@@ -41,7 +41,7 @@ export default function Home() {
         <div className="container max-w-5xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-blue-600/80">
-              © {new Date().getFullYear()} H₂O Allegiant • Soluciones Avanzadas de Tratamiento de Agua
+              © {new Date().getFullYear()} H₂O Allegiant • Advanced Water Treatment Solutions
             </div>
           </div>
         </div>

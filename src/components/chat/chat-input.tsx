@@ -224,8 +224,8 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
           onBlur={() => setIsFocused(false)}
           disabled={isTyping || isDisabled}
           placeholder={isDisabled
-            ? "Inicializando H₂O Allegiant AI..."
-            : "¿Qué solución de tratamiento de agua necesitas? Describe tu proyecto..."}
+            ? "Initialising H₂O Allegiant AI..."
+            : "What water treatment solution do you need? Describe your project..."}
           className={cn(
             "min-h-[44px] max-h-[140px] resize-none border-0 p-3 z-10",
             "focus-visible:ring-0 focus-visible:ring-offset-0 flex-1",

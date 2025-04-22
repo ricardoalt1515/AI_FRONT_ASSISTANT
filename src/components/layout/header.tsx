@@ -176,7 +176,7 @@ export default function Header() {
 
                 <div className="flex items-center flex-wrap gap-3 mt-0.5 relative z-10">
                   <p className="text-sm font-medium text-blue-600">
-                    <span className="inline-block">Ingeniería de Soluciones Hídricas</span>
+                    <span className="inline-block">Hydratic Solution Engineering</span>
                   </p>
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function Header() {
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">Eficacia</span>
+                    <span className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">Efficacy</span>
                     <motion.span
                       className="font-semibold text-blue-700 group-hover:text-blue-800 transition-colors"
                       initial={{ opacity: 0 }}
@@ -229,7 +229,7 @@ export default function Header() {
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">Ahorro</span>
+                    <span className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">Savings</span>
                     <motion.span
                       className="font-semibold text-blue-700 group-hover:text-blue-800 transition-colors"
                       initial={{ opacity: 0 }}
@@ -279,7 +279,7 @@ export default function Header() {
                       <line x1="8" y1="10" x2="16" y2="10" />
                       <line x1="12" y1="6" x2="12" y2="14" />
                     </svg>
-                    Nueva consulta
+                    New Conversation
                   </>
                 )}
               </Button>

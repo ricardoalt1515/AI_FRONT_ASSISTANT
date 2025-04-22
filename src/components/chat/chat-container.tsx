@@ -118,7 +118,7 @@ export default function ChatContainer() {
       const welcomeMessage: Message = {
         id: `welcome-${Date.now()}`,
         role: "assistant",
-        content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué proyecto puedo ayudarte hoy?",
+        content: "Hello, I am H₂O Allegiant AI, your engineer specialized in water treatment solutions. How can I assist you with your project today?",
         created_at: new Date().toISOString(),
       };
       setMessages([welcomeMessage]);
@@ -159,7 +159,7 @@ export default function ChatContainer() {
           const welcomeMessage: Message = {
             id: `welcome-${Date.now()}`,
             role: "assistant",
-            content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué proyecto puedo ayudarte hoy?",
+            content: "Hello, I am H₂O Allegiant AI, your engineer specialized in water treatment solutions. How can I assist you with your project today?",
             created_at: new Date().toISOString(),
           };
           setMessages([welcomeMessage]);
@@ -364,7 +364,7 @@ export default function ChatContainer() {
                       </svg>
                       <span>{new Date().toLocaleDateString()}</span>
                       <span className="inline-block h-1 w-1 rounded-full bg-blue-300"></span>
-                      <span>Consulta Técnica</span>
+                      <span>Technical Consultation</span>
                     </div>
                   </motion.div>
                 )}
@@ -515,10 +515,10 @@ function LoadingScreen() {
       >
         <div className="glass-blue px-8 py-4 rounded-xl text-center">
           <h3 className="text-xl text-blue-700 font-medium">
-            Inicializando H₂O Allegiant AI
+            Initializing H₂O Allegiant AI
           </h3>
           <p className="text-gray-600 mt-1">
-            Preparando modelos de ingeniería hídrica...
+            Preparing water engineering models...
           </p>
         </div>
       </motion.div>
