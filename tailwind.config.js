@@ -1,135 +1,245 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        // Paleta principal unificada de H₂O Allegiant
-        h2o: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-        },
-        // Colores técnicos secundarios
-        teal: {
-          50: '#eefcfa',
-          100: '#d5f6f2',
-          200: '#aeeee5',
-          300: '#74e1d5',
-          400: '#43d1c4',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-        },
-        // Azul profundo para datos importantes
-        deep: {
-          50: '#eff5fb',
-          100: '#dae7f6',
-          200: '#b3cfed',
-          300: '#84aedf',
-          400: '#5586ce',
-          500: '#3b68b8',
-          600: '#2d4e96',
-          700: '#243c74',
-          800: '#1e3260',
-          900: '#1e3a8a',
-        },
-        // Naranja técnico para alertas
-        alert: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
-        },
-      },
-      animation: {
-        // Animaciones de agua unificadas
-        'water-ripple': 'water-ripple 2s linear infinite',
-        'water-wave': 'water-wave 3s ease-in-out infinite',
-        'water-float': 'water-float 15s ease-in-out infinite',
-        'water-pulse': 'water-pulse 10s ease-in-out infinite',
-        'water-sine': 'water-sine 4s ease-in-out infinite',
-        'progress-bar': 'progress-bar 2s ease-out forwards',
-        'droplet-bounce': 'droplet-bounce 2s ease-in-out infinite',
-        'micro-bubbles': 'micro-bubbles 3s ease-in-out infinite',
-        'enhanced-pulse': 'enhanced-pulse 3s ease-in-out infinite',
-      },
-      keyframes: {
-        'water-ripple': {
-          '0%': { transform: 'scale(0.95)', opacity: '1' },
-          '100%': { transform: 'scale(1.5)', opacity: '0' },
-        },
-        'water-wave': {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-5px)' },
-        },
-        'water-float': {
-          '0%, 100%': { transform: 'translate(0, 0)' },
-          '25%': { transform: 'translate(15px, -10px)' },
-          '50%': { transform: 'translate(5px, 10px)' },
-          '75%': { transform: 'translate(-10px, -7px)' },
-        },
-        'water-pulse': {
-          '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
-          '50%': { transform: 'scale(1.1)', opacity: '0.7' },
-        },
-        'water-sine': {
-          '0%, 100%': { transform: 'translateY(0) skewX(0)' },
-          '25%': { transform: 'translateY(-5px) skewX(2deg)' },
-          '50%': { transform: 'translateY(0) skewX(0)' },
-          '75%': { transform: 'translateY(5px) skewX(-2deg)' },
-        },
-        'progress-bar': {
-          '0%': { width: '0' },
-          '100%': { width: '100%' },
-        },
-        'droplet-bounce': {
-          '0%, 100%': { transform: 'translateY(0) scale(1)' },
-          '50%': { transform: 'translateY(-5px) scale(1.05)' },
-        },
-        'micro-bubbles': {
-          '0%': { opacity: '0.4', transform: 'translateY(0) scale(1)' },
-          '50%': { opacity: '0.7', transform: 'translateY(-10px) scale(0.8)' },
-          '100%': { opacity: '0', transform: 'translateY(-20px) scale(0.6)' },
-        },
-        'enhanced-pulse': {
-          '0%, 100%': { transform: 'scale(1)', opacity: '0.5', boxShadow: '0 0 10px rgba(56, 189, 248, 0.3)' },
-          '50%': { transform: 'scale(1.05)', opacity: '0.7', boxShadow: '0 0 25px rgba(56, 189, 248, 0.5)' },
-        },
-      },
-      boxShadow: {
-        'water-sm': '0 2px 10px rgba(7, 89, 133, 0.08)',
-        'water-md': '0 5px 20px rgba(7, 89, 133, 0.12)',
-        'water-lg': '0 10px 30px rgba(7, 89, 133, 0.18)',
-        'water-glow': '0 0 20px rgba(56, 189, 248, 0.3)',
-        'water-glow-lg': '0 0 30px rgba(56, 189, 248, 0.4)',
-      },
-      backgroundImage: {
-        'water-pattern': 'radial-gradient(circle at 25% 25%, rgba(125, 211, 252, 0.2) 1%, transparent 8%), radial-gradient(circle at 75% 44%, rgba(125, 211, 252, 0.2) 2%, transparent 10%)',
-        'gradient-water': 'linear-gradient(135deg, var(--tw-gradient-stops))',
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-      },
-    },
-  },
-  plugins: [require("tailwindcss-animate")],
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20 % 98 %;
+    --foreground: 215 25 % 27 %;
+    --card: 0 0 % 100 %;
+    --card - foreground: 215 25 % 27 %;
+    --popover: 0 0 % 100 %;
+    --popover - foreground: 215 25 % 27 %;
+    --primary: 199 89 % 48 %;
+    --primary - foreground: 0 0 % 100 %;
+    --secondary: 210 40 % 96.1 %;
+    --secondary - foreground: 215 25 % 27 %;
+    --muted: 210 40 % 96.1 %;
+    --muted - foreground: 215 20 % 65 %;
+    --accent: 199 89 % 48 %;
+    --accent - foreground: 0 0 % 100 %;
+    --destructive: 0 84.2 % 60.2 %;
+    --destructive - foreground: 0 0 % 100 %;
+    --border: 214.3 31.8 % 91.4 %;
+    --input: 214.3 31.8 % 91.4 %;
+    --ring: 199 89 % 48 %;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 217 33 % 17 %;
+    --foreground: 210 20 % 98 %;
+    --card: 217 33 % 17 %;
+    --card - foreground: 210 20 % 98 %;
+    --popover: 217 33 % 17 %;
+    --popover - foreground: 210 20 % 98 %;
+    --primary: 199 89 % 48 %;
+    --primary - foreground: 0 0 % 100 %;
+    --secondary: 217 19 % 27 %;
+    --secondary - foreground: 210 20 % 98 %;
+    --muted: 217 19 % 27 %;
+    --muted - foreground: 215 20 % 65 %;
+    --accent: 199 89 % 48 %;
+    --accent - foreground: 0 0 % 100 %;
+    --destructive: 0 62.8 % 30.6 %;
+    --destructive - foreground: 210 20 % 98 %;
+    --border: 217 19 % 27 %;
+    --input: 217 19 % 27 %;
+    --ring: 199 89 % 48 %;
+  }
+}
+
+@layer base {
+  * {
+    @apply border - border;
+}
+  body {
+  @apply bg - background text - foreground font - sans;
+  font - feature - settings: "rlig" 1, "calt" 1;
+}
+
+  /* Establecer la fuente Inter como fuente principal */
+  :root {
+  --font - sans: Inter, -apple - system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans - serif;
+  --font - mono: ui - monospace, SFMono - Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+  
+  .font - sans {
+  font - family: var(--font - sans);
+}
+  
+  .font - mono {
+  font - family: var(--font - mono);
+}
+}
+
+/* Estilos para Markdown */
+.markdown - content {
+  @apply text - gray - 700 dark: text - gray - 300 text - sm sm: text - base leading - relaxed;
+}
+
+.markdown - content h1 {
+  @apply text - xl font - semibold text - gray - 800 dark: text - gray - 100 mt - 6 mb - 4;
+}
+
+.markdown - content h2 {
+  @apply text - lg font - semibold text - gray - 700 dark: text - gray - 200 mt - 5 mb - 3;
+}
+
+.markdown - content h3 {
+  @apply text - base font - semibold text - gray - 600 dark: text - gray - 300 mt - 4 mb - 2;
+}
+
+.markdown - content p {
+  @apply mb - 4 text - gray - 700 dark: text - gray - 300;
+}
+
+.markdown - content ul, .markdown - content ol {
+  @apply pl - 7 my - 3;
+}
+
+.markdown - content ul {
+  @apply list - disc;
+}
+
+.markdown - content ol {
+  @apply list - decimal;
+}
+
+.markdown - content li {
+  @apply mb - 1.5 relative;
+}
+
+.markdown - content a {
+  @apply text - blue - 600 dark: text - blue - 400 no - underline hover: underline;
+}
+
+.markdown - content blockquote {
+  @apply border - l - 4 border - blue - 300 dark: border - blue - 700 pl - 4 py - 2 my - 4 text - gray - 600 dark: text - gray - 400 italic bg - blue - 50 dark: bg - blue - 950 / 50 rounded - r - md;
+}
+
+/* Tablas técnicas */
+.markdown - content table {
+  @apply w - full my - 6 border - collapse overflow - hidden rounded - md;
+}
+
+.markdown - content table thead {
+  @apply bg - gradient - to - r from - blue - 50 to - blue - 100 / 50 dark: from - blue - 900 / 50 dark: to - blue - 800 / 30;
+}
+
+.markdown - content table th {
+  @apply text - left p - 3 font - medium text - blue - 800 dark: text - blue - 300 border - b border - blue - 200 dark: border - blue - 800 sticky top - 0 z - 10;
+}
+
+.markdown - content table td {
+  @apply p - 3 border - b border - blue - 200 / 30 dark: border - blue - 800 / 30 align - middle;
+}
+
+/* Código */
+.markdown - content pre {
+  @apply bg - gray - 50 dark: bg - gray - 900 border border - gray - 100 dark: border - gray - 800 p - 4 rounded - md overflow - x - auto text - sm my - 6 shadow - inner font - mono relative;
+}
+
+.markdown - content code {
+  @apply font - mono text - [0.9em] px - 1.5 py - 0.5 bg - gray - 100 / 70 dark: bg - gray - 800 / 70 rounded text - blue - 700 dark: text - blue - 400;
+}
+
+/* Scrollbar */
+.scrollbar - thin:: -webkit - scrollbar {
+  @apply w - 1.5;
+}
+
+.scrollbar - thin:: -webkit - scrollbar - track {
+  @apply bg - transparent;
+}
+
+.scrollbar - thin:: -webkit - scrollbar - thumb {
+  @apply bg - blue - 200 dark: bg - blue - 800 rounded - full;
+}
+
+.scrollbar - thin:: -webkit - scrollbar - thumb:hover {
+  @apply bg - blue - 300 dark: bg - blue - 700;
+}
+
+/* Estilos para burbujas de chat */
+.message - assistant {
+  position: relative;
+  border - top - left - radius: 4px!important;
+}
+
+.message - assistant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border - left: 1px solid var(--tw - border - color);
+  border - bottom: 1px solid var(--tw - border - color);
+  border - bottom - left - radius: 12px;
+  clip - path: polygon(0 0, 100 % 100 %, 0 100 %);
+  transform: rotate(45deg);
+  transform - origin: 0 100 %;
+}
+
+.message - user {
+  position: relative;
+  border - top - right - radius: 4px!important;
+}
+
+.message - user::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -6px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border - right: 1px solid var(--tw - border - color);
+  border - top: 1px solid var(--tw - border - color);
+  border - top - right - radius: 12px;
+  clip - path: polygon(0 0, 100 % 0, 100 % 100 %);
+  transform: rotate(45deg);
+  transform - origin: 100 % 0;
+}
+
+/* Ajustes responsivos */
+@media(max - width: 640px) {
+  .markdown - content pre {
+    font - size: 0.75rem;
+  }
+  
+  .markdown - content table {
+    display: block;
+    overflow - x: auto;
+    white - space: nowrap;
+  }
+  
+  .markdown - content table th,
+  .markdown - content table td {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Estilos de efecto de agua */
+.water - flow - line {
+  position: relative;
+}
+
+.water - flow - line::after {
+  content: '';
+  position: absolute;
+  height: 1px;
+  width: 100 %;
+  bottom: -4px;
+  left: 0;
+  @apply bg - gradient - to - r from - blue - 300 via - blue - 400 to - blue - 300 dark: from - blue - 700 dark: via - blue - 600 dark: to - blue - 700;
+  transform: scaleX(0);
+  transform - origin: left;
+  transition: transform 0.4s ease;
+}
+
+.water - flow - line: hover::after {
+  transform: scaleX(1);
 }

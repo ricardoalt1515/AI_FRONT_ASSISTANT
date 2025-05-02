@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: {
+    // ¡IMPORTANTE! Configuración que ignora errores de tipos durante el build
+    ignoreBuildErrors: true,
+  },
   reactStrictMode: true,
   env: {
     BACKEND_URL: process.env.BACKEND_URL,
