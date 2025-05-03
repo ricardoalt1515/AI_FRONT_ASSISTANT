@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Message } from "@/types/chat";
+import { apiService } from "@/lib/api-client";
+import { Button } from "@/components/ui/button";
 import MessageItem from "./message-item";
 import ChatInput from "./chat-input";
 import TypingIndicator from "./typing-indicator";
-import { Message } from "@/types/chat";
-import { cn } from "@/lib/utils";
-import DropletAvatar from "./droplet-avatar";
-import { motion, AnimatePresence } from "framer-motion";
-import { apiService } from "@/lib/api-client"; // Importamos el nuevo servicio API unificado
+import LoadingScreen from "./loading-screen";
+import { ArrowDown, RefreshCw } from "lucide-react";
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -16,37 +18,48 @@ export default function ChatContainer() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [dropletMood, setDropletMood] = useState<'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical'>('default');
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Iniciar conversación cuando se carga el componente
+    // Start conversation when component loads
     startConversation();
-  }, []);
 
-  // Escuchar el evento personalizado 'newConversationStarted'
-  useEffect(() => {
+    // Listen for the custom 'newConversationStarted' event
     const handleNewConversation = (event: CustomEvent) => {
       const newConversationId = event.detail?.conversationId;
       if (newConversationId) {
         resetConversation(newConversationId);
       } else {
-        // Si no hay ID, iniciar desde cero
         startConversation();
       }
     };
 
-    // Añadir oyente para el evento custom
     window.addEventListener('newConversationStarted', handleNewConversation as EventListener);
-
     return () => {
       window.removeEventListener('newConversationStarted', handleNewConversation as EventListener);
     };
   }, []);
 
+  // Handle scrolling
   useEffect(() => {
-    // Scroll inteligente: solo scrollear automáticamente si ya estaba al final
-    // o si es un mensaje nuevo del usuario
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      // Show scroll button when not at bottom
+      const isScrolledToBottom =
+        container.scrollHeight - container.clientHeight <= container.scrollTop + 150;
+      setShowScrollButton(!isScrolledToBottom);
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Auto-scroll on new messages
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
@@ -57,37 +70,35 @@ export default function ChatContainer() {
     const isUserLastMessage = lastMessage?.role === 'user';
 
     if (isScrolledToBottom || isUserLastMessage || isTyping) {
-      scrollToBottom();
+      scrollToBottom("auto");
     }
   }, [messages, isTyping]);
 
-  // Efecto para cambiar el humor de Droplet según el contexto
+  // Update Droplet's mood based on context
   useEffect(() => {
     if (isTyping) {
       setDropletMood('thinking');
     } else if (messages.length === 0) {
       setDropletMood('default');
     } else if (messages.length > 0 && messages[messages.length - 1].role === 'assistant') {
-      // Alternar entre different moods basados en el contenido del mensaje
       const lastContent = messages[messages.length - 1].content.toLowerCase();
 
-      if (lastContent.includes('perfecto') ||
-        lastContent.includes('excelente') ||
-        lastContent.includes('genial')) {
+      if (lastContent.includes('perfect') ||
+        lastContent.includes('excellent') ||
+        lastContent.includes('great')) {
         setDropletMood('happy');
-      } else if (lastContent.includes('análisis') ||
-        lastContent.includes('calculando') ||
-        lastContent.includes('procesando')) {
+      } else if (lastContent.includes('analysis') ||
+        lastContent.includes('calculating') ||
+        lastContent.includes('processing')) {
         setDropletMood('processing');
-      } else if (lastContent.includes('técnico') ||
-        lastContent.includes('parámetros') ||
-        lastContent.includes('ingeniería')) {
+      } else if (lastContent.includes('technical') ||
+        lastContent.includes('parameters') ||
+        lastContent.includes('engineering')) {
         setDropletMood('technical');
       } else {
         setDropletMood('explaining');
       }
 
-      // Volver al estado default después de un tiempo
       const timer = setTimeout(() => {
         setDropletMood('default');
       }, 5000);
@@ -96,16 +107,15 @@ export default function ChatContainer() {
     }
   }, [isTyping, messages]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = (behavior: "smooth" | "auto" = "smooth") => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
-        behavior: "smooth",
+        behavior,
         block: "end"
       });
     }
   };
 
-  // Función para resetear el estado de la conversación con un ID existente
   const resetConversation = (newId?: string) => {
     setMessages([]);
     setIsTyping(false);
@@ -115,7 +125,6 @@ export default function ChatContainer() {
       setConversationId(newId);
       setIsInitializing(false);
 
-      // Agregar mensaje de bienvenida para la nueva conversación
       const welcomeMessage: Message = {
         id: `welcome-${Date.now()}`,
         role: "assistant",
@@ -134,26 +143,21 @@ export default function ChatContainer() {
     try {
       setIsInitializing(true);
 
-      // Verificar si el backend está inicializando
       if (apiService.isInitializing && apiService.isInitializing()) {
-        // La pantalla de carga ya está mostrándose
-        console.log("Backend inicializándose, esperando...")
+        console.log("Backend initializing, waiting...")
       }
 
-      // Usamos el nuevo servicio API unificado
       const data = await apiService.startConversation();
       setConversationId(data.id);
 
-      // Si la API devuelve mensaje inicial, añadirlo
       if (data.messages && data.messages.length > 0) {
         setMessages(data.messages);
       }
 
-      // Retraso artificial para animación de carga suave
+      // Artificial delay for smoother loading animation
       setTimeout(() => {
         setIsInitializing(false);
 
-        // Si no hay mensajes iniciales, añadimos un mensaje de bienvenida
         if (!data.messages || data.messages.length === 0) {
           const welcomeMessage: Message = {
             id: `welcome-${Date.now()}`,
@@ -166,8 +170,8 @@ export default function ChatContainer() {
       }, 1200);
 
     } catch (error) {
-      console.error("Error iniciando chat:", error);
-      alert("Error de conexión: No se pudo establecer conexión con el servidor.");
+      console.error("Error starting chat:", error);
+      alert("Connection error: Could not establish a connection to the server.");
       setIsInitializing(false);
     }
   };
@@ -175,7 +179,7 @@ export default function ChatContainer() {
   const sendMessage = async (messageText: string, file?: File) => {
     if ((!messageText.trim() && !file) || !conversationId || isTyping) return;
 
-    // Añadir mensaje del usuario localmente primero
+    // Add user message locally first
     const userMessage: Message = {
       id: `temp-${Date.now()}`,
       role: "user",
@@ -185,54 +189,51 @@ export default function ChatContainer() {
 
     setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
+    scrollToBottom();
 
-    // Para efecto visual, esperar un momento antes de mostrar typing
+    // Visual delay before showing typing
     await new Promise(resolve => setTimeout(resolve, 300));
 
     try {
       let data;
 
       if (file) {
-        // Enviar mensaje con archivo usando el nuevo servicio
         data = await apiService.uploadDocument(conversationId, file, messageText);
       } else {
-        // Enviar mensaje de texto normal usando el nuevo servicio
         data = await apiService.sendMessage(conversationId, messageText);
       }
 
       setIsTyping(false);
 
-      // Si es descarga de PDF
+      // Handle PDF download
       if (data.action === "trigger_download" && data.download_url) {
         window.open(data.download_url, "_blank");
 
-        // Añadir mensaje informativo
         const systemMessage: Message = {
           id: `system-${Date.now()}`,
           role: "assistant",
-          content: "📄 **Tu propuesta ha sido generada exitosamente.**\n\nEl documento PDF debería abrirse automáticamente. Si necesitas descargarlo nuevamente, escribe \"descargar propuesta\" o \"descargar pdf\".",
+          content: "📄 **Your proposal has been generated successfully.**\n\nThe PDF document should open automatically. If you need to download it again, type \"download proposal\" or \"download pdf\".",
           created_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, systemMessage]);
         return;
       }
 
-      // Si es descarga de propuesta
+      // Handle proposal download
       if (data.action === "download_proposal_pdf" && data.download_url) {
         window.open(data.download_url, "_blank");
 
-        // Añadir mensaje de propuesta lista
         const assistantMessage: Message = {
           id: data.id || `assistant-${Date.now()}`,
           role: "assistant",
-          content: data.message || "¡Tu propuesta está lista! Se ha abierto en una nueva pestaña.",
+          content: data.message || "Your proposal is ready! It has opened in a new tab.",
           created_at: data.created_at || new Date().toISOString(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
         return;
       }
 
-      // Mensaje normal del asistente
+      // Normal assistant message
       if (data.message) {
         const assistantMessage: Message = {
           id: data.id || `assistant-${Date.now()}`,
@@ -243,14 +244,13 @@ export default function ChatContainer() {
         setMessages((prev) => [...prev, assistantMessage]);
       }
     } catch (error) {
-      console.error("Error enviando mensaje:", error);
+      console.error("Error sending message:", error);
       setIsTyping(false);
 
-      // Mensaje de error
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: "assistant",
-        content: "Lo siento, ha ocurrido un error en la comunicación. Por favor, intenta de nuevo o refresca la página si el problema persiste.",
+        content: "I'm sorry, a communication error has occurred. Please try again or refresh the page if the problem persists.",
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -259,20 +259,10 @@ export default function ChatContainer() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto relative">
-      {/* Background with enhanced water effects */}
-      <motion.div
-        className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        {/* Refined gradient background */}
+      {/* Enhanced Background with water effects */}
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-white/80 to-white/90 opacity-80"></div>
 
-        {/* Subtle water pattern */}
-        <div className="absolute inset-0 bg-water-pattern opacity-30"></div>
-
-        {/* Abstract fluid shapes */}
         <motion.div
           className="absolute top-1/3 left-1/4 w-[45rem] h-[45rem] rounded-full bg-blue-200/10
                    filter blur-3xl opacity-40"
@@ -285,7 +275,7 @@ export default function ChatContainer() {
             duration: 30,
             ease: "easeInOut"
           }}
-        ></motion.div>
+        />
 
         <motion.div
           className="absolute bottom-1/4 right-1/3 w-[40rem] h-[40rem] rounded-full bg-blue-300/10
@@ -299,233 +289,131 @@ export default function ChatContainer() {
             duration: 25,
             ease: "easeInOut"
           }}
-        ></motion.div>
-
-        {/* Light streak effect */}
-        <div className="absolute inset-0 bg-gradient-radial from-blue-100/20 via-transparent to-transparent opacity-80"></div>
-      </motion.div>
-
-      {/* Área de chat con efecto de cristal refinado */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto relative rounded-xl backdrop-blur-md scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent"
-      >
-        {/* Fondo de cristal refinado */}
-        <div className="absolute inset-0 bg-white/80 rounded-xl border border-blue-100/70"></div>
-
-        {/* Borde brillante sutil en la parte superior */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
-
-        {/* Contenido */}
-        <div className="relative z-10 px-3 sm:px-6 py-6 space-y-6">
-          {isInitializing ? (
-            <div className="h-full flex items-center justify-center">
-              <LoadingScreen />
-            </div>
-          ) : (
-            <AnimatePresence mode="popLayout">
-              <div className="space-y-6 pb-2">
-                {/* Message timeline indicator */}
-                {messages.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="flex justify-center mb-6"
-                  >
-                    <div className="inline-flex items-center gap-2 bg-white/90 text-blue-700 text-xs font-medium px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span>{new Date().toLocaleDateString()}</span>
-                      <span className="inline-block h-1 w-1 rounded-full bg-blue-300"></span>
-                      <span>Technical Consultation</span>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Resto del contenido igual */}
-                {messages.map((message, index) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{
-                      duration: 0.4,
-                      ease: [0.4, 0.0, 0.2, 1]
-                    }}
-                  >
-                    <MessageItem
-                      message={message}
-                      isSequential={
-                        index > 0 && messages[index - 1].role === message.role
-                      }
-                      isLast={index === messages.length - 1}
-                      dropletMood={message.role === 'assistant' ? dropletMood : undefined}
-                    />
-                  </motion.div>
-                ))}
-
-                {/* Enhanced typing indicator */}
-                {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, height: 0 }}
-                  >
-                    <TypingIndicator mood={dropletMood} />
-                  </motion.div>
-                )}
-
-                <div ref={messagesEndRef} />
-              </div>
-            </AnimatePresence>
-          )}
-        </div>
-
-        {/* Sombra interna sutil en la parte inferior */}
-        <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-gray-100/20 to-transparent"></div>
+        />
       </div>
 
-      {/* Área de input refinada */}
-      <motion.div
-        className="bg-white/90 backdrop-blur-lg border-t border-blue-100 py-4 px-3 sm:px-5 rounded-b-xl shadow-md"
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <ChatInput
-          onSendMessage={sendMessage}
-          isTyping={isTyping}
-          isDisabled={isInitializing || !conversationId}
-        />
-        <div className="mt-2 text-center flex items-center justify-center gap-2 text-xs text-gray-500">
-          <div className="flex items-center text-blue-600">
-            <DropletAvatar size="sm" animate={false} className="h-5 w-5 mr-1" />
-            <p className="font-medium">H₂O Allegiant — Soluciones Avanzadas de Tratamiento de Agua</p>
+      {/* Chat Container with glassmorphism effect */}
+      <div className="flex-1 flex flex-col relative rounded-xl overflow-hidden shadow-lg border border-blue-100/50">
+        {/* Header with date and session info */}
+        <div className="bg-white/90 backdrop-blur-md px-5 py-3 border-b border-blue-100/50 flex items-center justify-between z-10">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2 bg-blue-50/90 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>{new Date().toLocaleDateString()}</span>
+            </div>
+
+            <div className="h-1 w-1 rounded-full bg-blue-300"></div>
+
+            <div className="text-blue-700 text-xs font-medium">
+              Technical Consultation
+            </div>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-blue-600 flex items-center gap-1 hover:bg-blue-50"
+            onClick={() => resetConversation()}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>New Conversation</span>
+          </Button>
+        </div>
+
+        {/* Messages area with custom scrollbar */}
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-y-auto relative scrollbar-thin scrollbar-track-transparent"
+        >
+          {/* Glass background for messages area */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
+
+          {/* Messages content */}
+          <div className="relative z-10 px-4 sm:px-6 py-6 space-y-6">
+            {isInitializing ? (
+              <div className="h-full flex items-center justify-center">
+                <LoadingScreen />
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                <div className="space-y-6 pb-2">
+                  {messages.map((message, index) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{
+                        duration: 0.4,
+                        ease: [0.4, 0.0, 0.2, 1]
+                      }}
+                    >
+                      <MessageItem
+                        message={message}
+                        isSequential={
+                          index > 0 && messages[index - 1].role === message.role
+                        }
+                        isLast={index === messages.length - 1}
+                        dropletMood={message.role === 'assistant' ? dropletMood : undefined}
+                      />
+                    </motion.div>
+                  ))}
+
+                  {/* Typing indicator */}
+                  {isTyping && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                    >
+                      <TypingIndicator mood={dropletMood} />
+                    </motion.div>
+                  )}
+
+                  <div ref={messagesEndRef} />
+                </div>
+              </AnimatePresence>
+            )}
           </div>
         </div>
-      </motion.div>
-    </div>
-  );
-}
 
-// Componente de pantalla de carga separado para resolver el error de sintaxis
-function LoadingScreen() {
-  const [progress, setProgress] = useState(0);
-
-  // Simulación de progreso para UX
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => Math.min(prev + Math.random() * 8, 100));
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <motion.div
-      className="flex flex-col items-center justify-center p-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      {/* Contenedor animado de Droplet */}
-      <div className="relative mb-10">
-        {/* Halo de luz con mejor efecto */}
-        <motion.div
-          className="absolute inset-0 bg-blue-300/20 rounded-full blur-xl scale-150"
-          animate={{
-            scale: [1.5, 1.8, 1.5],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 3,
-            ease: "easeInOut"
-          }}
-        />
-
-        {/* Droplet principal animado */}
-        <motion.div
-          animate={{
-            y: [0, -10, 0],
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 3,
-            ease: "easeInOut"
-          }}
-          className="relative z-10"
-        >
-          <DropletAvatar
-            mood="processing"
-            size="lg"
-            pulse={true}
-          />
-        </motion.div>
-
-        {/* Anillos de ondulación con mejores efectos */}
-        <motion.div
-          className="absolute inset-0 rounded-full border-2 border-blue-300/40 scale-110"
-          animate={{ scale: [1.1, 2, 1.1], opacity: [0.4, 0, 0.4] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
-        />
-
-        <motion.div
-          className="absolute inset-0 rounded-full border-2 border-blue-300/30 scale-110"
-          animate={{ scale: [1.1, 2, 1.1], opacity: [0.3, 0, 0.3] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeOut", delay: 0.5 }}
-        />
-      </div>
-
-      {/* Texto de inicialización con mejor estilo */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mb-8"
-      >
-        <div className="glass-blue px-8 py-4 rounded-xl text-center">
-          <h3 className="text-xl text-blue-700 font-medium">
-            Initializing H₂O Allegiant AI
-          </h3>
-          <p className="text-gray-600 mt-1">
-            Preparing water engineering models...
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Barra de progreso con efecto de agua */}
-      <div className="w-64 relative">
-        <div className="h-2 bg-white/50 rounded-full overflow-hidden shadow-inner border border-blue-100">
-          <motion.div
-            initial={{ width: "0%" }}
-            animate={{ width: `${progress}%` }}
-            className="h-full bg-gradient-to-r from-blue-300 to-blue-500 rounded-full relative overflow-hidden"
-          >
-            {/* Efecto de brillo que se mueve */}
+        {/* Scroll to bottom button */}
+        <AnimatePresence>
+          {showScrollButton && (
             <motion.div
-              className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-30deg]"
-              animate={{ x: [-80, 260] }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.5,
-                ease: "easeInOut",
-                repeatDelay: 0.5
-              }}
-            />
-          </motion.div>
-        </div>
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="absolute bottom-24 right-6 z-20"
+            >
+              <Button
+                size="icon"
+                className="rounded-full bg-blue-500 shadow-lg hover:bg-blue-600 text-white h-10 w-10"
+                onClick={() => scrollToBottom()}
+              >
+                <ArrowDown className="h-5 w-5" />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Porcentaje */}
-        <div className="mt-2 text-sm text-blue-600 text-center">
-          {Math.round(progress)}%
+        {/* Input area */}
+        <div className="bg-white/95 backdrop-blur-lg border-t border-blue-100 py-4 px-4 sm:px-5 rounded-b-xl shadow-md z-10">
+          <ChatInput
+            onSendMessage={sendMessage}
+            isTyping={isTyping}
+            isDisabled={isInitializing || !conversationId}
+          />
+
+          <div className="mt-2 text-center flex items-center justify-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center text-blue-600/80">
+              <span className="font-medium">H₂O Allegiant — Advanced Water Treatment Solutions</span>
+            </div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

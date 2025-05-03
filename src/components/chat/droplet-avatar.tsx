@@ -4,30 +4,28 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-type DropletMood = 'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'listening' | 'technical';
+type DropletMood = 'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical';
 
-interface EnhancedDropletAvatarProps {
+interface DropletAvatarProps {
   mood?: DropletMood;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   animate?: boolean;
   pulse?: boolean;
-  speakingIntensity?: number;
 }
 
-export default function EnhancedDropletAvatar({
+export default function DropletAvatar({
   mood = 'default',
   size = 'md',
   className,
   animate = true,
-  pulse = false,
-  speakingIntensity = 0
-}: EnhancedDropletAvatarProps) {
+  pulse = false
+}: DropletAvatarProps) {
   const [rippleActive, setRippleActive] = useState(false);
   const [waveAmplitude, setWaveAmplitude] = useState(0);
   const [techPulse, setTechPulse] = useState(false);
 
-  // Tamaños para diferentes opciones
+  // Size classes for different options
   const sizeClasses = {
     sm: 'h-9 w-9',
     md: 'h-12 w-12',
@@ -35,26 +33,19 @@ export default function EnhancedDropletAvatar({
     xl: 'h-32 w-32'
   };
 
-  const sizePx = {
-    sm: 36,
-    md: 48,
-    lg: 80,
-    xl: 128
-  };
-
-  // Disparar efecto ripple aleatorio
+  // Randomly trigger ripple effect
   useEffect(() => {
     if (!animate) return;
 
     const interval = setInterval(() => {
-      // Solo activar ripple ocasionalmente
+      // Only activate ripple occasionally
       if (Math.random() > 0.7) {
         setRippleActive(true);
         setTimeout(() => setRippleActive(false), 2000);
       }
     }, 3000);
 
-    // Pulso técnico para modos técnicos
+    // Technical pulse for technical modes
     const techInterval = setInterval(() => {
       if (mood === 'technical' || mood === 'processing') {
         setTechPulse(prev => !prev);
@@ -67,11 +58,11 @@ export default function EnhancedDropletAvatar({
     };
   }, [animate, mood]);
 
-  // Controlar amplitud de onda cuando está hablando
+  // Control wave amplitude when speaking
   useEffect(() => {
-    if (mood === 'explaining' || speakingIntensity > 0) {
-      // Crear un efecto de ondulación basado en la "intensidad de habla"
-      const intensity = speakingIntensity || (Math.random() * 0.5 + 0.5);
+    if (mood === 'explaining') {
+      // Create a rippling effect based on "speech intensity"
+      const intensity = Math.random() * 0.5 + 0.5;
       const baseAmplitude = 2 + (intensity * 5);
 
       const interval = setInterval(() => {
@@ -82,23 +73,23 @@ export default function EnhancedDropletAvatar({
     } else {
       setWaveAmplitude(0);
     }
-  }, [mood, speakingIntensity]);
+  }, [mood]);
 
-  // Obtener expresiones faciales según el estado de ánimo
+  // Get facial expression based on mood
   const getFacialExpression = () => {
-    // Coordenadas del viewBox
+    // ViewBox coordinates
     const vb = { width: 24, height: 24 };
 
-    // Posiciones de los ojos
+    // Eye positions
     const leftEyePos = { x: 9, y: 9 };
     const rightEyePos = { x: 15, y: 9 };
 
-    // Variantes para los estados de ánimo
+    // Mood variants
     switch (mood) {
       case 'technical':
         return (
           <g>
-            {/* Ojos técnicos (hexagonales) */}
+            {/* Technical hexagonal eyes */}
             <motion.path
               d="M8,8.5 L9,7.5 L10,7.5 L11,8.5 L10,9.5 L9,9.5 Z"
               fill="white"
@@ -127,7 +118,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Boca técnica como display digital */}
+            {/* Technical mouth like a digital display */}
             <motion.rect
               x={9.5}
               y={14.5}
@@ -146,7 +137,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Elementos técnicos adicionales */}
+            {/* Technical additional elements */}
             <motion.circle
               cx={6.5}
               cy={5.5}
@@ -179,7 +170,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Líneas de circuito */}
+            {/* Circuit lines */}
             <motion.path
               d="M5,11 H7 M17,11 H19"
               stroke="white"
@@ -195,23 +186,8 @@ export default function EnhancedDropletAvatar({
                 ease: "linear"
               }}
             />
-            <motion.path
-              d="M3.5,16 C3.5,16 4.5,17 6,17 C7.5,17 8.5,16 8.5,16 M15.5,16 C15.5,16 16.5,17 18,17 C19.5,17 20.5,16 20.5,16"
-              stroke="white"
-              strokeWidth="0.5"
-              strokeLinecap="round"
-              animate={{
-                pathLength: [0, 1, 0],
-                opacity: [0.3, 0.7, 0.3]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 6,
-                ease: "easeInOut"
-              }}
-            />
 
-            {/* Símbolo H₂O en la frente */}
+            {/* H₂O symbol on forehead */}
             <motion.text
               x="12"
               y="5"
@@ -237,7 +213,7 @@ export default function EnhancedDropletAvatar({
       case 'thinking':
         return (
           <g>
-            {/* Ojos pensativos con forma técnica */}
+            {/* Thoughtful eyes with slight technical shape */}
             <motion.ellipse
               cx={leftEyePos.x}
               cy={leftEyePos.y}
@@ -272,7 +248,7 @@ export default function EnhancedDropletAvatar({
               fill="white"
             />
 
-            {/* Boca pensativa con estilo técnico */}
+            {/* Thoughtful mouth with technical style */}
             <motion.path
               d="M10 15.5C11.5 17 13.5 17 15 15.5"
               stroke="white"
@@ -294,7 +270,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Pequeñas fórmulas químicas flotantes */}
+            {/* Small floating formulas */}
             <motion.text
               x={18.5}
               y={6.5}
@@ -314,74 +290,13 @@ export default function EnhancedDropletAvatar({
             >
               H⁺
             </motion.text>
-            <motion.text
-              x={19.5}
-              y={3.5}
-              fontSize="2"
-              fill="white"
-              fillOpacity="0.6"
-              animate={{
-                y: [-1, -3, -1],
-                opacity: [0.6, 0.2, 0.6],
-                scale: [1, 1.3, 1]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 4,
-                ease: "easeInOut",
-                delay: 0.5
-              }}
-            >
-              O²⁻
-            </motion.text>
-
-            {/* Cejas pensativas con estilo técnico */}
-            <motion.path
-              d="M7.5 6.5C8.3 6 9.7 6.2 10.5 6.8"
-              stroke="white"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              fill="none"
-              animate={{
-                d: [
-                  "M7.5 6.5C8.3 6 9.7 6.2 10.5 6.8",
-                  "M7.5 6.2C8.3 5.7 9.7 5.9 10.5 6.5",
-                  "M7.5 6.5C8.3 6 9.7 6.2 10.5 6.8"
-                ]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 4,
-                ease: "easeInOut"
-              }}
-            />
-            <motion.path
-              d="M13.5 6.5C14.3 6 15.7 6.2 16.5 6.8"
-              stroke="white"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              fill="none"
-              animate={{
-                d: [
-                  "M13.5 6.5C14.3 6 15.7 6.2 16.5 6.8",
-                  "M13.5 6.2C14.3 5.7 15.7 5.9 16.5 6.5",
-                  "M13.5 6.5C14.3 6 15.7 6.2 16.5 6.8"
-                ]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 4,
-                ease: "easeInOut",
-                delay: 0.2
-              }}
-            />
           </g>
         );
 
       case 'processing':
         return (
           <g>
-            {/* Ojos de procesamiento con forma hexagonal */}
+            {/* Processing eyes with hexagonal shape */}
             <motion.path
               d="M8,8.5 L9,7.5 L10,7.5 L11,8.5 L10,9.5 L9,9.5 Z"
               fill="white"
@@ -409,7 +324,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Barra de progreso animada */}
+            {/* Animated progress bar */}
             <motion.rect
               x={8.5}
               y={15}
@@ -428,7 +343,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Indicadores de datos alrededor */}
+            {/* Data indicators */}
             <motion.g
               animate={{ opacity: [0.6, 1, 0.6] }}
               transition={{
@@ -457,7 +372,7 @@ export default function EnhancedDropletAvatar({
               ))}
             </motion.g>
 
-            {/* Líneas de circuito animadas */}
+            {/* Circuit lines */}
             <motion.path
               d="M4 12 H7 M17 12 H20"
               stroke="white"
@@ -473,34 +388,15 @@ export default function EnhancedDropletAvatar({
                 ease: "linear"
               }}
             />
-
-            {/* Diagrama de flujo del agua */}
-            <motion.path
-              d="M12,18 C10,18 8,16 8,14 C8,12 10,12 12,12 C14,12 16,12 16,14 C16,16 14,18 12,18 Z"
-              stroke="white"
-              strokeWidth="0.4"
-              strokeOpacity="0.5"
-              fill="none"
-              animate={{
-                strokeOpacity: [0.5, 0.8, 0.5],
-                pathLength: [0, 1, 0]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 8,
-                ease: "linear"
-              }}
-            />
           </g>
         );
 
       case 'explaining':
-      case 'speaking':
         const mouthHeight = 1.5 + (waveAmplitude / 2);
 
         return (
           <g>
-            {/* Ojos expresivos con detalle técnico */}
+            {/* Expressive eyes with technical detail */}
             <motion.path
               d="M8,8.5 L9,7.5 L10,7.5 L11,8.5 L10,9.5 L9,9.5 Z"
               fill="white"
@@ -529,7 +425,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Símbolo H₂O en la frente más pequeño */}
+            {/* Small H₂O symbol on forehead */}
             <motion.text
               x="12"
               y="5"
@@ -550,7 +446,7 @@ export default function EnhancedDropletAvatar({
               H₂O
             </motion.text>
 
-            {/* Boca animada con forma técnica */}
+            {/* Animated mouth with technical shape */}
             <motion.rect
               x={9}
               y={14.5}
@@ -571,7 +467,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Ondas sonoras técnicas cuando habla */}
+            {/* Sound waves when speaking */}
             {(waveAmplitude > 0) && (
               <>
                 <motion.path
@@ -612,11 +508,88 @@ export default function EnhancedDropletAvatar({
           </g>
         );
 
+      case 'happy':
+        return (
+          <g>
+            {/* Happy curved eyes */}
+            <motion.path
+              d="M8,8 C8,10 10,10 10,8"
+              stroke="white"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <motion.path
+              d="M14,8 C14,10 16,10 16,8"
+              stroke="white"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+            />
+
+            {/* Wide smile */}
+            <motion.path
+              d="M9,14 C12,17 15,17 15,14"
+              stroke="white"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+              animate={{
+                d: [
+                  "M9,14 C12,17 15,17 15,14",
+                  "M9,14.2 C12,17.5 15,17.5 15,14.2",
+                  "M9,14 C12,17 15,17 15,14"
+                ]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 4,
+                ease: "easeInOut"
+              }}
+            />
+
+            {/* Small floating particles */}
+            <motion.circle
+              cx={7}
+              cy={5}
+              r={0.8}
+              fill="white"
+              opacity={0.6}
+              animate={{
+                y: [-1, -2, -1],
+                opacity: [0.6, 0.9, 0.6]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.circle
+              cx={17}
+              cy={6}
+              r={0.6}
+              fill="white"
+              opacity={0.6}
+              animate={{
+                y: [-0.5, -1.5, -0.5],
+                opacity: [0.6, 0.9, 0.6]
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2,
+                ease: "easeInOut",
+                delay: 0.7
+              }}
+            />
+          </g>
+        );
+
       case 'default':
       default:
         return (
           <g>
-            {/* Ojos normales con aspecto técnico */}
+            {/* Default eyes with technical aspect */}
             <motion.path
               d="M8,9 m-1.8,0 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0"
               fill="white"
@@ -649,7 +622,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Boca ligeramente técnica */}
+            {/* Default slightly technical mouth */}
             <motion.path
               d="M9 14.5C10.5 16 13.5 16 15 14.5"
               stroke="white"
@@ -671,7 +644,7 @@ export default function EnhancedDropletAvatar({
               }}
             />
 
-            {/* Pequeño símbolo H₂O */}
+            {/* Small H₂O symbol */}
             <motion.text
               x="12"
               y="5"
@@ -696,181 +669,113 @@ export default function EnhancedDropletAvatar({
     }
   };
 
-  // Generar olas internas con aspecto más técnico
+  // Generate internal waves
   const generateInternalWaves = () => {
-    const pixelSize = sizePx[size];
-    const baseWaveHeight = pixelSize * 0.4;
-    const waveOffset = mood === 'processing' ? 0.2 : 0;
+    return (
+      <>
+        {/* Main wave */}
+        <div className="absolute inset-x-0 bottom-0 overflow-hidden">
+          <motion.div
+            className="absolute bottom-0 w-full rounded-t-full bg-white/10"
+            style={{
+              height: '40%',
+              transformOrigin: 'bottom',
+              backgroundImage: (mood === 'technical' || mood === 'processing') ?
+                'repeating-linear-gradient(30deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.1) 4px)' :
+                'none'
+            }}
+            animate={{
+              scaleY: animate ? [
+                1,
+                1.1,
+                1
+              ] : 1,
+              y: animate ? [
+                0,
+                -3,
+                0
+              ] : 0
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 4,
+              ease: "easeInOut",
+              times: [0, 0.5, 1]
+            }}
+          />
+        </div>
 
-    const waveParams = {
-      baseHeight: baseWaveHeight,
-      amplitude: mood === 'processing' ? 8 : 5,
-      frequency: mood === 'processing' ? 0.8 : 0.5,
-      speed: mood === 'processing' ? 5 : 8
-    };
-
-    // Para estados técnicos, hacer olas más estructuradas
-    if ((mood === 'technical' || mood === 'processing') && animate) {
-      waveParams.amplitude = 6;
-      waveParams.frequency = 2;
-      waveParams.speed = 6;
-    }
-
-    // Para el estado "speaking", hacer olas más dinámicas
-    if (mood === 'explaining' && waveAmplitude > 0) {
-      waveParams.amplitude = waveAmplitude + 3;
-      waveParams.frequency = 1.2;
-      waveParams.speed = 3;
-    }
-
-    // Ola principal con patrones hexagonales
-    const mainWave = (
-      <div className="absolute inset-x-0 bottom-0 overflow-hidden">
+        {/* Secondary wave */}
         <motion.div
-          className="absolute bottom-0 w-full rounded-t-full bg-white/10"
+          className="absolute bottom-0 w-full rounded-t-full bg-white/15"
           style={{
-            height: `${baseWaveHeight}px`,
+            height: '30%',
             transformOrigin: 'bottom',
             backgroundImage: (mood === 'technical' || mood === 'processing') ?
-              'repeating-linear-gradient(30deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.1) 4px)' :
+              'repeating-linear-gradient(150deg, rgba(255,255,255,0), rgba(255,255,255,0.1) 3px, rgba(255,255,255,0) 6px)' :
               'none'
           }}
           animate={{
             scaleY: animate ? [
               1,
-              1 + (waveParams.amplitude / 100),
+              1.15,
               1
             ] : 1,
             y: animate ? [
               0,
-              -waveParams.amplitude / 3,
+              -2,
               0
             ] : 0
           }}
           transition={{
             repeat: Infinity,
-            duration: waveParams.speed,
+            duration: 3,
             ease: "easeInOut",
-            times: [0, 0.5, 1]
+            times: [0, 0.5, 1],
+            delay: 0.3
           }}
         />
-      </div>
-    );
 
-    // Ola secundaria con patrones técnicos
-    const secondWave = (
-      <motion.div
-        className="absolute bottom-0 w-full rounded-t-full bg-white/15"
-        style={{
-          height: `${baseWaveHeight * 0.7}px`,
-          transformOrigin: 'bottom',
-          backgroundImage: (mood === 'technical' || mood === 'processing') ?
-            'repeating-linear-gradient(150deg, rgba(255,255,255,0), rgba(255,255,255,0.1) 3px, rgba(255,255,255,0) 6px)' :
-            'none'
-        }}
-        animate={{
-          scaleY: animate ? [
-            1,
-            1 + (waveParams.amplitude / 80),
-            1
-          ] : 1,
-          y: animate ? [
-            0,
-            -waveParams.amplitude / 4,
-            0
-          ] : 0
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: waveParams.speed * 0.8,
-          ease: "easeInOut",
-          times: [0, 0.5, 1],
-          delay: 0.3
-        }}
-      />
-    );
+        {/* Data bits for technical states */}
+        {(mood === 'technical' || mood === 'processing') && (
+          <>
+            {Array.from({ length: 4 }).map((_, i) => {
+              // Distribute in a more structured pattern for technical state
+              const xPos = 20 + Math.sin((i / 4) * Math.PI * 2) * 60;
+              const yPos = 60 - Math.cos((i / 4) * Math.PI * 2) * 30;
 
-    // Ola terciaria con aspecto más "digital"
-    const thirdWave = (
-      <motion.div
-        className="absolute bottom-0 w-full rounded-t-full bg-white/10"
-        style={{
-          height: `${baseWaveHeight * 0.5}px`,
-          transformOrigin: 'bottom',
-          backgroundImage: (mood === 'technical' || mood === 'processing') ?
-            'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)' :
-            'none'
-        }}
-        animate={{
-          scaleY: animate ? [
-            1,
-            1 + (waveParams.amplitude / 60),
-            1
-          ] : 1,
-          y: animate ? [
-            0,
-            -waveParams.amplitude / 5,
-            0
-          ] : 0
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: waveParams.speed * 0.6,
-          ease: "easeInOut",
-          times: [0, 0.5, 1],
-          delay: 0.6
-        }}
-      />
-    );
-
-    // Partículas de datos para estados técnicos
-    const dataBits = (mood === 'technical' || mood === 'processing') && (
-      <>
-        {Array.from({ length: 8 }).map((_, i) => {
-          const size = Math.max(2, Math.min(4, Math.random() * 4));
-          // Distribuir en forma más estructurada para el estado técnico
-          const xPos = 20 + Math.sin((i / 8) * Math.PI * 2) * 60;
-          const yPos = 60 - Math.cos((i / 8) * Math.PI * 2) * 30;
-
-          return (
-            <motion.div
-              key={`data-bit-${i}`}
-              className="absolute bg-white/40"
-              style={{
-                width: `${pixelSize * 0.03}px`,
-                height: `${pixelSize * 0.03}px`,
-                left: `${xPos}%`,
-                top: `${yPos}%`,
-                borderRadius: mood === 'technical' ? '1px' : '50%'
-              }}
-              animate={{
-                y: [-pixelSize * 0.08, pixelSize * 0.08, -pixelSize * 0.08],
-                x: [pixelSize * 0.04, -pixelSize * 0.04, pixelSize * 0.04],
-                opacity: [0.4, 0.7, 0.4]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 3 + i,
-                ease: "easeInOut",
-                delay: i * 0.3
-              }}
-            />
-          );
-        })}
-      </>
-    );
-
-    return (
-      <>
-        {mainWave}
-        {secondWave}
-        {thirdWave}
-        {dataBits}
+              return (
+                <motion.div
+                  key={`data-bit-${i}`}
+                  className="absolute bg-white/40"
+                  style={{
+                    width: '3px',
+                    height: '3px',
+                    left: `${xPos}%`,
+                    top: `${yPos}%`,
+                    borderRadius: mood === 'technical' ? '1px' : '50%'
+                  }}
+                  animate={{
+                    y: [-3, 3, -3],
+                    x: [2, -2, 2],
+                    opacity: [0.4, 0.7, 0.4]
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 3 + i,
+                    ease: "easeInOut",
+                    delay: i * 0.3
+                  }}
+                />
+              );
+            })}
+          </>
+        )}
       </>
     );
   };
 
-  // Color de fondo basado en el estado con variantes técnicas
+  // Get background gradient based on mood
   const getBackgroundGradient = () => {
     switch (mood) {
       case 'technical':
@@ -894,7 +799,7 @@ export default function EnhancedDropletAvatar({
       sizeClasses[size],
       className
     )}>
-      {/* Resplandor externo técnico */}
+      {/* External technical glow */}
       <motion.div
         className={cn(
           "absolute inset-0 rounded-full",
@@ -911,7 +816,7 @@ export default function EnhancedDropletAvatar({
         }}
       />
 
-      {/* Contenedor hexagonal para estética técnica (para modos technical/processing) */}
+      {/* Hexagonal container for technical aesthetic */}
       {(mood === 'technical' || mood === 'processing') && (
         <motion.div
           className="absolute inset-0 z-10 pointer-events-none"
@@ -936,7 +841,7 @@ export default function EnhancedDropletAvatar({
         </motion.div>
       )}
 
-      {/* Contenedor principal con gradiente y efectos */}
+      {/* Main container with gradient and effects */}
       <motion.div
         className={cn(
           "relative h-full w-full",
@@ -953,25 +858,25 @@ export default function EnhancedDropletAvatar({
           ease: "easeInOut"
         }}
       >
-        {/* Olas internas animadas */}
+        {/* Internal animated waves */}
         <div className="absolute inset-0 overflow-hidden">
           {generateInternalWaves()}
         </div>
 
-        {/* Cuerpo principal del avatar */}
+        {/* Main avatar body */}
         <svg
           viewBox="0 0 24 24"
           className="h-full w-full relative z-10"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Forma de gota transparente para centrar el SVG */}
+          {/* Transparent droplet shape */}
           <path
             d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"
             fill="none"
             strokeOpacity="0"
           />
 
-          {/* Reflejo/Resplandor interno */}
+          {/* Internal highlight */}
           <motion.path
             d="M12 5.5l3.5 3.5a5 5 0 1 1-7 0z"
             fill="white"
@@ -991,7 +896,7 @@ export default function EnhancedDropletAvatar({
             }}
           />
 
-          {/* Patrones hexágonales (solo para modos técnicos) */}
+          {/* Hexagonal patterns (only for technical modes) */}
           {(mood === 'technical' || mood === 'processing') && (
             <motion.g
               animate={{
@@ -1009,12 +914,12 @@ export default function EnhancedDropletAvatar({
             </motion.g>
           )}
 
-          {/* Expresión facial basada en el estado */}
+          {/* Facial expression based on mood */}
           {getFacialExpression()}
         </svg>
       </motion.div>
 
-      {/* Efecto de ondulación en agua */}
+      {/* Water ripple effect */}
       <AnimatePresence>
         {rippleActive && (
           <motion.div
@@ -1027,7 +932,7 @@ export default function EnhancedDropletAvatar({
         )}
       </AnimatePresence>
 
-      {/* Partículas técnicas a su alrededor */}
+      {/* Technical particles around avatar */}
       <motion.div
         className={`absolute -top-1 -left-1 h-2 w-2 ${mood === 'technical' ? 'bg-blue-300' : 'bg-blue-200'} ${mood === 'technical' ? 'rounded-sm' : 'rounded-full'}`}
         animate={{
@@ -1039,21 +944,6 @@ export default function EnhancedDropletAvatar({
           repeat: Infinity,
           duration: 4,
           ease: "easeInOut"
-        }}
-      />
-
-      <motion.div
-        className={`absolute bottom-0 -right-1 h-2.5 w-2.5 ${mood === 'technical' ? 'bg-blue-400/80' : 'bg-blue-300/80'} ${mood === 'technical' ? 'rounded-sm' : 'rounded-full'}`}
-        animate={{
-          y: animate ? [0, -4, 0] : 0,
-          x: animate ? [0, 2, 0] : 0,
-          opacity: animate ? [0.8, 0.5, 0.8] : 0.8,
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 5,
-          ease: "easeInOut",
-          delay: 1
         }}
       />
 

@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Message } from "@/types/chat";
+import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import DropletAvatar from "./droplet-avatar";
-import { motion } from "framer-motion";
+import { Copy, Check } from "lucide-react";
 
 interface MessageItemProps {
   message: Message;
-  isSequential?: boolean; // Si es parte de una secuencia de mensajes del mismo rol
-  isLast?: boolean; // Si es el último mensaje
-  dropletMood?: 'default' | 'thinking' | 'happy' | 'explaining' | 'processing';
+  isSequential?: boolean;
+  isLast?: boolean;
+  dropletMood?: 'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical';
 }
 
 export default function MessageItem({
@@ -25,7 +26,7 @@ export default function MessageItem({
   const [isCopied, setIsCopied] = useState(false);
   const isUser = message.role === "user";
 
-  // Formar hora legible
+  // Format time
   const formattedTime = (() => {
     try {
       const date = new Date(message.created_at);
@@ -35,17 +36,17 @@ export default function MessageItem({
     }
   })();
 
-  // Función para copiar al portapapeles
+  // Copy to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(message.content);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  // Detectar si el mensaje contiene código para darle un tratamiento especial
+  // Detect if message contains code
   const containsCode = message.content.includes("```");
 
-  // Detectar si el mensaje contiene datos técnicos específicos
+  // Detect if message contains technical parameters
   const containsParameters = message.content.toLowerCase().includes("dbo:") ||
     message.content.toLowerCase().includes("dqo:") ||
     message.content.toLowerCase().includes("sst:");
@@ -58,7 +59,7 @@ export default function MessageItem({
         isSequential ? "mt-2" : "mt-6"
       )}
     >
-      {/* Avatar para la IA - solo mostrar si no es mensaje secuencial */}
+      {/* Avatar for AI - only show if not sequential */}
       {!isUser && !isSequential && (
         <motion.div
           className="flex-shrink-0 relative"
@@ -70,10 +71,10 @@ export default function MessageItem({
         </motion.div>
       )}
 
-      {/* Spacer para alinear mensajes secuenciales de la IA */}
+      {/* Spacer for sequential AI messages */}
       {!isUser && isSequential && <div className="w-12 flex-shrink-0" />}
 
-      {/* Contenido del mensaje */}
+      {/* Message content */}
       <div
         className={cn(
           "relative flex flex-col gap-1",
@@ -81,42 +82,31 @@ export default function MessageItem({
           isUser ? "max-w-[75%] md:max-w-[70%]" : "max-w-[80%] md:max-w-[75%]"
         )}
       >
-        {/* Burbuja de mensaje con estilo mejorado */}
+        {/* Message bubble */}
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.3 }}
           className={cn(
-            "px-5 py-3 transition-all duration-300",
+            "px-5 py-3 transition-all duration-300 relative",
             isUser
-              ? "bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-2xl rounded-tr-sm shadow-md shadow-blue-600/15 hover:shadow-lg border border-blue-400/50 message-user-refined"
-              : "relative backdrop-blur-sm rounded-2xl rounded-tl-sm hover:shadow-lg overflow-hidden border",
-            containsCode && !isUser ? "shadow-md shadow-blue-200/30" : "shadow-sm",
-            !isUser && "droplet-message bg-white/95 border-blue-100 message-assistant-refined"
+              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl rounded-tr-sm shadow-md"
+              : "bg-white/95 backdrop-blur-sm text-gray-800 rounded-2xl rounded-tl-sm shadow-md border border-blue-100"
           )}
         >
-          {/* Fondo animado sutil para los mensajes de la IA */}
-          {!isUser && (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-white/90 -z-10"></div>
-          )}
-
-          {/* Líneas decorativas técnicas para mensajes de la IA */}
-          {!isUser && (
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-50 via-blue-200/30 to-blue-50 opacity-50"></div>
-          )}
+          {/* User message content */}
           {isUser ? (
             <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
           ) : (
-            <div className="text-sm markdown-content z-10">
+            /* AI message content with Markdown */
+            <div className="text-sm markdown-content relative z-10">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  // Componentes mejorados para visualización técnica
-
-                  // Tablas con diseño profesional
+                  // Tables with professional design
                   table: ({ node, ...props }) => (
                     <div className="overflow-x-auto my-4 border border-blue-100 rounded-lg shadow-sm bg-white">
-                      <table className="w-full border-collapse text-sm table-technical" {...props} />
+                      <table className="w-full border-collapse text-sm" {...props} />
                     </div>
                   ),
                   thead: ({ node, ...props }) => (
@@ -129,24 +119,23 @@ export default function MessageItem({
                     <td className="border-b border-blue-100/70 px-4 py-2.5 text-gray-700" {...props} />
                   ),
 
-                  // Bloques de código con mejor diseño
+                  // Code blocks with better design
                   pre: ({ node, ...props }) => (
                     <pre className="bg-gray-50 border border-gray-100 p-4 rounded-md overflow-x-auto text-xs my-3 text-gray-800 shadow-inner font-mono relative group">
-                      <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
+                      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={(e) => {
                             e.preventDefault();
                             navigator.clipboard.writeText(
                               ((props.children as any)?.props?.children || '').toString()
                             );
                           }}
-                          className="text-xs bg-white p-1 rounded border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-colors"
+                          className="h-7 w-7 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700"
                         >
-                          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                          </svg>
-                        </button>
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                       <div {...props} />
                     </pre>
@@ -155,8 +144,8 @@ export default function MessageItem({
                     const match = /language-(\w+)/.exec(className || '');
 
                     return match ? (
-                      <div className="font-mono rounded overflow-hidden">
-                        <div className="bg-gray-800 text-xs text-gray-200 px-3 py-1 font-sans flex items-center justify-between">
+                      <div className="font-mono rounded overflow-hidden bg-gray-900 text-gray-100">
+                        <div className="bg-gray-800 text-xs text-gray-200 px-3 py-1.5 font-sans flex items-center justify-between">
                           <span>{match[1]}</span>
                         </div>
                         <code className={className} {...props}>
@@ -164,13 +153,13 @@ export default function MessageItem({
                         </code>
                       </div>
                     ) : (
-                      <code className="bg-gray-100 text-blue-800 px-1 py-0.5 rounded text-sm font-mono" {...props}>
+                      <code className="bg-blue-50 text-blue-800 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
                         {children}
                       </code>
                     );
                   },
 
-                  // Detectar y mejorar secciones especiales
+                  // Headings with better styling
                   h1: ({ node, ...props }) => (
                     <h1 className="text-xl font-semibold text-blue-800 mt-4 mb-2" {...props} />
                   ),
@@ -181,16 +170,16 @@ export default function MessageItem({
                     <h3 className="text-base font-semibold text-blue-600 mt-3 mb-1.5" {...props} />
                   ),
 
-                  // Párrafos con detección de datos técnicos
+                  // Paragraphs with technical data detection
                   p: ({ node, children, ...props }) => {
-                    // Detección de parámetros técnicos para mostrar barras de visualización
+                    // Check for water treatment parameters
                     if (typeof children === 'string') {
-                      // Detección de parámetro DBO o similar
+                      // Detection of DBO parameter
                       if (children.match(/DBO:?\s*=?\s*(\d+)/) ||
                         children.match(/DQO:?\s*=?\s*(\d+)/) ||
                         children.match(/SST:?\s*=?\s*(\d+)/)) {
 
-                        // Extraer todos los parámetros y valores
+                        // Extract parameters and values
                         const parameters = [];
 
                         const dboMatch = children.match(/DBO:?\s*=?\s*(\d+)/);
@@ -204,10 +193,10 @@ export default function MessageItem({
 
                         if (parameters.length > 0) {
                           return (
-                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
+                            <div className="mb-3 p-3 bg-blue-50/70 rounded-lg border border-blue-100 shadow-sm">
                               <p className="mb-2 text-sm leading-relaxed text-blue-900">{children}</p>
 
-                              {/* Visualizaciones de parámetros */}
+                              {/* Parameter visualizations */}
                               <div className="space-y-2.5 mt-3">
                                 {parameters.map((param, index) => {
                                   const percentage = Math.min(100, Math.max(0, (param.value / param.max) * 100));
@@ -234,9 +223,9 @@ export default function MessageItem({
                                         ></motion.div>
                                       </div>
                                       <div className="flex justify-between text-xs mt-0.5 text-gray-500">
-                                        <span>Mínimo</span>
-                                        <span>{percentage < 30 ? "Bajo" : percentage < 70 ? "Moderado" : "Alto"}</span>
-                                        <span>Máximo</span>
+                                        <span>Min</span>
+                                        <span>{percentage < 30 ? "Low" : percentage < 70 ? "Moderate" : "High"}</span>
+                                        <span>Max</span>
                                       </div>
                                     </div>
                                   );
@@ -247,27 +236,27 @@ export default function MessageItem({
                         }
                       }
 
-                      // Detección de propuestas de ahorro o ROI
-                      if (children.match(/ahorro.*?\$[\d,]+/) ||
-                        children.match(/ROI.*?(\d+).*?meses/) ||
-                        children.match(/recupera.*?(\d+).*?meses/)) {
+                      // Detection of ROI or savings
+                      if (children.match(/saving.*?\$[\d,]+/) ||
+                        children.match(/ROI.*?(\d+).*?months/) ||
+                        children.match(/recover.*?(\d+).*?months/)) {
 
                         let savings = null;
-                        const savingsMatch = children.match(/ahorro.*?\$([\d,]+)/);
+                        const savingsMatch = children.match(/saving.*?\$([\d,]+)/);
                         if (savingsMatch) {
                           savings = savingsMatch[1].replace(',', '');
                         }
 
                         let roi = null;
-                        const roiMatch = children.match(/ROI.*?(\d+).*?meses/) ||
-                          children.match(/recupera.*?(\d+).*?meses/);
+                        const roiMatch = children.match(/ROI.*?(\d+).*?months/) ||
+                          children.match(/recover.*?(\d+).*?months/);
                         if (roiMatch) {
                           roi = parseInt(roiMatch[1]);
                         }
 
                         if (savings || roi) {
                           return (
-                            <div className="mb-3 p-3 bg-gradient-to-r from-blue-50/70 to-white rounded-lg border border-blue-100 shadow-sm">
+                            <div className="mb-3 p-3 bg-blue-50/70 rounded-lg border border-blue-100 shadow-sm">
                               <p className="mb-2 text-sm leading-relaxed text-blue-900">{children}</p>
 
                               {savings && (
@@ -281,14 +270,14 @@ export default function MessageItem({
                                     ${parseInt(savings).toLocaleString()}
                                   </motion.div>
                                   <div className="text-blue-600 text-sm">
-                                    ahorro estimado
+                                    estimated savings
                                   </div>
                                   <div className="ml-auto flex items-center text-xs text-blue-700">
                                     <svg className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                       <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                                       <polyline points="17 6 23 6 23 12"></polyline>
                                     </svg>
-                                    <span className="font-medium">Retorno positivo</span>
+                                    <span className="font-medium">Positive return</span>
                                   </div>
                                 </div>
                               )}
@@ -296,7 +285,7 @@ export default function MessageItem({
                               {roi && (
                                 <div className="mt-3">
                                   <div className="text-xs text-blue-700 font-medium mb-1">
-                                    Periodo de recuperación de inversión
+                                    Return on investment period
                                   </div>
                                   <div className="h-2 bg-gray-100 rounded-full w-full overflow-hidden shadow-inner">
                                     <motion.div
@@ -307,8 +296,8 @@ export default function MessageItem({
                                     ></motion.div>
                                   </div>
                                   <div className="flex justify-between text-xs mt-0.5 text-gray-500">
-                                    <span className="font-medium text-blue-700">{roi} meses</span>
-                                    <span>36 meses</span>
+                                    <span className="font-medium text-blue-700">{roi} months</span>
+                                    <span>36 months</span>
                                   </div>
                                 </div>
                               )}
@@ -321,28 +310,28 @@ export default function MessageItem({
                     return <p className="mb-2 leading-relaxed" {...props}>{children}</p>;
                   },
 
-                  // Enlaces mejorados
+                  // Enhanced links
                   a: ({ node, ...props }) => (
                     <a
-                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium water-flow-line"
+                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
                       target="_blank"
                       rel="noopener noreferrer"
                       {...props}
                     />
                   ),
 
-                  // Listas mejoradas
+                  // Enhanced lists
                   ul: ({ node, ...props }) => (
-                    <ul className="pl-6 my-2 space-y-1 custom-list" {...props} />
+                    <ul className="pl-6 my-2 space-y-1" {...props} />
                   ),
                   ol: ({ node, ...props }) => (
                     <ol className="pl-6 my-2 space-y-1 list-decimal" {...props} />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="pl-1 my-0.5 relative water-dot" {...props} />
+                    <li className="pl-1 my-0.5 relative" {...props} />
                   ),
 
-                  // Citas con estilo
+                  // Blockquotes with style
                   blockquote: ({ node, ...props }) => (
                     <blockquote className="border-l-4 border-blue-300 pl-4 py-1 my-3 italic text-gray-600 bg-blue-50/50 rounded-r-md" {...props} />
                   ),
@@ -353,31 +342,19 @@ export default function MessageItem({
             </div>
           )}
 
-          {/* Elementos decorativos para mensajes del asistente */}
+          {/* Decorative elements for AI messages */}
           {!isUser && (
-            <>
-              {/* Pequeñas burbujas decorativas en los mensajes de la IA */}
-              <motion.div
-                className="absolute top-1.5 left-2 w-1.5 h-1.5 rounded-full bg-blue-200/60"
-                animate={{ y: [-1, -3, -1], opacity: [0.6, 0.3, 0.6] }}
-                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-              />
-              <motion.div
-                className="absolute bottom-2 right-3 w-2 h-2 rounded-full bg-blue-300/40"
-                animate={{ y: [0, -2, 0], opacity: [0.4, 0.2, 0.4] }}
-                transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}
-              />
-            </>
+            <div className="absolute -bottom-1 -left-1 w-full h-8 bg-gradient-to-t from-blue-50/20 to-transparent opacity-30 pointer-events-none"></div>
           )}
         </motion.div>
 
-        {/* Hora y acciones - solo para mensajes no secuenciales o último mensaje */}
+        {/* Timestamp and actions - only for non-sequential or last message */}
         {(!isSequential || isLast) && (
           <div className={cn(
             "flex items-center text-xs text-gray-500 gap-2 px-1",
             isUser ? "justify-end" : "justify-start"
           )}>
-            {/* Tiempo con icono sutil */}
+            {/* Time */}
             {formattedTime && (
               <div className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity">
                 <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -388,7 +365,7 @@ export default function MessageItem({
               </div>
             )}
 
-            {/* Botón de copiar para mensajes del asistente con animación */}
+            {/* Copy button for AI messages */}
             {!isUser && (
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
                 <Button
@@ -402,21 +379,11 @@ export default function MessageItem({
                   )}
                   onClick={copyToClipboard}
                 >
-                  <span className="sr-only">Copiar mensaje</span>
+                  <span className="sr-only">Copy message</span>
                   {isCopied ? (
-                    <motion.svg
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="h-3.5 w-3.5 text-blue-700"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </motion.svg>
+                    <Check className="h-3.5 w-3.5" />
                   ) : (
-                    <svg className="h-3.5 w-3.5 text-blue-600" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V18M8 5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V5M8 5V5C8 6.10457 8.89543 7 10 7H14C15.1046 7 16 6.10457 16 5V5M16 5H18C19.1046 5 20 5.89543 20 7V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    <Copy className="h-3.5 w-3.5" />
                   )}
                 </Button>
               </motion.div>
@@ -425,7 +392,7 @@ export default function MessageItem({
         )}
       </div>
 
-      {/* Avatar para el usuario con efecto mejorado */}
+      {/* User avatar with improved styling */}
       {isUser && !isSequential && (
         <motion.div
           className="relative flex-shrink-0"
@@ -440,114 +407,13 @@ export default function MessageItem({
               <circle cx="12" cy="7" r="4" />
             </svg>
           </div>
-          {/* Indicador de estado */}
+          {/* Status indicator */}
           <div className="absolute bottom-0 right-0 h-2.5 w-2.5 bg-green-500 border-2 border-white rounded-full"></div>
         </motion.div>
       )}
 
-      {/* Spacer para alinear mensajes secuenciales del usuario */}
+      {/* Spacer for sequential user messages */}
       {isUser && isSequential && <div className="w-10 flex-shrink-0" />}
     </div>
   );
-}
-
-// Estilos CSS específicos para burbujas de estilo de gota de agua
-// Estos estilos se deben incluir en un archivo CSS o como parte de un componente de estilo
-const styles = `
-  /* Burbuja principal estilo "gota técnica" */
-  .droplet-message {
-    position: relative;
-    border-top-left-radius: 4px !important;
-  }
-  
-  .droplet-message::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -10px;
-    width: 18px;
-    height: 18px;
-    background: inherit;
-    border-left: 1px solid var(--color-hydrous-100);
-    border-bottom: 1px solid var(--color-hydrous-100);
-    border-bottom-left-radius: 16px;
-    border-top: 0;
-    border-right: 0;
-    z-index: -1;
-  }
-  
-  /* Líneas técnicas sutiles en burbujas */
-  .message-assistant-refined::after {
-    content: '';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
-    background-image: 
-      radial-gradient(circle at center, rgba(56, 189, 248, 0.2) 2px, transparent 2px),
-      linear-gradient(to right, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
-    background-size: 8px 8px, 10px 10px, 10px 10px;
-    background-position: center, 0 0, 0 0;
-    border-radius: 0 8px 0 0;
-    opacity: 0.5;
-    pointer-events: none;
-    z-index: 1;
-  }
-  
-  /* Burbuja del usuario con estilo técnico */
-  .message-user-refined {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .message-user-refined::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(120deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%),
-      repeating-linear-gradient(60deg, rgba(255, 255, 255, 0) 0px, rgba(255, 255, 255, 0.1) 12px, rgba(255, 255, 255, 0) 24px);
-    background-size: 100% 100%, 120px 120px;
-    opacity: 0.2;
-    pointer-events: none;
-  }
-  
-  /* Mejorar lista personalizada con gotas técnicas */
-  .custom-list li::before {
-    content: '';
-    position: absolute;
-    left: -1.25rem;
-    top: 0.6rem;
-    width: 0.35rem;
-    height: 0.45rem;
-    background-color: #38bdf8;
-    border-radius: 2px 50% 50% 1px;
-    transform: rotate(-45deg);
-  }
-  
-  /* Bordes técnicos en tablas */
-  .technical-parameter {
-    position: relative;
-    border-left: 2px solid rgba(56, 189, 248, 0.3);
-  }
-  
-  .technical-parameter::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 4px;
-    background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.3), transparent);
-    border-radius: 0 2px 2px 0;
-  }
-`;
-
-// Insertar estilos
-if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = styles;
-  document.head.appendChild(styleElement);
 }
