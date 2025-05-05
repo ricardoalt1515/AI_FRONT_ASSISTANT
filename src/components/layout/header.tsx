@@ -1,9 +1,8 @@
-// src/components/layout/header.tsx
 "use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import DropletAvatar from "@/components/chat/droplet-avatar"
@@ -12,12 +11,26 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { apiService } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { LogOut, User, Settings } from "lucide-react"
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [isStartingNewChat, setIsStartingNewChat] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userData, setUserData] = useState<any>(null)
   const pathname = usePathname()
+  const router = useRouter()
 
   // Detectar scroll para efectos visuales
   useEffect(() => {
@@ -29,6 +42,32 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Verificar autenticación al cargar
+  useEffect(() => {
+    const checkAuth = () => {
+      const isAuth = apiService.isAuthenticated();
+      setIsAuthenticated(isAuth);
+
+      if (isAuth) {
+        try {
+          const userDataStr = localStorage.getItem('userData');
+          if (userDataStr) {
+            setUserData(JSON.parse(userDataStr));
+          } else {
+            // Si no hay datos en localStorage pero hay token, intentar obtenerlos
+            apiService.getCurrentUser().then(data => {
+              setUserData(data);
+            }).catch(console.error);
+          }
+        } catch (e) {
+          console.error("Error cargando datos de usuario:", e);
+        }
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Determinar si estamos en la página de chat
   const isOnChatPage = pathname === "/chat"
@@ -65,6 +104,25 @@ export default function Header() {
       setIsStartingNewChat(false)
     }
   }
+
+  // Manejar cierre de sesión
+  const handleLogout = () => {
+    apiService.logoutUser();
+    setIsAuthenticated(false);
+    setUserData(null);
+    router.push('/');
+  };
+
+  // Obtener iniciales del usuario para el avatar
+  const getUserInitials = () => {
+    if (!userData) return 'U';
+
+    let initials = '';
+    if (userData.first_name) initials += userData.first_name.charAt(0).toUpperCase();
+    if (userData.last_name) initials += userData.last_name.charAt(0).toUpperCase();
+
+    return initials || 'U';
+  };
 
   return (
     <motion.header
@@ -142,7 +200,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Botones de autenticación */}
+          {/* Botones de autenticación o perfil de usuario */}
           <div className="flex items-center gap-2 ml-2">
             {isOnChatPage ? (
               <Button
@@ -165,6 +223,49 @@ export default function Header() {
                   <span>Nueva Consulta</span>
                 )}
               </Button>
+            ) : isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8 border-2 border-blue-100">
+                      <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {userData?.first_name} {userData?.last_name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {userData?.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/chat" className="cursor-pointer flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Chat de IA</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configuración</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-600 focus:text-red-700"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Cerrar sesión</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Button
@@ -212,6 +313,27 @@ export default function Header() {
                   <h2 className="text-xl font-bold text-blue-800">H₂O Allegiant</h2>
                 </div>
 
+                {/* Información de usuario en móvil */}
+                {isAuthenticated && userData && (
+                  <div className="mb-4 p-4 bg-blue-50/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border-2 border-blue-100">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-blue-800">
+                          {userData.first_name} {userData.last_name}
+                        </p>
+                        <p className="text-xs text-blue-600 truncate max-w-[180px]">
+                          {userData.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <nav className="flex flex-col gap-2">
                   <Link href="/" className={cn(
                     "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
@@ -236,6 +358,15 @@ export default function Header() {
                         hover:from-blue-600 hover:to-blue-700 text-white"
                     >
                       {isStartingNewChat ? "Iniciando..." : "Nueva Consulta"}
+                    </Button>
+                  ) : isAuthenticated ? (
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Cerrar sesión
                     </Button>
                   ) : (
                     <>

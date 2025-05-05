@@ -139,6 +139,8 @@ export default function ChatContainer() {
     }
   };
 
+  // Modificar el método startConversation en ChatContainer:
+
   const startConversation = async () => {
     try {
       setIsInitializing(true);
@@ -147,7 +149,29 @@ export default function ChatContainer() {
         console.log("Backend initializing, waiting...")
       }
 
-      const data = await apiService.startConversation();
+      // Verificar si hay datos de usuario autenticado
+      const userDataString = localStorage.getItem('userData');
+      let userData = null;
+
+      if (userDataString) {
+        try {
+          userData = JSON.parse(userDataString);
+          console.log("Usuario autenticado:", userData.first_name);
+        } catch (e) {
+          console.error("Error al parsear datos del usuario:", e);
+        }
+      }
+
+      // Configurar contexto personalizado con datos del usuario si está disponible
+      const customContext = userData ? {
+        // Convertir nombres del frontend a lo que espera la API
+        client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
+        selected_sector: userData.sector,
+        selected_subsector: userData.subsector,
+        user_location: userData.location
+      } : undefined;
+
+      const data = await apiService.startConversation(customContext);
       setConversationId(data.id);
 
       if (data.messages && data.messages.length > 0) {
@@ -159,10 +183,12 @@ export default function ChatContainer() {
         setIsInitializing(false);
 
         if (!data.messages || data.messages.length === 0) {
-          const welcomeMessage: Message = {
+          const welcomeMessage = {
             id: `welcome-${Date.now()}`,
             role: "assistant",
-            content: "Hello, I am H₂O Allegiant AI, your engineer specialized in water treatment solutions. How can I assist you with your project today?",
+            content: userData
+              ? `Hola ${userData.first_name}, bienvenido de nuevo a H₂O Allegiant AI. ¿En qué puedo ayudarte hoy con tu proyecto de tratamiento de agua?`
+              : "Bienvenido a H₂O Allegiant AI, tu asistente especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte hoy?",
             created_at: new Date().toISOString(),
           };
           setMessages([welcomeMessage]);
