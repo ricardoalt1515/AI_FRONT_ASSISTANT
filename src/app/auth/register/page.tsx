@@ -165,10 +165,10 @@ export default function RegisterPage() {
     try {
       // Prepare data for API
       const registrationData = {
-        first_name: formData.firstName,
+        first_name: formData.firstName,     // ¡Cuidado con camelCase vs snake_case!
         last_name: formData.lastName,
         email: formData.email,
-        company_name: formData.company, // Renombrado para el backend
+        company_name: formData.company,    // Asegúrate que este campo se llama igual en backend
         location: formData.location,
         sector: formData.sector,
         subsector: formData.subsector,
@@ -427,7 +427,7 @@ export default function RegisterPage() {
               href="/auth/login"
               className="text-blue-700 font-medium hover:text-blue-800 hover:underline transition-colors"
             >
-              Iniciar Sesión
+              Log in
             </Link>
           </p>
         </CardFooter>

@@ -275,7 +275,7 @@ export default function Header() {
                   className="text-blue-700 hover:text-blue-800 hover:bg-blue-50"
                 >
                   <Link href="/auth/login">
-                    Iniciar Sesión
+                    Log in
                   </Link>
                 </Button>
 
@@ -287,7 +287,7 @@ export default function Header() {
                   asChild
                 >
                   <Link href="/auth/register">
-                    Registrarse
+                    Sign up
                   </Link>
                 </Button>
               </>
@@ -376,7 +376,7 @@ export default function Header() {
                         asChild
                       >
                         <Link href="/auth/login">
-                          Iniciar Sesión
+                          Log in
                         </Link>
                       </Button>
 
@@ -386,7 +386,7 @@ export default function Header() {
                         asChild
                       >
                         <Link href="/auth/register">
-                          Registrarse
+                          Sign up
                         </Link>
                       </Button>
                     </>

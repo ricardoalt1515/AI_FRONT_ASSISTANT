@@ -82,7 +82,7 @@ export default function LandingPage() {
                 className="bg-gradient-to-r from-blue-500 to-blue-600 
                       hover:from-blue-600 hover:to-blue-700 text-white shadow-md shadow-blue-400/10"
               >
-                Registrarse
+                Sign up
               </Button>
             </div>
           </div>

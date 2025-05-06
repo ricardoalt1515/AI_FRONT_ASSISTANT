@@ -161,7 +161,7 @@ export default function LoginPage() {
               href="/auth/register"
               className="text-blue-700 font-medium hover:text-blue-800 hover:underline"
             >
-              Registrarse
+              Sign up
             </Link>
           </p>
         </CardFooter>

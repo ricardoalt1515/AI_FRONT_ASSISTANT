@@ -23,15 +23,25 @@ export default function ChatContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Start conversation when component loads
-    startConversation();
+    /* CAMBIO: Primero revisa si hay una conversación guardada */
+    const savedConversationId = localStorage.getItem('currentConversationId');
+    if (savedConversationId) {
+      console.log("📋 Recuperando conversación existente:", savedConversationId);
+      setConversationId(savedConversationId);
+      loadConversationMessages(savedConversationId);
+    } else {
+      console.log("🔄 No hay conversación guardada, iniciando nueva");
+      startConversation();
+    }
 
     // Listen for the custom 'newConversationStarted' event
     const handleNewConversation = (event: CustomEvent) => {
       const newConversationId = event.detail?.conversationId;
       if (newConversationId) {
+        console.log("🔄 Evento nueva conversación recibido para:", newConversationId);
         resetConversation(newConversationId);
       } else {
+        console.log("🔄 Evento nueva conversación sin ID, iniciando desde cero");
         startConversation();
       }
     };
@@ -41,6 +51,30 @@ export default function ChatContainer() {
       window.removeEventListener('newConversationStarted', handleNewConversation as EventListener);
     };
   }, []);
+
+  /* CAMBIO: Función para cargar mensajes de una conversación existente */
+  const loadConversationMessages = async (convId: string) => {
+    try {
+      setIsInitializing(true);
+      console.log("💬 Cargando mensajes para conversación:", convId);
+
+      // Si no hay API para obtener mensajes, muestra un mensaje de bienvenida de continuación
+      const welcomeBackMessage: Message = {
+        id: `welcome-back-${Date.now()}`,
+        role: "assistant",
+        content: "Bienvenido de nuevo. Puedes continuar con tu consulta donde la dejaste.",
+        created_at: new Date().toISOString(),
+      };
+
+      setMessages([welcomeBackMessage]);
+      setIsInitializing(false);
+    } catch (error) {
+      console.error("❌ Error cargando mensajes:", error);
+      setIsInitializing(false);
+      // Si falla, iniciar nueva conversación
+      startConversation();
+    }
+  };
 
   // Handle scrolling
   useEffect(() => {
@@ -117,12 +151,20 @@ export default function ChatContainer() {
   };
 
   const resetConversation = (newId?: string) => {
+    /* CAMBIO: Eliminar conversación de localStorage */
+    localStorage.removeItem('currentConversationId');
+
     setMessages([]);
     setIsTyping(false);
     setDropletMood('default');
 
     if (newId) {
+      console.log("🔄 Reiniciando con nueva conversación ID:", newId);
       setConversationId(newId);
+
+      /* CAMBIO: Guardar nueva ID en localStorage */
+      localStorage.setItem('currentConversationId', newId);
+
       setIsInitializing(false);
 
       const welcomeMessage: Message = {
@@ -139,14 +181,13 @@ export default function ChatContainer() {
     }
   };
 
-  // Modificar el método startConversation en ChatContainer:
-
   const startConversation = async () => {
     try {
       setIsInitializing(true);
+      console.log("🚀 Iniciando nueva conversación...");
 
       if (apiService.isInitializing && apiService.isInitializing()) {
-        console.log("Backend initializing, waiting...")
+        console.log("⏳ Backend initializing, waiting...")
       }
 
       // Verificar si hay datos de usuario autenticado
@@ -156,22 +197,28 @@ export default function ChatContainer() {
       if (userDataString) {
         try {
           userData = JSON.parse(userDataString);
-          console.log("Usuario autenticado:", userData.first_name);
+          console.log("👤 Usuario autenticado:", userData.first_name);
         } catch (e) {
-          console.error("Error al parsear datos del usuario:", e);
+          console.error("❌ Error al parsear datos del usuario:", e);
         }
       }
 
       // Configurar contexto personalizado con datos del usuario si está disponible
+      // Configurar contexto personalizado con datos del usuario si está disponible
       const customContext = userData ? {
-        // Convertir nombres del frontend a lo que espera la API
         client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
         selected_sector: userData.sector,
         selected_subsector: userData.subsector,
         user_location: userData.location
       } : undefined;
 
+      console.log("Enviando contexto al iniciar conversación:", customContext);
       const data = await apiService.startConversation(customContext);
+
+      console.log("✅ Conversación iniciada con ID:", data.id);
+
+      /* CAMBIO: Guardar ID en localStorage */
+      localStorage.setItem('currentConversationId', data.id);
       setConversationId(data.id);
 
       if (data.messages && data.messages.length > 0) {
@@ -196,7 +243,7 @@ export default function ChatContainer() {
       }, 1200);
 
     } catch (error) {
-      console.error("Error starting chat:", error);
+      console.error("❌ Error starting chat:", error);
       alert("Connection error: Could not establish a connection to the server.");
       setIsInitializing(false);
     }
@@ -223,12 +270,18 @@ export default function ChatContainer() {
     try {
       let data;
 
+      /* CAMBIO: Añadir logs para depuración */
+      console.log("📤 Enviando mensaje a conversación:", conversationId);
+
       if (file) {
+        console.log("📎 Enviando archivo:", file.name);
         data = await apiService.uploadDocument(conversationId, file, messageText);
       } else {
+        console.log("💬 Enviando texto:", messageText.substring(0, 50) + (messageText.length > 50 ? "..." : ""));
         data = await apiService.sendMessage(conversationId, messageText);
       }
 
+      console.log("📥 Respuesta recibida:", data);
       setIsTyping(false);
 
       // Handle PDF download
@@ -270,7 +323,7 @@ export default function ChatContainer() {
         setMessages((prev) => [...prev, assistantMessage]);
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("❌ Error sending message:", error);
       setIsTyping(false);
 
       const errorMessage: Message = {
@@ -332,8 +385,9 @@ export default function ChatContainer() {
 
             <div className="h-1 w-1 rounded-full bg-blue-300"></div>
 
+            {/* CAMBIO: Mostrar ID de conversación para depuración */}
             <div className="text-blue-700 text-xs font-medium">
-              Technical Consultation
+              {conversationId ? `ID: ${conversationId.substring(0, 8)}...` : 'Iniciando...'}
             </div>
           </div>
 
@@ -344,7 +398,7 @@ export default function ChatContainer() {
             onClick={() => resetConversation()}
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>New Conversation</span>
+            <span>Nueva Conversación</span>
           </Button>
         </div>
 

@@ -1,14 +1,15 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Determinar automáticamente si usar API routes locales o conectar directo al backend
+// Configuración de la URL del backend (mantén la que ya tienes)
 const isProduction = process.env.NODE_ENV === 'production';
-
-// En producción, configurar la URL del backend desde variable de entorno
-// En desarrollo, usar las API routes locales de Next.js
 const apiBaseUrl = isProduction
-  ? process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-chatbot-owzs.onrender.com/api'
-  : '/api';
+  ? process.env.NEXT_PUBLIC_PRODUCTION_BACKEND_URL || 'https://backend-chatbot-owzs.onrender.com/api'
+  : process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
+    ? 'http://localhost:8000/api'
+    : '/api';
+
+console.log('API Base URL:', apiBaseUrl);
 
 // Cliente axios con configuración base
 const apiClient = axios.create({
@@ -16,7 +17,6 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Aumentar timeout para permitir inicialización lenta del backend
   timeout: 60000, // 60 segundos
 });
 
@@ -31,21 +31,29 @@ apiClient.interceptors.request.use(config => {
 });
 
 // Variables para tracking del estado del backend
-const isBackendInitializing = false;
-const backendInitPromise: Promise<void> | null = null;
+let isBackendInitializing = false;
+let backendInitPromise: Promise<void> | null = null;
 
 // Función para inicializar el backend (con retry)
 const initializeBackend = async (): Promise<void> => {
-  // ... [código existente sin cambios]
+  if (isBackendInitializing) {
+    return backendInitPromise!;
+  }
+
+  isBackendInitializing = true;
+  backendInitPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      isBackendInitializing = false;
+      resolve();
+    }, 2000);
+  });
+
+  return backendInitPromise;
 };
 
 // API Service centralizado
 export const apiService = {
-  // ... [métodos existentes sin cambios]
-
   // Métodos de autenticación
-
-  // Registrar usuario
   registerUser: async (userData: any) => {
     try {
       const response = await apiClient.post('/auth/register', userData);
@@ -63,7 +71,6 @@ export const apiService = {
     }
   },
 
-  // Iniciar sesión
   loginUser: async (email: string, password: string) => {
     try {
       const response = await apiClient.post('/auth/login', { email, password });
@@ -81,19 +88,20 @@ export const apiService = {
     }
   },
 
-  // Cerrar sesión
   logoutUser: () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     return true;
   },
 
-  // Verificar si el usuario está autenticado
   isAuthenticated: () => {
     return !!localStorage.getItem('authToken');
   },
 
-  // Obtener datos del usuario actual
+  isInitializing: () => {
+    return isBackendInitializing;
+  },
+
   getCurrentUser: async () => {
     try {
       // Primero intentar obtener de localStorage por eficiencia
@@ -115,7 +123,7 @@ export const apiService = {
     }
   },
 
-  // Modificar iniciar conversación para incluir datos de usuario si existe
+  // Métodos de chat
   startConversation: async (customContext = {}) => {
     try {
       // Asegurarse que el backend está iniciado
@@ -124,12 +132,7 @@ export const apiService = {
         console.warn('Continuando sin confirmación de backend');
       });
 
-      // Recuperar datos del usuario actual si existe
-      const userDataStr = localStorage.getItem('userData');
-
-      // Configurar body si hay contexto personalizado o usuario autenticado
       const requestBody = Object.keys(customContext).length > 0 ? { customContext } : undefined;
-
       const response = await apiClient.post('/chat/start', requestBody);
       return response.data;
     } catch (error) {
@@ -138,7 +141,54 @@ export const apiService = {
     }
   },
 
-  // [Resto de métodos existentes sin cambios]
+  // AÑADIR ESTE MÉTODO QUE FALTA - sendMessage
+  sendMessage: async (conversationId: string, message: string) => {
+    try {
+      const response = await apiClient.post('/chat/message', {
+        conversation_id: conversationId,
+        message: message
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error enviando mensaje:', error);
+      throw error;
+    }
+  },
+
+  // AÑADIR ESTE MÉTODO SI LO USAS EN TU FRONTEND
+  uploadDocument: async (conversationId: string, file: File, message?: string) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('conversation_id', conversationId);
+      if (message) {
+        formData.append('message', message);
+      }
+
+      const response = await apiClient.post('/documents/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error subiendo documento:', error);
+      throw error;
+    }
+  },
+
+  // AÑADIR ESTE MÉTODO SI LO USAS
+  downloadProposal: async (conversationId: string) => {
+    try {
+      const response = await apiClient.get(`/chat/${conversationId}/download-pdf`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error descargando propuesta:', error);
+      throw error;
+    }
+  }
 };
 
 export default apiService;
