@@ -1,10 +1,10 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Configuración de la URL del backend (mantén la que ya tienes)
+// Configuración de la URL del backend
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = isProduction
-  ? process.env.NEXT_PUBLIC_PRODUCTION_BACKEND_URL || 'https://backend-chatbot-owzs.onrender.com/api'
+  ? process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-chatbot-owzs.onrender.com/api'
   : process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
     ? 'http://localhost:8000/api'
     : '/api';
@@ -58,8 +58,8 @@ export const apiService = {
     try {
       const response = await apiClient.post('/auth/register', userData);
 
-      // Almacenar token y datos del usuario en localStorage
-      if (response.data.token) {
+      if (response.data && response.data.token) {
+        // Almacenar token y datos del usuario en localStorage
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
       }
@@ -75,8 +75,8 @@ export const apiService = {
     try {
       const response = await apiClient.post('/auth/login', { email, password });
 
-      // Almacenar token y datos del usuario en localStorage
-      if (response.data.token) {
+      if (response.data && response.data.token) {
+        // Almacenar token y datos del usuario en localStorage
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
       }
@@ -91,6 +91,7 @@ export const apiService = {
   logoutUser: () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
+    localStorage.removeItem('currentConversationId');
     return true;
   },
 
@@ -113,10 +114,13 @@ export const apiService = {
       // Si no está en localStorage, obtener del servidor
       const response = await apiClient.get('/auth/me');
 
-      // Actualizar almacenamiento local
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
+      // Actualizar almacenamiento local con datos más frescos
+      if (response.data && response.data.user) {
+        localStorage.setItem('userData', JSON.stringify(response.data.user));
+        return response.data.user;
+      }
 
-      return response.data.user;
+      return null;
     } catch (error) {
       console.error('Error obteniendo usuario actual:', error);
       throw error;
@@ -132,8 +136,12 @@ export const apiService = {
         console.warn('Continuando sin confirmación de backend');
       });
 
-      const requestBody = Object.keys(customContext).length > 0 ? { customContext } : undefined;
+      const requestBody = Object.keys(customContext).length > 0 ? { customContext } : {};
+      console.log('Enviando solicitud para iniciar conversación:', requestBody);
+
       const response = await apiClient.post('/chat/start', requestBody);
+      console.log('Respuesta al iniciar conversación:', response.data);
+
       return response.data;
     } catch (error) {
       console.error('Error iniciando conversación:', error);
@@ -141,13 +149,16 @@ export const apiService = {
     }
   },
 
-  // AÑADIR ESTE MÉTODO QUE FALTA - sendMessage
   sendMessage: async (conversationId: string, message: string) => {
     try {
+      console.log(`Enviando mensaje a conversación ${conversationId}:`, message);
+
       const response = await apiClient.post('/chat/message', {
         conversation_id: conversationId,
         message: message
       });
+
+      console.log('Respuesta del mensaje:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error enviando mensaje:', error);
@@ -155,7 +166,6 @@ export const apiService = {
     }
   },
 
-  // AÑADIR ESTE MÉTODO SI LO USAS EN TU FRONTEND
   uploadDocument: async (conversationId: string, file: File, message?: string) => {
     try {
       const formData = new FormData();
@@ -177,13 +187,35 @@ export const apiService = {
     }
   },
 
-  // AÑADIR ESTE MÉTODO SI LO USAS
   downloadProposal: async (conversationId: string) => {
     try {
+      // Configurar para recibir blob
       const response = await apiClient.get(`/chat/${conversationId}/download-pdf`, {
         responseType: 'blob'
       });
-      return response.data;
+
+      // Crear URL y trigger de descarga
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Extraer nombre del archivo del header Content-Disposition si existe
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'propuesta.pdf';
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      return url;
     } catch (error) {
       console.error('Error descargando propuesta:', error);
       throw error;

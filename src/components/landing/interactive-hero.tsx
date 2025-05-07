@@ -59,7 +59,7 @@ export default function InteractiveHero() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                <span>Potenciado por IA</span>
+                <span>AI Powered</span>
               </div>
             </motion.div>
 
@@ -69,7 +69,7 @@ export default function InteractiveHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Inteligencia <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Instantánea</span> del Agua
+              Instant <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Water</span> Intelligence
             </motion.h1>
 
             <motion.p
@@ -78,7 +78,7 @@ export default function InteractiveHero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              Soluciones avanzadas de ingeniería y diseño de tratamiento de agua potenciadas por IA para optimizar tus proyectos.
+              Advanced AI-powered water treatment engineering and design solutions to optimize your projects.
             </motion.p>
 
             <motion.div
@@ -93,7 +93,7 @@ export default function InteractiveHero() {
                 asChild
               >
                 <Link href="/auth/register">
-                  Iniciar Ahora
+                  Start Now
                 </Link>
               </Button>
 
@@ -104,7 +104,7 @@ export default function InteractiveHero() {
                 asChild
               >
                 <Link href="/chat">
-                  Probar Demo
+                  Try Demo
                 </Link>
               </Button>
             </motion.div>

@@ -47,9 +47,9 @@ export default function MessageItem({
   const containsCode = message.content.includes("```");
 
   // Detect if message contains technical parameters
-  const containsParameters = message.content.toLowerCase().includes("dbo:") ||
-    message.content.toLowerCase().includes("dqo:") ||
-    message.content.toLowerCase().includes("sst:");
+  const containsParameters = message.content.toLowerCase().includes("bod:") ||
+    message.content.toLowerCase().includes("cod:") ||
+    message.content.toLowerCase().includes("tss:");
 
   return (
     <div
@@ -174,22 +174,22 @@ export default function MessageItem({
                   p: ({ node, children, ...props }) => {
                     // Check for water treatment parameters
                     if (typeof children === 'string') {
-                      // Detection of DBO parameter
-                      if (children.match(/DBO:?\s*=?\s*(\d+)/) ||
-                        children.match(/DQO:?\s*=?\s*(\d+)/) ||
-                        children.match(/SST:?\s*=?\s*(\d+)/)) {
+                      // Detection of BOD parameter
+                      if (children.match(/BOD:?\s*=?\s*(\d+)/) ||
+                        children.match(/COD:?\s*=?\s*(\d+)/) ||
+                        children.match(/TSS:?\s*=?\s*(\d+)/)) {
 
                         // Extract parameters and values
                         const parameters = [];
 
-                        const dboMatch = children.match(/DBO:?\s*=?\s*(\d+)/);
-                        if (dboMatch) parameters.push({ name: 'DBO', value: parseInt(dboMatch[1]), max: 1000 });
+                        const bodMatch = children.match(/BOD:?\s*=?\s*(\d+)/);
+                        if (bodMatch) parameters.push({ name: 'BOD', value: parseInt(bodMatch[1]), max: 1000 });
 
-                        const dqoMatch = children.match(/DQO:?\s*=?\s*(\d+)/);
-                        if (dqoMatch) parameters.push({ name: 'DQO', value: parseInt(dqoMatch[1]), max: 1500 });
+                        const codMatch = children.match(/COD:?\s*=?\s*(\d+)/);
+                        if (codMatch) parameters.push({ name: 'COD', value: parseInt(codMatch[1]), max: 1500 });
 
-                        const sstMatch = children.match(/SST:?\s*=?\s*(\d+)/);
-                        if (sstMatch) parameters.push({ name: 'SST', value: parseInt(sstMatch[1]), max: 600 });
+                        const tssMatch = children.match(/TSS:?\s*=?\s*(\d+)/);
+                        if (tssMatch) parameters.push({ name: 'TSS', value: parseInt(tssMatch[1]), max: 600 });
 
                         if (parameters.length > 0) {
                           return (

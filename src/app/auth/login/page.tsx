@@ -41,7 +41,9 @@ export default function LoginPage() {
 
     try {
       // Llamar a la API de login
-      await apiService.loginUser(formData.email, formData.password);
+      const response = await apiService.loginUser(formData.email, formData.password);
+
+      console.log("Login exitoso:", response);
 
       // Redireccionar al chat en caso de éxito
       router.push('/chat');
@@ -59,6 +61,7 @@ export default function LoginPage() {
       } else {
         setErrorMessage("Error de conexión. Verifica tu internet e inténtalo de nuevo.");
       }
+    } finally {
       setIsLoading(false);
     }
   }
@@ -161,7 +164,7 @@ export default function LoginPage() {
               href="/auth/register"
               className="text-blue-700 font-medium hover:text-blue-800 hover:underline"
             >
-              Sign up
+              Registrarse
             </Link>
           </p>
         </CardFooter>

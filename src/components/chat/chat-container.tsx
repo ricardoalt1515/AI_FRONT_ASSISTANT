@@ -21,17 +21,22 @@ export default function ChatContainer() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const conversationInitialized = useRef<boolean>(false);
 
   useEffect(() => {
-    /* CAMBIO: Primero revisa si hay una conversación guardada */
-    const savedConversationId = localStorage.getItem('currentConversationId');
-    if (savedConversationId) {
-      console.log("📋 Recuperando conversación existente:", savedConversationId);
-      setConversationId(savedConversationId);
-      loadConversationMessages(savedConversationId);
-    } else {
-      console.log("🔄 No hay conversación guardada, iniciando nueva");
-      startConversation();
+    // Inicializar conversación al cargar el componente
+    if (!conversationInitialized.current) {
+      conversationInitialized.current = true;
+      
+      const savedConversationId = localStorage.getItem('currentConversationId');
+      if (savedConversationId) {
+        console.log("📋 Recuperando conversación existente:", savedConversationId);
+        // Verificar si la conversación existe en el backend antes de usarla
+        verifyConversationExists(savedConversationId);
+      } else {
+        console.log("🔄 No hay conversación guardada, iniciando nueva");
+        startConversation();
+      }
     }
 
     // Listen for the custom 'newConversationStarted' event
@@ -52,7 +57,26 @@ export default function ChatContainer() {
     };
   }, []);
 
-  /* CAMBIO: Función para cargar mensajes de una conversación existente */
+  // Verificar si una conversación existe en el backend
+  const verifyConversationExists = async (convId: string) => {
+    try {
+      // Intentaremos enviar un mensaje vacío para ver si la conversación existe
+      const testMessage = "VERIFICACIÓN_SILENCIOSA";
+      await apiService.sendMessage(convId, testMessage);
+      
+      // Si llegamos aquí, la conversación existe
+      console.log("✅ Conversación existente verificada:", convId);
+      setConversationId(convId);
+      loadConversationMessages(convId);
+    } catch (error) {
+      console.error("❌ Conversación guardada no existe en el backend:", error);
+      // Si hay error, la conversación probablemente no existe, iniciar una nueva
+      localStorage.removeItem('currentConversationId');
+      startConversation();
+    }
+  };
+
+  /* Función para cargar mensajes de una conversación existente */
   const loadConversationMessages = async (convId: string) => {
     try {
       setIsInitializing(true);
@@ -151,7 +175,7 @@ export default function ChatContainer() {
   };
 
   const resetConversation = (newId?: string) => {
-    /* CAMBIO: Eliminar conversación de localStorage */
+    /* Eliminar conversación de localStorage */
     localStorage.removeItem('currentConversationId');
 
     setMessages([]);
@@ -162,7 +186,7 @@ export default function ChatContainer() {
       console.log("🔄 Reiniciando con nueva conversación ID:", newId);
       setConversationId(newId);
 
-      /* CAMBIO: Guardar nueva ID en localStorage */
+      /* Guardar nueva ID en localStorage */
       localStorage.setItem('currentConversationId', newId);
 
       setIsInitializing(false);
@@ -170,7 +194,7 @@ export default function ChatContainer() {
       const welcomeMessage: Message = {
         id: `welcome-${Date.now()}`,
         role: "assistant",
-        content: "Hello, I am H₂O Allegiant AI, your engineer specialized in water treatment solutions. How can I assist you with your project today?",
+        content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte con tu proyecto hoy?",
         created_at: new Date().toISOString(),
       };
       setMessages([welcomeMessage]);
@@ -186,10 +210,6 @@ export default function ChatContainer() {
       setIsInitializing(true);
       console.log("🚀 Iniciando nueva conversación...");
 
-      if (apiService.isInitializing && apiService.isInitializing()) {
-        console.log("⏳ Backend initializing, waiting...")
-      }
-
       // Verificar si hay datos de usuario autenticado
       const userDataString = localStorage.getItem('userData');
       let userData = null;
@@ -204,7 +224,6 @@ export default function ChatContainer() {
       }
 
       // Configurar contexto personalizado con datos del usuario si está disponible
-      // Configurar contexto personalizado con datos del usuario si está disponible
       const customContext = userData ? {
         client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
         selected_sector: userData.sector,
@@ -212,12 +231,12 @@ export default function ChatContainer() {
         user_location: userData.location
       } : undefined;
 
-      console.log("Enviando contexto al iniciar conversación:", customContext);
+      console.log("🌐 Enviando contexto al iniciar conversación:", customContext);
       const data = await apiService.startConversation(customContext);
 
       console.log("✅ Conversación iniciada con ID:", data.id);
 
-      /* CAMBIO: Guardar ID en localStorage */
+      /* Guardar ID en localStorage */
       localStorage.setItem('currentConversationId', data.id);
       setConversationId(data.id);
 
@@ -243,14 +262,35 @@ export default function ChatContainer() {
       }, 1200);
 
     } catch (error) {
-      console.error("❌ Error starting chat:", error);
-      alert("Connection error: Could not establish a connection to the server.");
+      console.error("❌ Error iniciando chat:", error);
+      alert("Error de conexión: No se pudo establecer una conexión con el servidor.");
       setIsInitializing(false);
     }
   };
 
   const sendMessage = async (messageText: string, file?: File) => {
-    if ((!messageText.trim() && !file) || !conversationId || isTyping) return;
+    // Verificar que hay un ID de conversación válido
+    if (!conversationId) {
+      console.error("❌ Error: Intentando enviar mensaje sin ID de conversación");
+      try {
+        // Intentar iniciar una nueva conversación
+        console.log("🔄 Iniciando nueva conversación antes de enviar mensaje...");
+        
+        const data = await apiService.startConversation();
+        console.log("✅ Nueva conversación iniciada con ID:", data.id);
+        
+        setConversationId(data.id);
+        localStorage.setItem('currentConversationId', data.id);
+        
+        // Ahora continuamos con el envío del mensaje
+      } catch (error) {
+        console.error("❌ Error iniciando conversación de emergencia:", error);
+        alert("Error de conexión: No se pudo iniciar una conversación.");
+        return;
+      }
+    }
+    
+    if ((!messageText.trim() && !file) || isTyping) return;
 
     // Add user message locally first
     const userMessage: Message = {
@@ -270,15 +310,15 @@ export default function ChatContainer() {
     try {
       let data;
 
-      /* CAMBIO: Añadir logs para depuración */
+      /* Añadir logs para depuración */
       console.log("📤 Enviando mensaje a conversación:", conversationId);
 
       if (file) {
         console.log("📎 Enviando archivo:", file.name);
-        data = await apiService.uploadDocument(conversationId, file, messageText);
+        data = await apiService.uploadDocument(conversationId!, file, messageText);
       } else {
         console.log("💬 Enviando texto:", messageText.substring(0, 50) + (messageText.length > 50 ? "..." : ""));
-        data = await apiService.sendMessage(conversationId, messageText);
+        data = await apiService.sendMessage(conversationId!, messageText);
       }
 
       console.log("📥 Respuesta recibida:", data);
@@ -291,7 +331,7 @@ export default function ChatContainer() {
         const systemMessage: Message = {
           id: `system-${Date.now()}`,
           role: "assistant",
-          content: "📄 **Your proposal has been generated successfully.**\n\nThe PDF document should open automatically. If you need to download it again, type \"download proposal\" or \"download pdf\".",
+          content: "📄 **Tu propuesta ha sido generada exitosamente.**\n\nEl documento PDF debería abrirse automáticamente. Si necesitas descargarlo de nuevo, escribe \"descargar propuesta\" o \"descargar pdf\".",
           created_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, systemMessage]);
@@ -305,7 +345,7 @@ export default function ChatContainer() {
         const assistantMessage: Message = {
           id: data.id || `assistant-${Date.now()}`,
           role: "assistant",
-          content: data.message || "Your proposal is ready! It has opened in a new tab.",
+          content: data.message || "¡Tu propuesta está lista! Se ha abierto en una nueva pestaña.",
           created_at: data.created_at || new Date().toISOString(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
@@ -323,13 +363,13 @@ export default function ChatContainer() {
         setMessages((prev) => [...prev, assistantMessage]);
       }
     } catch (error) {
-      console.error("❌ Error sending message:", error);
+      console.error("❌ Error enviando mensaje:", error);
       setIsTyping(false);
 
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: "assistant",
-        content: "I'm sorry, a communication error has occurred. Please try again or refresh the page if the problem persists.",
+        content: "Lo siento, ha ocurrido un error de comunicación. Por favor, inténtalo de nuevo o actualiza la página si el problema persiste.",
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -385,7 +425,7 @@ export default function ChatContainer() {
 
             <div className="h-1 w-1 rounded-full bg-blue-300"></div>
 
-            {/* CAMBIO: Mostrar ID de conversación para depuración */}
+            {/* Mostrar ID de conversación para depuración */}
             <div className="text-blue-700 text-xs font-medium">
               {conversationId ? `ID: ${conversationId.substring(0, 8)}...` : 'Iniciando...'}
             </div>
@@ -484,7 +524,7 @@ export default function ChatContainer() {
           <ChatInput
             onSendMessage={sendMessage}
             isTyping={isTyping}
-            isDisabled={isInitializing || !conversationId}
+            isDisabled={isInitializing}
           />
 
           <div className="mt-2 text-center flex items-center justify-center gap-2 text-xs text-gray-500">

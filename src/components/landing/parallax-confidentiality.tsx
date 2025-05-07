@@ -53,11 +53,11 @@ export default function ParallaxConfidentiality() {
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-medium">Aviso de Confidencialidad</h2>
+              <h2 className="text-2xl font-medium">Confidentiality Notice</h2>
             </div>
 
             <p className="text-blue-100/90 mb-8 leading-relaxed max-w-3xl">
-              Todos los datos, documentos y resultados de laboratorio que proporciones —ya sea pegándolos en el chat o subiéndolos— se tratan como estrictamente confidenciales y se usan únicamente para generar tu evaluación de tratamiento de agua.
+              All data, documents, and laboratory results you provide — whether by pasting them in the chat or uploading them — are treated as strictly confidential and are used only to generate your water treatment assessment.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -69,8 +69,8 @@ export default function ParallaxConfidentiality() {
                       <path d="m4.93 4.93 14.14 14.14" />
                     </svg>
                   ),
-                  title: "No vendemos tu información",
-                  description: "Tu información jamás será comercializada a terceros."
+                  title: "We Don't Sell Your Information",
+                  description: "Your information will never be commercialized to third parties."
                 },
                 {
                   icon: (
@@ -79,8 +79,8 @@ export default function ParallaxConfidentiality() {
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
                   ),
-                  title: "Almacenamiento seguro",
-                  description: "Datos cifrados siguiendo mejores prácticas del sector."
+                  title: "Secure Storage",
+                  description: "Data encrypted following industry best practices."
                 },
                 {
                   icon: (
@@ -89,8 +89,8 @@ export default function ParallaxConfidentiality() {
                       <polyline points="14 2 14 8 20 8" />
                     </svg>
                   ),
-                  title: "Uso limitado",
-                  description: "Solo para generar tu evaluación personalizada."
+                  title: "Limited Use",
+                  description: "Only used to generate your personalized assessment."
                 }
               ].map((item, index) => (
                 <motion.div

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation" // Importamos router para redireccionar
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { HelpCircle } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { apiService } from "@/lib/api-client" // Importamos el servicio API
+import { apiService } from "@/lib/api-client"
 
 // Datos de sectores y subsectores para el selector
 const INDUSTRY_SECTORS = [
@@ -130,7 +130,7 @@ export default function RegisterPage() {
     if (sector) {
       setSubsectors(sector.subsectors);
       // Reset subsector selection when sector changes
-      setFormData(prev => ({ ...prev, subsector: "" }));
+      setFormData(prev => ({ ...prev, subsector: "", sector: selectedSector }));
     }
   }, [selectedSector]);
 
@@ -145,9 +145,7 @@ export default function RegisterPage() {
   // Handle sector selection
   const handleSectorChange = (value: string) => {
     setSelectedSector(value);
-    setFormData(prev => ({ ...prev, sector: value }));
-    // Limpiar mensaje de error al editar
-    if (errorMessage) setErrorMessage(null);
+    // El sector se actualiza en useEffect
   };
 
   // Handle subsector selection
@@ -165,10 +163,10 @@ export default function RegisterPage() {
     try {
       // Prepare data for API
       const registrationData = {
-        first_name: formData.firstName,     // ¡Cuidado con camelCase vs snake_case!
+        first_name: formData.firstName,     // Convertir a snake_case para el backend
         last_name: formData.lastName,
         email: formData.email,
-        company_name: formData.company,    // Asegúrate que este campo se llama igual en backend
+        company_name: formData.company,
         location: formData.location,
         sector: formData.sector,
         subsector: formData.subsector,
@@ -178,19 +176,26 @@ export default function RegisterPage() {
       console.log("Enviando datos de registro:", registrationData);
 
       // Llamar a la API de registro
-      await apiService.registerUser(registrationData);
+      const response = await apiService.registerUser(registrationData);
+      console.log("Registro exitoso:", response);
 
       // Redireccionar al chat en caso de éxito
       router.push('/chat');
     } catch (error: any) {
       console.error("Error durante el registro:", error);
+
       // Manejar error de registro
       if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.detail || "Error en el registro. Inténtalo de nuevo.");
+        if (error.response.data.detail) {
+          setErrorMessage(error.response.data.detail);
+        } else {
+          setErrorMessage("Error en el registro. Por favor, inténtalo de nuevo.");
+        }
       } else {
-        setErrorMessage("Error de conexión. Verifica tu internet e inténtalo de nuevo.");
+        setErrorMessage("Error de conexión. Verifica tu conexión a internet e inténtalo de nuevo.");
       }
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -427,11 +432,11 @@ export default function RegisterPage() {
               href="/auth/login"
               className="text-blue-700 font-medium hover:text-blue-800 hover:underline transition-colors"
             >
-              Log in
+              Iniciar Sesión
             </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

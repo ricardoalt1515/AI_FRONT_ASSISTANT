@@ -76,27 +76,30 @@ export default function Header() {
   const handleNewConsultation = async () => {
     try {
       setIsStartingNewChat(true)
-      const response = await fetch("/api/chat/start", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+      // Obtener datos del usuario para el contexto
+      let customContext = {};
 
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}`)
+      if (userData) {
+        customContext = {
+          client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
+          selected_sector: userData.sector,
+          selected_subsector: userData.subsector,
+          user_location: userData.location
+        };
       }
 
-      const data = await response.json()
+      console.log("Iniciando nueva conversación con contexto:", customContext);
+
+      const response = await apiService.startConversation(customContext);
 
       // Emitir un evento global que ChatContainer escuche
       window.dispatchEvent(new CustomEvent('newConversationStarted', {
-        detail: { conversationId: data.id }
+        detail: { conversationId: response.id }
       }))
 
       // Redireccionar si es necesario
       if (!isOnChatPage) {
-        window.location.href = "/chat"
+        router.push("/chat")
       }
     } catch (error) {
       console.error("Error:", error)
@@ -398,5 +401,5 @@ export default function Header() {
         </div>
       </div>
     </motion.header>
-  )
+  );
 }

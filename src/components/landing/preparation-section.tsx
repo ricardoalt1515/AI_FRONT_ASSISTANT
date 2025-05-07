@@ -12,8 +12,8 @@ export default function PreparationSection() {
           <line x1="12" y1="22.08" x2="12" y2="12" />
         </svg>
       ),
-      title: "Factura de Agua",
-      description: "Tu factura más reciente con volumen y precio por m³"
+      title: "Water Bill",
+      description: "Your most recent bill with volume and price per m³"
     },
     {
       icon: (
@@ -23,8 +23,8 @@ export default function PreparationSection() {
           <path d="M8,22 L16,22" />
         </svg>
       ),
-      title: "Análisis de Laboratorio",
-      description: "Análisis básicos: pH, DQO/DBO, SST, aceites/grasas"
+      title: "Laboratory Analysis",
+      description: "Basic analysis: pH, COD/BOD, TSS, oils/greases"
     },
     {
       icon: (
@@ -34,8 +34,8 @@ export default function PreparationSection() {
           <path d="M8 12h8" />
         </svg>
       ),
-      title: "Objetivo de Reutilización",
-      description: "Tu objetivo de reutilización o descarga del agua tratada"
+      title: "Reuse Objective",
+      description: "Your reuse or discharge objective for treated water"
     },
     {
       icon: (
@@ -46,8 +46,8 @@ export default function PreparationSection() {
           <circle cx="7" cy="7" r="3" />
         </svg>
       ),
-      title: "Restricciones del Sitio",
-      description: "Espacio disponible, energía, presupuesto"
+      title: "Site Constraints",
+      description: "Available space, energy, budget"
     }
   ]
 
@@ -62,7 +62,7 @@ export default function PreparationSection() {
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
           >
-            Para Obtener el Mejor Resultado
+            For Best Results
           </motion.h2>
 
           <motion.p
@@ -72,7 +72,7 @@ export default function PreparationSection() {
             transition={{ duration: 0.7, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            Ten a la mano esta información para obtener recomendaciones más precisas
+            Have this information on hand to get more accurate recommendations
           </motion.p>
         </div>
 
@@ -113,11 +113,11 @@ export default function PreparationSection() {
                 <polyline points="14 2 14 8 20 8" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-blue-800">Opcional: Subir Archivos</h3>
+            <h3 className="text-lg font-medium text-blue-800">Optional: Upload Files</h3>
           </div>
 
           <p className="text-blue-600/80 ml-12">
-            Puedes subir archivos PDF o fotos de los análisis de laboratorio; solo pídele al asistente el botón de "Subir archivos" cuando lo necesites.
+            You can upload PDF files or photos of laboratory analyses; just ask the assistant for the "Upload Files" button when you need it.
           </p>
         </motion.div>
       </div>

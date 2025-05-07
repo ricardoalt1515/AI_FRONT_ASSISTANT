@@ -10,7 +10,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Navegación superior */}
+      {/* Top navigation */}
       <header className="border-b border-blue-100/30 bg-white/60 backdrop-blur-sm z-10">
         <div className="container max-w-7xl mx-auto flex items-center justify-between p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -26,14 +26,14 @@ export default function AuthLayout({
               className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
             >
               <Link href="/">
-                Volver a inicio
+                Back to home
               </Link>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Fondo animado sutilmente */}
+      {/* Subtle animated background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-blue-50/80 via-white to-blue-50/50 pointer-events-none">
         <div className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -42,15 +42,15 @@ export default function AuthLayout({
           }}></div>
       </div>
 
-      {/* Contenido principal */}
+      {/* Main content */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
         {children}
       </main>
 
-      {/* Footer minimalista */}
+      {/* Minimalist footer */}
       <footer className="text-center py-4 text-blue-600/70 text-sm border-t border-blue-100/30 bg-white/60 backdrop-blur-sm">
         <div className="container mx-auto">
-          © {new Date().getFullYear()} H₂O Allegiant — Soluciones Avanzadas de Tratamiento de Agua
+          © {new Date().getFullYear()} H₂O Allegiant — Advanced Water Treatment Solutions
         </div>
       </footer>
     </div>

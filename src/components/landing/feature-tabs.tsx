@@ -9,7 +9,7 @@ export default function FeatureTabs() {
   const categories = [
     {
       id: "design",
-      label: "Diseño",
+      label: "Design",
       features: [
         {
           icon: (
@@ -17,8 +17,8 @@ export default function FeatureTabs() {
               <path d="M21 10H3M21 6H3M21 14H3M21 18H3" />
             </svg>
           ),
-          title: "Dimensiona y Estima Costos",
-          description: "Guía paso a paso para dimensionar y estimar el costo de sistemas de tratamiento de aguas residuales."
+          title: "Size and Cost Estimation",
+          description: "Step-by-step guidance to dimension and estimate the cost of wastewater treatment systems."
         },
         {
           icon: (
@@ -28,14 +28,14 @@ export default function FeatureTabs() {
               <path d="M8 12h8" />
             </svg>
           ),
-          title: "Objetivo de Reutilización",
-          description: "Determina los mejores usos para tu agua tratada según los parámetros de tu proyecto."
+          title: "Reuse Objective",
+          description: "Determine the best uses for your treated water based on your project parameters."
         },
       ]
     },
     {
       id: "analysis",
-      label: "Análisis",
+      label: "Analysis",
       features: [
         {
           icon: (
@@ -45,8 +45,8 @@ export default function FeatureTabs() {
               <path d="m18 20-3-3" />
             </svg>
           ),
-          title: "Recomienda Soluciones",
-          description: "Recomendaciones de trenes de tratamiento apropiados (DAF, MBR, RO, etc.) y puntos clave normativos."
+          title: "Solution Recommendations",
+          description: "Recommendations for appropriate treatment trains (DAF, MBR, RO, etc.) and key regulatory points."
         },
         {
           icon: (
@@ -56,14 +56,14 @@ export default function FeatureTabs() {
               <path d="M8,22 L16,22" />
             </svg>
           ),
-          title: "Análisis de Laboratorio",
-          description: "Interpreta resultados de análisis para identificar los parámetros críticos a tratar."
+          title: "Laboratory Analysis",
+          description: "Interpret test results to identify critical parameters for treatment."
         },
       ]
     },
     {
       id: "financial",
-      label: "Financiero",
+      label: "Financial",
       features: [
         {
           icon: (
@@ -71,8 +71,8 @@ export default function FeatureTabs() {
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
           ),
-          title: "Análisis Financiero",
-          description: "Estimaciones preliminares de CAPEX, OPEX y ROI para apoyar una toma de decisiones rápida."
+          title: "Financial Analysis",
+          description: "Preliminary CAPEX, OPEX, and ROI estimates to support quick decision-making."
         },
         {
           icon: (
@@ -84,8 +84,8 @@ export default function FeatureTabs() {
               <line x1="10" x2="8" y1="9" y2="9" />
             </svg>
           ),
-          title: "Resumen Exportable",
-          description: "Genera un resumen técnico conciso y exportable con los resultados de tu análisis."
+          title: "Exportable Summary",
+          description: "Generate a concise technical summary with the results of your analysis."
         },
       ]
     }
@@ -104,11 +104,11 @@ export default function FeatureTabs() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl md:text-4xl font-medium text-blue-900 mb-4">
-            ¿Qué Hace Nuestro Asistente?
+            What Our Assistant Does
           </h2>
 
           <p className="text-lg text-blue-700/80 max-w-2xl mx-auto">
-            El asistente de IA para tratamiento de agua más avanzado, diseñado para profesionales de ingeniería hidráulica
+            The most advanced AI assistant for water treatment, designed for hydraulic engineering professionals
           </p>
         </motion.div>
 
