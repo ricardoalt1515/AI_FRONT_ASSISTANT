@@ -192,7 +192,7 @@ export default function Header() {
               "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
               pathname === "/" && "bg-blue-50"
             )}>
-              Inicio
+              Home
             </Link>
 
             <Link href="/chat" className={cn(
@@ -342,7 +342,7 @@ export default function Header() {
                     "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                     pathname === "/" && "bg-blue-50 font-medium"
                   )}>
-                    Inicio
+                    Home
                   </Link>
                   <Link href="/chat" className={cn(
                     "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
