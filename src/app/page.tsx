@@ -1,8 +1,7 @@
 // src/app/page.tsx
 import InteractiveHero from "@/components/landing/interactive-hero"
 import FeatureTabs from "@/components/landing/feature-tabs"
-import PreparationSection from "@/components/landing/preparation-section" // Tu componente original
-import ParallaxConfidentiality from "@/components/landing/parallax-confidentiality"
+import RequirementsSection from "@/components/landing/requirements-section"
 import Header from "@/components/layout/header"
 import Link from "next/link"
 
@@ -14,8 +13,7 @@ export default function LandingPage() {
       <main className="flex-1">
         <InteractiveHero />
         <FeatureTabs />
-        <PreparationSection />
-        <ParallaxConfidentiality />
+        <RequirementsSection />
       </main>
 
       {/* Footer mejorado */}
@@ -30,8 +28,8 @@ export default function LandingPage() {
             </div>
 
             <div className="flex gap-8 text-sm text-blue-600">
-              <Link href="#" className="hover:text-blue-800 hover:underline transition-colors">Térms of Service</Link>
-              <Link href="#" className="hover:text-blue-800 hover:underline transition-colors">Privacy of Policy</Link>
+              <Link href="#" className="hover:text-blue-800 hover:underline transition-colors">Terms of Service</Link>
+              <Link href="#" className="hover:text-blue-800 hover:underline transition-colors">Privacy Policy</Link>
               <Link href="#" className="hover:text-blue-800 hover:underline transition-colors">Contact</Link>
             </div>
 

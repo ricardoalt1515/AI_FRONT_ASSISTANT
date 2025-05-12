@@ -4,186 +4,135 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import DropletAvatar from "@/components/chat/droplet-avatar"
-import { motion } from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
+import { useRef, memo } from "react"
+import { ArrowRight, Sparkles, Brain } from "lucide-react"
+
+// Memoizar el componente DropletAvatar para evitar re-renderizados innecesarios
+const MemoizedDropletAvatar = memo(DropletAvatar)
+
+// Optimizar las animaciones usando will-change
+const optimizedMotion = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 }
+}
 
 export default function InteractiveHero() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, -50])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+
   return (
-    <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-      {/* Fondo con elementos interactivos */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/90 via-white/95 to-blue-50/80"></div>
-
-        {/* Patrón interactivo - responde sutilmente al scroll */}
-        <motion.div
-          className="absolute inset-0"
+    <section 
+      ref={containerRef} 
+      className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-blue-50/90 via-white/95 to-blue-50/80"
+      style={{ willChange: 'transform' }}
+    >
+      {/* Fondo con efecto de gradiente y patrón */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-100/50 via-white to-blue-50/30"></div>
+        
+        {/* Patrón de puntos con efecto de profundidad */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(56, 189, 248, 0.1) 1px, transparent 1px)',
-            backgroundSize: '30px 30px'
-          }}
-          animate={{
-            backgroundPosition: ["0% 0%", "10% 10%"],
-          }}
-          transition={{
-            duration: 50,
-            repeat: Infinity,
-            ease: "linear"
+            backgroundImage: 'radial-gradient(circle, #38bdf8 1px, transparent 1px)',
+            backgroundSize: '30px 30px',
+            willChange: 'transform'
           }}
         />
 
-        {/* Formas fluidas reactivas */}
-        <motion.div
-          className="absolute top-1/4 left-1/3 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-blue-300/5 to-blue-500/10 filter blur-3xl opacity-70"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.7 }}
-          transition={{ duration: 1.5 }}
+        {/* Formas fluidas con efecto de glassmorphism */}
+        <div
+          className="absolute top-1/4 left-1/3 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-blue-300/10 to-blue-500/20 filter blur-3xl opacity-70"
+          style={{ willChange: 'opacity' }}
         />
 
-        <motion.div
-          className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-400/5 to-blue-600/10 filter blur-3xl opacity-60"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.6 }}
-          transition={{ duration: 1.5, delay: 0.2 }}
+        <div
+          className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-400/10 to-blue-600/20 filter blur-3xl opacity-60"
+          style={{ willChange: 'opacity' }}
         />
       </div>
 
-      {/* Contenido con animaciones escalonadas */}
-      <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-            >
-              <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full text-blue-700 text-sm font-medium shadow-sm border border-blue-100/60 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>AI Powered</span>
-              </div>
-            </motion.div>
-
-            <motion.h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-blue-900 leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-            >
-              Instant <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Water</span> Intelligence
-            </motion.h1>
-
-            <motion.p
-              className="text-xl text-blue-700/80 leading-relaxed max-w-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
-              Advanced AI-powered water treatment engineering and design solutions to optimize your projects.
-            </motion.p>
-
-            <motion.div
-              className="flex flex-wrap gap-4 pt-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-            >
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/20 transition-all duration-300 transform hover:scale-105"
-                asChild
-              >
-                <Link href="/auth/register">
-                  Start Now
-                </Link>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 transition-all duration-300"
-                asChild
-              >
-                <Link href="/chat">
-                  Try Demo
-                </Link>
-              </Button>
-            </motion.div>
-          </div>
-
-          {/* Lado derecho con avatar interactivo */}
-          <motion.div
-            className="relative lg:h-[600px] flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
+      {/* Contenido principal */}
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Badge de novedad */}
+          <motion.div 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 mb-8"
+            {...optimizedMotion}
           >
-            {/* Anillos concéntricos animados */}
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-blue-200/30 scale-90"
-              animate={{ scale: [0.9, 1.1, 0.9], opacity: [0.3, 0.6, 0.3] }}
-              transition={{
-                repeat: Infinity,
-                duration: 8,
-                ease: "easeInOut"
-              }}
-            />
+            <Brain className="w-4 h-4" />
+            <span className="text-sm font-medium">Powered by H₂O Allegiant, Corp.</span>
+          </motion.div>
 
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-blue-300/20 scale-75"
-              animate={{ scale: [0.75, 1, 0.75], opacity: [0.2, 0.4, 0.2] }}
-              transition={{
-                repeat: Infinity,
-                duration: 8,
-                delay: 1,
-                ease: "easeInOut"
-              }}
-            />
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold text-blue-900 mb-6 leading-tight"
+            {...optimizedMotion}
+          >
+            AI Water Design &{' '}
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              Engineering Assistant
+            </span>
+          </motion.h1>
 
-            {/* Avatar central con animación */}
-            <motion.div
-              animate={{
-                y: [0, -20, 0],
-                scale: [1, 1.02, 1],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 6,
-                ease: "easeInOut"
-              }}
-              className="relative z-10"
+          <motion.p 
+            className="text-xl md:text-2xl text-blue-700/80 mb-8 max-w-2xl mx-auto leading-relaxed"
+            {...optimizedMotion}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            "Instant Water Intelligence" - Your AI-powered solution for wastewater treatment and reuse system design
+          </motion.p>
+
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+            {...optimizedMotion}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Button
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+              asChild
             >
-              <DropletAvatar
-                size="xl"
-                mood="technical"
-                animate={true}
-                className="h-96 w-96"
-              />
-            </motion.div>
+              <Link href="/chat" prefetch={false}>
+                Start Now
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
 
-            {/* Partículas de datos flotantes */}
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute h-3 w-3 rounded-full bg-blue-400/60"
-                initial={{
-                  x: Math.random() * 400 - 200,
-                  y: Math.random() * 400 - 200,
-                  scale: Math.random() * 0.5 + 0.5,
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  opacity: [0.6, 0.9, 0.6],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 3 + i * 2,
-                  delay: i * 0.6,
-                  ease: "easeInOut",
-                }}
-              />
-            ))}
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
+              asChild
+            >
+              <Link href="#features" prefetch={false}>
+                Learn More
+              </Link>
+            </Button>
           </motion.div>
         </div>
+
+        {/* Avatar central con efecto de flotación */}
+        <motion.div
+          className="relative mt-16 flex justify-center"
+          style={{ y, opacity, willChange: 'transform, opacity' }}
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <MemoizedDropletAvatar
+              size="xl"
+              mood="technical"
+              className="h-48 w-48 md:h-64 md:w-64 relative z-10"
+            />
+          </div>
+        </motion.div>
       </div>
     </section>
   )
