@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Message } from "@/types/chat";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,16 @@ export default function MessageItem({
   dropletMood = 'default'
 }: MessageItemProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   const isUser = message.role === "user";
+
+  // Obtener datos del usuario
+  useEffect(() => {
+    const userDataStr = localStorage.getItem('userData');
+    if (userDataStr) {
+      setUserData(JSON.parse(userDataStr));
+    }
+  }, []);
 
   // Format time
   const formattedTime = (() => {
@@ -362,6 +371,16 @@ export default function MessageItem({
                   <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
                 <span>{formattedTime}</span>
+              </div>
+            )}
+
+            {/* User company indicator */}
+            {isUser && userData?.company_name && (
+              <div className="flex items-center gap-1 text-blue-600">
+                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 7h-9M14 17H5M15 12a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z" />
+                </svg>
+                <span className="text-xs">{userData.company_name}</span>
               </div>
             )}
 

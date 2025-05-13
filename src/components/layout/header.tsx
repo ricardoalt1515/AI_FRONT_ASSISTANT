@@ -22,11 +22,10 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LogOut, User, Settings } from "lucide-react"
+import { LogOut, User, Settings, FileText, Plus } from "lucide-react"
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
-  const [isStartingNewChat, setIsStartingNewChat] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userData, setUserData] = useState<any>(null)
   const pathname = usePathname()
@@ -37,8 +36,6 @@ export default function Header() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10)
     }
-
-    // Usamos passive: true para mejorar el rendimiento
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -54,11 +51,6 @@ export default function Header() {
           const userDataStr = localStorage.getItem('userData');
           if (userDataStr) {
             setUserData(JSON.parse(userDataStr));
-          } else {
-            // Si no hay datos en localStorage pero hay token, intentar obtenerlos
-            apiService.getCurrentUser().then(data => {
-              setUserData(data);
-            }).catch(console.error);
           }
         } catch (e) {
           console.error("Error cargando datos de usuario:", e);
@@ -67,46 +59,11 @@ export default function Header() {
     };
 
     checkAuth();
+
+    // Escuchar cambios en el almacenamiento (para sincronizar entre pestañas)
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, []);
-
-  // Determinar si estamos en la página de chat
-  const isOnChatPage = pathname === "/chat"
-
-  // Función para manejar la creación de una nueva consulta
-  const handleNewConsultation = async () => {
-    try {
-      setIsStartingNewChat(true)
-      // Obtener datos del usuario para el contexto
-      let customContext = {};
-
-      if (userData) {
-        customContext = {
-          client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
-          selected_sector: userData.sector,
-          selected_subsector: userData.subsector,
-          user_location: userData.location
-        };
-      }
-
-      console.log("Iniciando nueva conversación con contexto:", customContext);
-
-      const response = await apiService.startConversation(customContext);
-
-      // Emitir un evento global que ChatContainer escuche
-      window.dispatchEvent(new CustomEvent('newConversationStarted', {
-        detail: { conversationId: response.id }
-      }))
-
-      // Redireccionar si es necesario
-      if (!isOnChatPage) {
-        router.push("/chat")
-      }
-    } catch (error) {
-      console.error("Error:", error)
-    } finally {
-      setIsStartingNewChat(false)
-    }
-  }
 
   // Manejar cierre de sesión
   const handleLogout = () => {
@@ -119,12 +76,21 @@ export default function Header() {
   // Obtener iniciales del usuario para el avatar
   const getUserInitials = () => {
     if (!userData) return 'U';
-
     let initials = '';
     if (userData.first_name) initials += userData.first_name.charAt(0).toUpperCase();
     if (userData.last_name) initials += userData.last_name.charAt(0).toUpperCase();
-
     return initials || 'U';
+  };
+
+  // Crear nueva consulta
+  const handleNewConsultation = () => {
+    if (pathname === '/chat') {
+      // Si ya estamos en el chat, emitir evento para nueva conversación
+      window.dispatchEvent(new CustomEvent('newConversationStarted'));
+    } else {
+      // Si no, navegar al chat
+      router.push('/chat');
+    }
   };
 
   return (
@@ -135,11 +101,10 @@ export default function Header() {
       className={cn(
         "sticky top-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-blue-200/50 shadow-sm py-2"
+          ? "bg-white/95 backdrop-blur-md border-b border-blue-100/50 shadow-sm py-2"
           : "bg-transparent border-b border-blue-100/10 py-4"
       )}
     >
-      {/* Efecto sutil de borde inferior */}
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-300/30 to-transparent"></div>
 
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -152,7 +117,6 @@ export default function Header() {
         >
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative">
-              {/* Resplandor detrás del logo */}
               <div
                 className={cn(
                   "absolute inset-0 rounded-full bg-blue-400/20 filter blur-md scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
@@ -192,83 +156,93 @@ export default function Header() {
               "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
               pathname === "/" && "bg-blue-50"
             )}>
-              Home
+              Inicio
             </Link>
 
-            <Link href="/chat" className={cn(
-              "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
-              pathname === "/chat" && "bg-blue-50"
-            )}>
-              AI Asistente
-            </Link>
+            {/* Mostrar AI Asistente solo si está autenticado */}
+            {isAuthenticated && (
+              <Link href="/chat" className={cn(
+                "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
+                pathname === "/chat" && "bg-blue-50"
+              )}>
+                AI Asistente
+              </Link>
+            )}
           </div>
 
           {/* Botones de autenticación o perfil de usuario */}
           <div className="flex items-center gap-2 ml-2">
-            {isOnChatPage ? (
-              <Button
-                onClick={handleNewConsultation}
-                disabled={isStartingNewChat}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 
-                  hover:from-blue-600 hover:to-blue-700 text-white
-                  shadow-sm hover:shadow-md transition-all"
-                size="sm"
-              >
-                {isStartingNewChat ? (
-                  <div className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor" />
-                    </svg>
-                    <span>Iniciando...</span>
-                  </div>
-                ) : (
-                  <span>Nueva Consulta</span>
-                )}
-              </Button>
-            ) : isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8 border-2 border-blue-100">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {userData?.first_name} {userData?.last_name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {userData?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/chat" className="cursor-pointer flex items-center">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Chat de IA</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Configuración</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="cursor-pointer text-red-600 focus:text-red-700"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Cerrar sesión</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {isAuthenticated ? (
+              <>
+                {/* Botón Nueva Consulta */}
+                <Button
+                  onClick={handleNewConsultation}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 
+                    hover:from-blue-600 hover:to-blue-700 text-white
+                    shadow-sm hover:shadow-md transition-all"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Nueva Consulta
+                </Button>
+
+                {/* Menú de usuario */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8 border-2 border-blue-100">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {userData?.first_name} {userData?.last_name}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {userData?.email}
+                        </p>
+                        {userData?.company_name && (
+                          <p className="text-xs leading-none text-blue-600">
+                            {userData.company_name}
+                          </p>
+                        )}
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/chat" className="cursor-pointer flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Chat IA</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/proposals" className="cursor-pointer flex items-center">
+                        <FileText className="mr-2 h-4 w-4" />
+                        <span>Mis Propuestas</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="cursor-pointer flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Configuración</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="cursor-pointer text-red-600 focus:text-red-700"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Cerrar sesión</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                 <Button
@@ -278,7 +252,7 @@ export default function Header() {
                   className="text-blue-700 hover:text-blue-800 hover:bg-blue-50"
                 >
                   <Link href="/auth/login">
-                    Log in
+                    Iniciar sesión
                   </Link>
                 </Button>
 
@@ -290,7 +264,7 @@ export default function Header() {
                   asChild
                 >
                   <Link href="/auth/register">
-                    Sign up
+                    Registrarse
                   </Link>
                 </Button>
               </>
@@ -342,35 +316,53 @@ export default function Header() {
                     "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                     pathname === "/" && "bg-blue-50 font-medium"
                   )}>
-                    Home
+                    Inicio
                   </Link>
-                  <Link href="/chat" className={cn(
-                    "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
-                    pathname === "/chat" && "bg-blue-50 font-medium"
-                  )}>
-                    AI Asistente
-                  </Link>
+
+                  {isAuthenticated && (
+                    <>
+                      <Link href="/chat" className={cn(
+                        "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
+                        pathname === "/chat" && "bg-blue-50 font-medium"
+                      )}>
+                        AI Asistente
+                      </Link>
+                      <Link href="/proposals" className={cn(
+                        "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
+                        pathname === "/proposals" && "bg-blue-50 font-medium"
+                      )}>
+                        Mis Propuestas
+                      </Link>
+                      <Link href="/settings" className={cn(
+                        "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
+                        pathname === "/settings" && "bg-blue-50 font-medium"
+                      )}>
+                        Configuración
+                      </Link>
+                    </>
+                  )}
                 </nav>
 
                 <div className="mt-auto space-y-3">
-                  {isOnChatPage ? (
-                    <Button
-                      onClick={handleNewConsultation}
-                      disabled={isStartingNewChat}
-                      className="w-full bg-gradient-to-r from-blue-500 to-blue-600 
-                        hover:from-blue-600 hover:to-blue-700 text-white"
-                    >
-                      {isStartingNewChat ? "Iniciando..." : "Nueva Consulta"}
-                    </Button>
-                  ) : isAuthenticated ? (
-                    <Button
-                      onClick={handleLogout}
-                      variant="outline"
-                      className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Cerrar sesión
-                    </Button>
+                  {isAuthenticated ? (
+                    <>
+                      <Button
+                        onClick={handleNewConsultation}
+                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 
+                          hover:from-blue-600 hover:to-blue-700 text-white"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Nueva Consulta
+                      </Button>
+                      <Button
+                        onClick={handleLogout}
+                        variant="outline"
+                        className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Cerrar sesión
+                      </Button>
+                    </>
                   ) : (
                     <>
                       <Button
@@ -379,7 +371,7 @@ export default function Header() {
                         asChild
                       >
                         <Link href="/auth/login">
-                          Log in
+                          Iniciar sesión
                         </Link>
                       </Button>
 
@@ -389,7 +381,7 @@ export default function Header() {
                         asChild
                       >
                         <Link href="/auth/register">
-                          Sign up
+                          Registrarse
                         </Link>
                       </Button>
                     </>
@@ -401,5 +393,5 @@ export default function Header() {
         </div>
       </div>
     </motion.header>
-  );
+  )
 }
