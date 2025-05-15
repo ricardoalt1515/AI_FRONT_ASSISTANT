@@ -30,6 +30,30 @@ apiClient.interceptors.request.use(config => {
   return config;
 });
 
+// Interceptor para manejar errores de autenticación
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    // Verificar si es un error de autenticación (401)
+    if (error.response && error.response.status === 401) {
+      console.warn('Token expirado o inválido. Redirigiendo a login...');
+      
+      // Limpiar datos de autenticación
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('currentConversationId');
+      
+      // Redirigir a la página de login
+      // Solo redirigir si estamos en el navegador y no en un entorno SSR
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 // Variables para tracking del estado del backend
 let isBackendInitializing = false;
 let backendInitPromise: Promise<void> | null = null;

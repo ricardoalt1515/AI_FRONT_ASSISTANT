@@ -19,15 +19,6 @@ export default function ChatContainer() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [dropletMood, setDropletMood] = useState<'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical'>('default');
   const [showScrollButton, setShowScrollButton] = useState(false);
-  // Nuevo estado para el modal de confirmación
-  const [showConfirmNewChat, setShowConfirmNewChat] = useState(false);
-  // Estado para mostrar indicador de nueva conversación
-  const [showNewChatIndicator, setShowNewChatIndicator] = useState(false);
-  // Estado para almacenar timestamp de inicio de conversación
-  const [conversationStartTime, setConversationStartTime] = useState<Date | null>(null);
-  // Estado para contar mensajes
-  const [messageCount, setMessageCount] = useState({ user: 0, assistant: 0 });
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const conversationInitialized = useRef<boolean>(false);
@@ -37,24 +28,13 @@ export default function ChatContainer() {
     if (!conversationInitialized.current) {
       conversationInitialized.current = true;
       
-      // Verificar si la página fue recargada (refresh) o es una nueva navegación
-      const isPageRefresh = performance.navigation ? 
-        performance.navigation.type === 1 : // Verificación en navegadores antiguos
-        window.performance.getEntriesByType('navigation').some(
-          (nav: any) => nav.type === 'reload'
-        );
-      
       const savedConversationId = localStorage.getItem('currentConversationId');
-      
-      if (isPageRefresh && savedConversationId) {
-        // Si es un refresh de página y hay una conversación guardada, usarla
-        console.log("🔄 Página refrescada, recuperando conversación:", savedConversationId);
+      if (savedConversationId) {
+        console.log("📋 Recuperando conversación existente:", savedConversationId);
+        // Verificar si la conversación existe en el backend antes de usarla
         verifyConversationExists(savedConversationId);
       } else {
-        // Si es una nueva navegación o no hay ID guardada, iniciar nueva conversación
-        console.log("🔄 Iniciando nueva conversación");
-        // Limpiar cualquier conversación guardada en localStorage
-        localStorage.removeItem('currentConversationId');
+        console.log("🔄 No hay conversación guardada, iniciando nueva");
         startConversation();
       }
     }
@@ -102,27 +82,15 @@ export default function ChatContainer() {
       setIsInitializing(true);
       console.log("💬 Cargando mensajes para conversación:", convId);
 
-      // Enviar un mensaje vacío o especial para obtener el estado actual de la conversación
-      // Esto nos devolverá los mensajes existentes sin afectar la conversación
-      try {
-        // Primero intentamos obtener el estado actual enviando un mensaje "silencioso"
-        const response = await apiService.sendMessage(convId, "VERIFICACIÓN_SILENCIOSA");
-        
-        // Si la respuesta incluye mensajes, los usamos
-        if (response && response.messages && Array.isArray(response.messages)) {
-          console.log("✅ Mensajes de conversación cargados del backend:", response.messages.length);
-          setMessages(response.messages);
-        } else {
-          // Si no hay mensajes, dejamos la conversación vacía para que el usuario inicie
-          console.log("⚠️ No se encontraron mensajes en la conversación");
-          setMessages([]);
-        }
-      } catch (apiError) {
-        console.error("Error al cargar mensajes de la conversación:", apiError);
-        // No establecemos ningún mensaje para evitar el "Bienvenido de nuevo" incorrecto
-        setMessages([]);
-      }
+      // Si no hay API para obtener mensajes, muestra un mensaje de bienvenida de continuación
+      const welcomeBackMessage: Message = {
+        id: `welcome-back-${Date.now()}`,
+        role: "assistant",
+        content: "Bienvenido de nuevo. Puedes continuar con tu consulta donde la dejaste.",
+        created_at: new Date().toISOString(),
+      };
 
+      setMessages([welcomeBackMessage]);
       setIsInitializing(false);
     } catch (error) {
       console.error("❌ Error cargando mensajes:", error);
@@ -206,28 +174,6 @@ export default function ChatContainer() {
     }
   };
 
-  // Función para manejar el clic en el botón de nueva conversación
-  const handleNewConversationClick = () => {
-    // Solo mostrar confirmación si hay mensajes en la conversación actual
-    if (messages.length > 1) { // Más de 1 porque el primer mensaje es el de bienvenida
-      setShowConfirmNewChat(true);
-    } else {
-      // Si no hay mensajes, iniciar nueva conversación directamente
-      resetConversation();
-    }
-  };
-
-  // Función para confirmar la creación de una nueva conversación
-  const confirmNewConversation = () => {
-    setShowConfirmNewChat(false);
-    resetConversation();
-  };
-
-  // Función para cancelar la creación de una nueva conversación
-  const cancelNewConversation = () => {
-    setShowConfirmNewChat(false);
-  };
-
   const resetConversation = (newId?: string) => {
     /* Eliminar conversación de localStorage */
     localStorage.removeItem('currentConversationId');
@@ -235,7 +181,6 @@ export default function ChatContainer() {
     setMessages([]);
     setIsTyping(false);
     setDropletMood('default');
-    setMessageCount({ user: 0, assistant: 0 });
 
     if (newId) {
       console.log("🔄 Reiniciando con nueva conversación ID:", newId);
@@ -246,23 +191,13 @@ export default function ChatContainer() {
 
       setIsInitializing(false);
 
-      // Guardar timestamp de inicio de nueva conversación
-      const startTime = new Date();
-      setConversationStartTime(startTime);
-
-      // Mostrar indicador de nueva conversación
-      setShowNewChatIndicator(true);
-      setTimeout(() => setShowNewChatIndicator(false), 5000); // Ocultar después de 5 segundos
-
       const welcomeMessage: Message = {
         id: `welcome-${Date.now()}`,
-        role: "assistant" as const,
+        role: "assistant",
         content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte con tu proyecto hoy?",
-        created_at: startTime.toISOString(),
+        created_at: new Date().toISOString(),
       };
       setMessages([welcomeMessage]);
-      // Incrementar contador de mensajes del asistente
-      setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
     } else {
       setConversationId(null);
       setIsInitializing(true);
@@ -273,12 +208,7 @@ export default function ChatContainer() {
   const startConversation = async () => {
     try {
       setIsInitializing(true);
-      setMessageCount({ user: 0, assistant: 0 });
       console.log("🚀 Iniciando nueva conversación...");
-      
-      // Establecer timestamp de inicio de conversación
-      const startTime = new Date();
-      setConversationStartTime(startTime);
 
       // Verificar si hay datos de usuario autenticado
       const userDataString = localStorage.getItem('userData');
@@ -296,27 +226,12 @@ export default function ChatContainer() {
       // Configurar contexto personalizado con datos del usuario si está disponible
       const customContext = userData ? {
         client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
-        user_name: `${userData.first_name} ${userData.last_name}`,
-        // Enviar el sector y subsector con múltiples nombres para asegurar compatibilidad
-        sector: userData.sector,
         selected_sector: userData.sector,
-        subsector: userData.subsector,
         selected_subsector: userData.subsector,
-        // Enviar ubicación con múltiples nombres para asegurar compatibilidad
-        location: userData.location,
-        user_location: userData.location,
-        company_name: userData.company_name,
-        user_email: userData.email
+        user_location: userData.location
       } : undefined;
 
-      // Depuración detallada
-      console.log("🌎 Enviando contexto al iniciar conversación:", customContext);
-      if (userData && userData.sector) {
-        console.log("💼 Sector del usuario confirmado:", userData.sector);
-      } else {
-        console.log("⚠️ ADVERTENCIA: Datos de sector no disponibles en el perfil del usuario");
-      }
-      
+      console.log("🌐 Enviando contexto al iniciar conversación:", customContext);
       const data = await apiService.startConversation(customContext);
 
       console.log("✅ Conversación iniciada con ID:", data.id);
@@ -327,37 +242,22 @@ export default function ChatContainer() {
 
       if (data.messages && data.messages.length > 0) {
         setMessages(data.messages);
-        // Actualizar contador de mensajes
-        const counts = data.messages.reduce((acc: Record<string, number>, msg: Message) => {
-          acc[msg.role] = (acc[msg.role] || 0) + 1;
-          return acc;
-        }, {});
-        setMessageCount({
-          user: counts.user || 0,
-          assistant: counts.assistant || 0
-        });
       }
 
       // Artificial delay for smoother loading animation
       setTimeout(() => {
         setIsInitializing(false);
 
-        // Mostrar indicador de nueva conversación
-        setShowNewChatIndicator(true);
-        setTimeout(() => setShowNewChatIndicator(false), 5000); // Ocultar después de 5 segundos
-
         if (!data.messages || data.messages.length === 0) {
           const welcomeMessage = {
             id: `welcome-${Date.now()}`,
-            role: "assistant" as const,
+            role: "assistant",
             content: userData
-              ? `Hola ${userData.first_name}, bienvenido a H₂O Allegiant AI. ¿En qué puedo ayudarte hoy con tu proyecto de tratamiento de agua?`
+              ? `Hola ${userData.first_name}, bienvenido de nuevo a H₂O Allegiant AI. ¿En qué puedo ayudarte hoy con tu proyecto de tratamiento de agua?`
               : "Bienvenido a H₂O Allegiant AI, tu asistente especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte hoy?",
-            created_at: startTime.toISOString(),
+            created_at: new Date().toISOString(),
           };
           setMessages([welcomeMessage]);
-          // Incrementar contador de mensajes del asistente
-          setMessageCount(prev => ({ ...prev, assistant: 1 }));
         }
       }, 1200);
 
@@ -395,14 +295,12 @@ export default function ChatContainer() {
     // Add user message locally first
     const userMessage: Message = {
       id: `temp-${Date.now()}`,
-      role: "user" as const,
+      role: "user",
       content: messageText,
       created_at: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    // Incrementar contador de mensajes del usuario
-    setMessageCount(prev => ({ ...prev, user: prev.user + 1 }));
     setIsTyping(true);
     scrollToBottom();
 
@@ -432,13 +330,11 @@ export default function ChatContainer() {
 
         const systemMessage: Message = {
           id: `system-${Date.now()}`,
-          role: "assistant" as const,
+          role: "assistant",
           content: "📄 **Tu propuesta ha sido generada exitosamente.**\n\nEl documento PDF debería abrirse automáticamente. Si necesitas descargarlo de nuevo, escribe \"descargar propuesta\" o \"descargar pdf\".",
           created_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, systemMessage]);
-        // Incrementar contador de mensajes del asistente
-        setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
         return;
       }
 
@@ -453,18 +349,16 @@ export default function ChatContainer() {
           
           const assistantMessage: Message = {
             id: data.id || `assistant-${Date.now()}`,
-            role: "assistant" as const,
+            role: "assistant",
             content: data.message || "¡Tu propuesta está lista! Se está descargando automáticamente.",
             created_at: data.created_at || new Date().toISOString(),
           };
           setMessages((prev) => [...prev, assistantMessage]);
-          // Incrementar contador de mensajes del asistente
-          setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
           
           // Mensaje adicional si la descarga fue exitosa
           const confirmationMessage: Message = {
             id: `system-${Date.now()}`,
-            role: "assistant" as const,
+            role: "assistant",
             content: "📄 Si la descarga no inició automáticamente, puedes escribir \"descargar pdf\" nuevamente, o revisa la configuración de ventanas emergentes en tu navegador.",
             created_at: new Date().toISOString(),
           };
@@ -477,7 +371,7 @@ export default function ChatContainer() {
           // Mensaje de error si falla la descarga
           const errorMessage: Message = {
             id: `error-${Date.now()}`,
-            role: "assistant" as const,
+            role: "assistant",
             content: "❌ Lo siento, hubo un problema al descargar el PDF. Por favor intenta de nuevo escribiendo \"descargar pdf\".",
             created_at: new Date().toISOString(),
           };
@@ -487,23 +381,22 @@ export default function ChatContainer() {
       }
 
       // Normal assistant message
-      const assistantMessage: Message = {
-        id: data.id || `assistant-${Date.now()}`,
-        role: "assistant" as const,
-        content: data.message,
-        created_at: data.created_at || new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-      // Incrementar contador de mensajes del asistente
-      setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
+      if (data.message) {
+        const assistantMessage: Message = {
+          id: data.id || `assistant-${Date.now()}`,
+          role: "assistant",
+          content: data.message,
+          created_at: data.created_at || new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }
     } catch (error) {
       console.error("❌ Error enviando mensaje:", error);
       setIsTyping(false);
 
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        role: "assistant" as const,
+        role: "assistant",
         content: "Lo siento, ha ocurrido un error de comunicación. Por favor, inténtalo de nuevo o actualiza la página si el problema persiste.",
         created_at: new Date().toISOString(),
       };
@@ -570,7 +463,7 @@ export default function ChatContainer() {
             variant="ghost"
             size="sm"
             className="h-8 text-blue-600 flex items-center gap-1 hover:bg-blue-50"
-            onClick={handleNewConversationClick}
+            onClick={() => resetConversation()}
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Nueva Conversación</span>
@@ -668,77 +561,6 @@ export default function ChatContainer() {
             </div>
           </div>
         </div>
-
-        {/* Indicador de nueva conversación */}
-        <AnimatePresence>
-          {showNewChatIndicator && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-20 left-0 right-0 flex justify-center z-30"
-            >
-              <div className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-                <RefreshCw className="h-4 w-4 animate-spin-slow" />
-                <span>Nueva conversación iniciada</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Modal de confirmación para nueva conversación */}
-        <AnimatePresence>
-          {showConfirmNewChat && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/25 backdrop-blur-sm flex items-center justify-center z-50"
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Iniciar nueva conversación?</h3>
-                <p className="text-gray-600 mb-6">
-                  La conversación actual se guardará en tu historial y podrás acceder a ella más tarde.
-                </p>
-                
-                <div className="flex justify-end gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={cancelNewConversation}
-                  >
-                    Cancelar
-                  </Button>
-                  
-                  <Button
-                    onClick={confirmNewConversation}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Iniciar nueva
-                  </Button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Indicador de estado de la conversación */}
-        {conversationStartTime && !isInitializing && (
-          <div className="absolute top-20 right-6 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm px-3 py-2 text-xs text-gray-500 flex flex-col gap-1 border border-blue-100">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>Iniciada: {conversationStartTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="text-blue-600">{messageCount.user} mensajes</span> · 
-              <span className="text-blue-600">{messageCount.assistant} respuestas</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

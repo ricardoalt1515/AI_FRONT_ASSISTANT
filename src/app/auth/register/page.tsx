@@ -19,76 +19,42 @@ const INDUSTRY_SECTORS = [
     id: "industrial",
     name: "Industrial",
     subsectors: [
-      "Manufacturera",
-      "Automotriz",
-      "Electrónica",
-      "Metalmecánica",
-      "Plásticos",
-      "Otra"
-    ]
-  },
-  {
-    id: "food",
-    name: "Alimenticia",
-    subsectors: [
-      "Procesamiento de alimentos",
-      "Bebidas",
-      "Lácteos",
-      "Carnes",
-      "Frutas y vegetales",
-      "Otra"
-    ]
-  },
-  {
-    id: "pharma",
-    name: "Farmacéutica",
-    subsectors: [
-      "Medicamentos",
-      "Dispositivos médicos",
-      "Biotecnología",
-      "Cosmética",
-      "Investigación",
-      "Otra"
-    ]
-  },
-  {
-    id: "textile",
-    name: "Textil",
-    subsectors: [
-      "Hilado",
-      "Teñido",
-      "Confección",
-      "Tratamiento de telas",
-      "Otra"
-    ]
-  },
-  {
-    id: "chemical",
-    name: "Química",
-    subsectors: [
-      "Productos químicos",
-      "Plásticos",
-      "Pinturas",
-      "Adhesivos",
-      "Agroquímicos",
-      "Otra"
+      "Food and Beverages",
+      "Textile",
+      "Petrochemical",
+      "Pharmaceutical",
+      "Mining",
+      "Oil and Gas",
+      "Metal/Automotive",
+      "Cement"
     ]
   },
   {
     id: "commercial",
-    name: "Comercial",
+    name: "Commercial",
     subsectors: [
-      "Hoteles",
-      "Restaurantes",
-      "Centros comerciales",
-      "Oficinas",
-      "Otra"
+      "Hotel",
+      "Office Building",
+      "Shopping Mall/Retail",
+      "Restaurant"
     ]
   },
   {
-    id: "other",
-    name: "Otro",
-    subsectors: ["Especificar"]
+    id: "municipal",
+    name: "Municipal",
+    subsectors: [
+      "City Government",
+      "Town/Village",
+      "Water Utility Authority"
+    ]
+  },
+  {
+    id: "residential",
+    name: "Residential",
+    subsectors: [
+      "Single-family housing",
+      "Multi-family building"
+    ]
   }
 ];
 
