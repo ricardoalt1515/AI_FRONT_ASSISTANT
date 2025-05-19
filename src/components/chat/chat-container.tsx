@@ -27,7 +27,7 @@ export default function ChatContainer() {
   const [conversationStartTime, setConversationStartTime] = useState<Date | null>(null);
   // Estado para contar mensajes
   const [messageCount, setMessageCount] = useState({ user: 0, assistant: 0 });
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const conversationInitialized = useRef<boolean>(false);
@@ -36,27 +36,16 @@ export default function ChatContainer() {
     // Inicializar conversación al cargar el componente
     if (!conversationInitialized.current) {
       conversationInitialized.current = true;
+      console.log("🚀 Inicializando componente de chat...");
       
-      // Verificar si la página fue recargada (refresh) o es una nueva navegación
-      const isPageRefresh = performance.navigation ? 
-        performance.navigation.type === 1 : // Verificación en navegadores antiguos
-        window.performance.getEntriesByType('navigation').some(
-          (nav: any) => nav.type === 'reload'
-        );
+      // Limpiar cualquier conversación existente
+      setMessages([]);
+      setMessageCount({ user: 0, assistant: 0 });
       
-      const savedConversationId = localStorage.getItem('currentConversationId');
-      
-      if (isPageRefresh && savedConversationId) {
-        // Si es un refresh de página y hay una conversación guardada, usarla
-        console.log("🔄 Página refrescada, recuperando conversación:", savedConversationId);
-        verifyConversationExists(savedConversationId);
-      } else {
-        // Si es una nueva navegación o no hay ID guardada, iniciar nueva conversación
-        console.log("🔄 Iniciando nueva conversación");
-        // Limpiar cualquier conversación guardada en localStorage
-        localStorage.removeItem('currentConversationId');
-        startConversation();
-      }
+      // Forzar una nueva conversación limpia
+      console.log("🔄 Forzando nueva conversación en carga inicial");
+      localStorage.removeItem('currentConversationId');
+      startConversation();
     }
 
     // Listen for the custom 'newConversationStarted' event
@@ -83,7 +72,7 @@ export default function ChatContainer() {
       // Intentaremos enviar un mensaje vacío para ver si la conversación existe
       const testMessage = "VERIFICACIÓN_SILENCIOSA";
       await apiService.sendMessage(convId, testMessage);
-      
+
       // Si llegamos aquí, la conversación existe
       console.log("✅ Conversación existente verificada:", convId);
       setConversationId(convId);
@@ -107,7 +96,7 @@ export default function ChatContainer() {
       try {
         // Primero intentamos obtener el estado actual enviando un mensaje "silencioso"
         const response = await apiService.sendMessage(convId, "VERIFICACIÓN_SILENCIOSA");
-        
+
         // Si la respuesta incluye mensajes, los usamos
         if (response && response.messages && Array.isArray(response.messages)) {
           console.log("✅ Mensajes de conversación cargados del backend:", response.messages.length);
@@ -272,10 +261,13 @@ export default function ChatContainer() {
 
   const startConversation = async () => {
     try {
-      setIsInitializing(true);
-      setMessageCount({ user: 0, assistant: 0 });
       console.log("🚀 Iniciando nueva conversación...");
+      setIsInitializing(true);
       
+      // Limpiar mensajes existentes inmediatamente
+      setMessages([]);
+      setMessageCount({ user: 0, assistant: 0 });
+
       // Establecer timestamp de inicio de conversación
       const startTime = new Date();
       setConversationStartTime(startTime);
@@ -293,73 +285,87 @@ export default function ChatContainer() {
         }
       }
 
-      // Configurar contexto personalizado con datos del usuario si está disponible
-      const customContext = userData ? {
-        client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
-        user_name: `${userData.first_name} ${userData.last_name}`,
-        // Enviar el sector y subsector con múltiples nombres para asegurar compatibilidad
-        sector: userData.sector,
-        selected_sector: userData.sector,
-        subsector: userData.subsector,
-        selected_subsector: userData.subsector,
-        // Enviar ubicación con múltiples nombres para asegurar compatibilidad
-        location: userData.location,
-        user_location: userData.location,
-        company_name: userData.company_name,
-        user_email: userData.email
-      } : undefined;
+      try {
+        // Configurar contexto personalizado con datos del usuario si está disponible
+        const customContext = userData ? {
+          client_name: userData.company_name || `${userData.first_name} ${userData.last_name}`,
+          user_name: `${userData.first_name} ${userData.last_name}`,
+          sector: userData.sector,
+          selected_sector: userData.sector,
+          subsector: userData.subsector,
+          selected_subsector: userData.subsector,
+          location: userData.location,
+          user_location: userData.location,
+          company_name: userData.company_name,
+          user_email: userData.email,
+          is_new_conversation: true,
+          first_interaction: true
+        } : {
+          is_new_conversation: true,
+          first_interaction: true
+        };
 
-      // Depuración detallada
-      console.log("🌎 Enviando contexto al iniciar conversación:", customContext);
-      if (userData && userData.sector) {
-        console.log("💼 Sector del usuario confirmado:", userData.sector);
-      } else {
-        console.log("⚠️ ADVERTENCIA: Datos de sector no disponibles en el perfil del usuario");
-      }
-      
-      const data = await apiService.startConversation(customContext);
+        console.log("🌎 Enviando contexto al iniciar conversación:", customContext);
+        
+        // Llamar al backend para iniciar la conversación
+        const data = await apiService.startConversation(customContext);
+        console.log("✅ Respuesta del backend al iniciar conversación:", data);
 
-      console.log("✅ Conversación iniciada con ID:", data.id);
+        if (data && data.id) {
+          // Guardar ID en localStorage
+          localStorage.setItem('currentConversationId', data.id);
+          setConversationId(data.id);
 
-      /* Guardar ID en localStorage */
-      localStorage.setItem('currentConversationId', data.id);
-      setConversationId(data.id);
-
-      if (data.messages && data.messages.length > 0) {
-        setMessages(data.messages);
-        // Actualizar contador de mensajes
-        const counts = data.messages.reduce((acc: Record<string, number>, msg: Message) => {
-          acc[msg.role] = (acc[msg.role] || 0) + 1;
-          return acc;
-        }, {});
-        setMessageCount({
-          user: counts.user || 0,
-          assistant: counts.assistant || 0
-        });
-      }
-
-      // Artificial delay for smoother loading animation
-      setTimeout(() => {
-        setIsInitializing(false);
-
-        // Mostrar indicador de nueva conversación
-        setShowNewChatIndicator(true);
-        setTimeout(() => setShowNewChatIndicator(false), 5000); // Ocultar después de 5 segundos
-
-        if (!data.messages || data.messages.length === 0) {
-          const welcomeMessage = {
-            id: `welcome-${Date.now()}`,
-            role: "assistant" as const,
-            content: userData
-              ? `Hola ${userData.first_name}, bienvenido a H₂O Allegiant AI. ¿En qué puedo ayudarte hoy con tu proyecto de tratamiento de agua?`
-              : "Bienvenido a H₂O Allegiant AI, tu asistente especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte hoy?",
-            created_at: startTime.toISOString(),
-          };
-          setMessages([welcomeMessage]);
-          // Incrementar contador de mensajes del asistente
-          setMessageCount(prev => ({ ...prev, assistant: 1 }));
+          // Verificar si hay mensajes en la respuesta
+          if (data.messages && data.messages.length > 0) {
+            console.log("📨 Mensajes recibidos del backend:", data.messages);
+            setMessages(data.messages);
+            
+            // Actualizar contador de mensajes
+            const counts = data.messages.reduce((acc: Record<string, number>, msg: Message) => {
+              acc[msg.role] = (acc[msg.role] || 0) + 1;
+              return acc;
+            }, {});
+            
+            setMessageCount({
+              user: counts.user || 0,
+              assistant: counts.assistant || 0
+            });
+          } else {
+            console.warn("⚠️ El backend no devolvió mensajes, mostrando mensaje por defecto");
+            // Si no hay mensajes, mostrar un mensaje de bienvenida por defecto
+            const welcomeMessage = {
+              id: `welcome-${Date.now()}`,
+              role: "assistant" as const,
+              content: userData
+                ? `Hola ${userData.first_name}, bienvenido a H₂O Allegiant AI. ¿En qué puedo ayudarte hoy con tu proyecto de tratamiento de agua?`
+                : "Bienvenido a H₂O Allegiant AI, tu asistente especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte hoy?",
+              created_at: startTime.toISOString(),
+            };
+            setMessages([welcomeMessage]);
+            setMessageCount(prev => ({ ...prev, assistant: 1 }));
+          }
+          
+          // Mostrar indicador de nueva conversación
+          setShowNewChatIndicator(true);
+          setTimeout(() => setShowNewChatIndicator(false), 5000);
+        } else {
+          console.error("❌ Error: No se recibió un ID de conversación válido del backend");
+          throw new Error("No se pudo iniciar la conversación");
         }
-      }, 1200);
+      } catch (error) {
+        console.error("❌ Error al iniciar conversación:", error);
+        // Mostrar mensaje de error al usuario
+        const errorMessage = {
+          id: `error-${Date.now()}`,
+          role: "assistant" as const,
+          content: "Lo siento, hubo un error al iniciar la conversación. Por favor, inténtalo de nuevo.",
+          created_at: new Date().toISOString(),
+        };
+        setMessages([errorMessage]);
+      } finally {
+        setIsInitializing(false);
+      }
 
     } catch (error) {
       console.error("❌ Error iniciando chat:", error);
@@ -375,13 +381,13 @@ export default function ChatContainer() {
       try {
         // Intentar iniciar una nueva conversación
         console.log("🔄 Iniciando nueva conversación antes de enviar mensaje...");
-        
+
         const data = await apiService.startConversation();
         console.log("✅ Nueva conversación iniciada con ID:", data.id);
-        
+
         setConversationId(data.id);
         localStorage.setItem('currentConversationId', data.id);
-        
+
         // Ahora continuamos con el envío del mensaje
       } catch (error) {
         console.error("❌ Error iniciando conversación de emergencia:", error);
@@ -389,7 +395,7 @@ export default function ChatContainer() {
         return;
       }
     }
-    
+
     if ((!messageText.trim() && !file) || isTyping) return;
 
     // Add user message locally first
@@ -448,9 +454,9 @@ export default function ChatContainer() {
           console.log("🔄 Iniciando descarga de PDF...");
           // Usar la función especializada de la API en vez de window.open
           await apiService.downloadProposal(conversationId!);
-          
+
           console.log("✅ Descarga de PDF iniciada correctamente");
-          
+
           const assistantMessage: Message = {
             id: data.id || `assistant-${Date.now()}`,
             role: "assistant" as const,
@@ -460,7 +466,7 @@ export default function ChatContainer() {
           setMessages((prev) => [...prev, assistantMessage]);
           // Incrementar contador de mensajes del asistente
           setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
-          
+
           // Mensaje adicional si la descarga fue exitosa
           const confirmationMessage: Message = {
             id: `system-${Date.now()}`,
@@ -473,7 +479,7 @@ export default function ChatContainer() {
           }, 1500);
         } catch (error) {
           console.error("❌ Error descargando PDF:", error);
-          
+
           // Mensaje de error si falla la descarga
           const errorMessage: Message = {
             id: `error-${Date.now()}`,
@@ -573,7 +579,7 @@ export default function ChatContainer() {
             onClick={handleNewConversationClick}
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>Nueva Conversación</span>
+            <span>New Conversation</span>
           </Button>
         </div>
 
@@ -672,7 +678,7 @@ export default function ChatContainer() {
         {/* Indicador de nueva conversación */}
         <AnimatePresence>
           {showNewChatIndicator && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -705,7 +711,7 @@ export default function ChatContainer() {
                 <p className="text-gray-600 mb-6">
                   La conversación actual se guardará en tu historial y podrás acceder a ella más tarde.
                 </p>
-                
+
                 <div className="flex justify-end gap-3">
                   <Button
                     variant="outline"
@@ -713,7 +719,7 @@ export default function ChatContainer() {
                   >
                     Cancelar
                   </Button>
-                  
+
                   <Button
                     onClick={confirmNewConversation}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -731,10 +737,10 @@ export default function ChatContainer() {
           <div className="absolute top-20 right-6 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm px-3 py-2 text-xs text-gray-500 flex flex-col gap-1 border border-blue-100">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>Iniciada: {conversationStartTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              <span>Iniciada: {conversationStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-blue-600">{messageCount.user} mensajes</span> · 
+              <span className="text-blue-600">{messageCount.user} mensajes</span> ·
               <span className="text-blue-600">{messageCount.assistant} respuestas</span>
             </div>
           </div>

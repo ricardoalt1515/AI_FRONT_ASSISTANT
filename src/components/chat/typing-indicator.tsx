@@ -14,13 +14,13 @@ export default function TypingIndicator({ mood = 'thinking' }: TypingIndicatorPr
   const getMessage = () => {
     switch (mood) {
       case 'processing':
-        return 'Analizando datos';
+        return 'Analyzing data';
       case 'technical':
-        return 'Calculando parámetros';
+        return 'Calculating parameters';
       case 'thinking':
-        return 'Considerando opciones';
+        return 'Considering options';
       default:
-        return 'Escribiendo';
+        return 'Writing';
     }
   };
 
@@ -50,7 +50,7 @@ export default function TypingIndicator({ mood = 'thinking' }: TypingIndicatorPr
           <DropletAvatar mood={mood} />
         </motion.div>
       </div>
-      
+
       {/* Burbuja de mensaje con indicador de escritura */}
       <motion.div
         className="relative flex flex-col items-start max-w-[80%] md:max-w-[75%]"
@@ -71,48 +71,48 @@ export default function TypingIndicator({ mood = 'thinking' }: TypingIndicatorPr
                 backgroundSize: '20px 20px'
               }}></div>
             )}
-            
+
             {/* Etiqueta de estado */}
             <div className="flex items-center gap-1 pr-1 text-sm text-blue-800/90 font-medium">
               <span>{getMessage()}</span>
             </div>
-            
+
             {/* Puntos animados */}
             <div className="flex items-center gap-1.5">
               <motion.div
                 className="w-1.5 h-1.5 bg-blue-400 rounded-full"
-                animate={{ 
+                animate={{
                   scale: [0.5, 1, 0.5],
                   opacity: [0.5, 1, 0.5]
                 }}
-                transition={{ 
-                  duration: 1.2, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
+                transition={{
+                  duration: 1.2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
                 }}
               />
               <motion.div
                 className="w-1.5 h-1.5 bg-blue-500 rounded-full"
-                animate={{ 
+                animate={{
                   scale: [0.5, 1, 0.5],
                   opacity: [0.5, 1, 0.5]
                 }}
-                transition={{ 
-                  duration: 1.2, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: 1.2,
+                  repeat: Infinity,
                   ease: "easeInOut",
                   delay: 0.15
                 }}
               />
               <motion.div
                 className="w-1.5 h-1.5 bg-blue-600 rounded-full"
-                animate={{ 
+                animate={{
                   scale: [0.5, 1, 0.5],
                   opacity: [0.5, 1, 0.5]
                 }}
-                transition={{ 
-                  duration: 1.2, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: 1.2,
+                  repeat: Infinity,
                   ease: "easeInOut",
                   delay: 0.3
                 }}
@@ -122,16 +122,16 @@ export default function TypingIndicator({ mood = 'thinking' }: TypingIndicatorPr
 
           {/* Efectos adicionales para estados técnicos */}
           {(mood === 'technical' || mood === 'processing') && (
-            <motion.div 
+            <motion.div
               className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"
-              animate={{ 
+              animate={{
                 scaleX: [0, 1, 0],
                 opacity: [0, 0.7, 0]
               }}
-              transition={{ 
-                duration: 2.5, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut"
               }}
             />
           )}

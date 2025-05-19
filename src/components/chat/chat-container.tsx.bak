@@ -27,7 +27,7 @@ export default function ChatContainer() {
     // Inicializar conversación al cargar el componente
     if (!conversationInitialized.current) {
       conversationInitialized.current = true;
-      
+
       const savedConversationId = localStorage.getItem('currentConversationId');
       if (savedConversationId) {
         console.log("📋 Recuperando conversación existente:", savedConversationId);
@@ -63,7 +63,7 @@ export default function ChatContainer() {
       // Intentaremos enviar un mensaje vacío para ver si la conversación existe
       const testMessage = "VERIFICACIÓN_SILENCIOSA";
       await apiService.sendMessage(convId, testMessage);
-      
+
       // Si llegamos aquí, la conversación existe
       console.log("✅ Conversación existente verificada:", convId);
       setConversationId(convId);
@@ -275,13 +275,13 @@ export default function ChatContainer() {
       try {
         // Intentar iniciar una nueva conversación
         console.log("🔄 Iniciando nueva conversación antes de enviar mensaje...");
-        
+
         const data = await apiService.startConversation();
         console.log("✅ Nueva conversación iniciada con ID:", data.id);
-        
+
         setConversationId(data.id);
         localStorage.setItem('currentConversationId', data.id);
-        
+
         // Ahora continuamos con el envío del mensaje
       } catch (error) {
         console.error("❌ Error iniciando conversación de emergencia:", error);
@@ -289,7 +289,7 @@ export default function ChatContainer() {
         return;
       }
     }
-    
+
     if ((!messageText.trim() && !file) || isTyping) return;
 
     // Add user message locally first
@@ -344,9 +344,9 @@ export default function ChatContainer() {
           console.log("🔄 Iniciando descarga de PDF...");
           // Usar la función especializada de la API en vez de window.open
           await apiService.downloadProposal(conversationId!);
-          
+
           console.log("✅ Descarga de PDF iniciada correctamente");
-          
+
           const assistantMessage: Message = {
             id: data.id || `assistant-${Date.now()}`,
             role: "assistant",
@@ -354,7 +354,7 @@ export default function ChatContainer() {
             created_at: data.created_at || new Date().toISOString(),
           };
           setMessages((prev) => [...prev, assistantMessage]);
-          
+
           // Mensaje adicional si la descarga fue exitosa
           const confirmationMessage: Message = {
             id: `system-${Date.now()}`,
@@ -367,7 +367,7 @@ export default function ChatContainer() {
           }, 1500);
         } catch (error) {
           console.error("❌ Error descargando PDF:", error);
-          
+
           // Mensaje de error si falla la descarga
           const errorMessage: Message = {
             id: `error-${Date.now()}`,

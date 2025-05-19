@@ -156,7 +156,7 @@ export default function Header() {
               "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
               pathname === "/" && "bg-blue-50"
             )}>
-              Inicio
+              Home
             </Link>
 
             {/* Mostrar AI Asistente solo si está autenticado */}
@@ -165,7 +165,7 @@ export default function Header() {
                 "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
                 pathname === "/chat" && "bg-blue-50"
               )}>
-                AI Asistente
+                AI Assistant
               </Link>
             )}
           </div>
@@ -183,7 +183,7 @@ export default function Header() {
                   size="sm"
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Nueva Consulta
+                  New Conversation
                 </Button>
 
                 {/* Menú de usuario */}
@@ -316,7 +316,7 @@ export default function Header() {
                     "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                     pathname === "/" && "bg-blue-50 font-medium"
                   )}>
-                    Inicio
+                    Home
                   </Link>
 
                   {isAuthenticated && (
@@ -325,7 +325,7 @@ export default function Header() {
                         "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                         pathname === "/chat" && "bg-blue-50 font-medium"
                       )}>
-                        AI Asistente
+                        AI Assistant
                       </Link>
                       <Link href="/proposals" className={cn(
                         "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
@@ -352,7 +352,7 @@ export default function Header() {
                           hover:from-blue-600 hover:to-blue-700 text-white"
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        Nueva Consulta
+                        New Conversation
                       </Button>
                       <Button
                         onClick={handleLogout}
