@@ -4,7 +4,7 @@ import axios from 'axios';
 // Configuración de la URL del backend
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = isProduction
-  ? process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-chatbot-owzs.onrender.com/api'
+  ? process.env.NEXT_PUBLIC_BACKEND_URL || 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com/api'
   : process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
     ? 'http://localhost:8000/api'
     : '/api';
