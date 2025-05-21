@@ -1,11 +1,11 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Configuración de la URL del backend - Usa proxy interno para evitar problemas de mixed content
+// Configuración de la URL del backend - Usa ruta relativa en producción
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : '/api/proxy';  // Usa el proxy del lado del servidor que hemos creado
+  : '/api';  // Ruta relativa en producción
 
 console.log('API Base URL:', apiBaseUrl);
 
