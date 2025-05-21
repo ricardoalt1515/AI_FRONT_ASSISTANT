@@ -16,7 +16,7 @@ const nextConfig = {
         source: '/api/:path*',
         destination: process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
           ? 'http://localhost:8000/api/:path*'  // Para desarrollo local
-          : `${process.env.BACKEND_URL || 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com/api'}/:path*`, // Conexión a través del proxy de Next.js
+          : `${process.env.BACKEND_URL || 'https://glyu7ck52i.execute-api.us-east-1.amazonaws.com/prod'}/api/:path*`, // Conexión a través del API Gateway (HTTPS)
       },
     ];
   },
