@@ -5,7 +5,7 @@ import axios from 'axios';
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : '/api';  // Siempre usar ruta relativa en producción para evitar problemas de CORS
+  : process.env.NEXT_PUBLIC_BACKEND_URL || 'https://www.h2oassistant.com/api';  // URL absoluta para producción
 
 console.log('API Base URL:', apiBaseUrl);
 
