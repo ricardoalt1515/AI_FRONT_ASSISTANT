@@ -16,7 +16,11 @@ const nextConfig = {
         source: '/api/:path*',
         destination: process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
           ? 'http://localhost:8000/api/:path*'  // Para desarrollo local
-          : `${process.env.BACKEND_URL || 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com/api'}/:path*`, // Producción o fallback
+          : '/api-proxy/:path*', // Usar ruta relativa para evitar problemas de CORS
+      },
+      {
+        source: '/api-proxy/:path*',
+        destination: `${process.env.BACKEND_URL || 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com/api'}/:path*`, // Producción o fallback
       },
     ];
   },
