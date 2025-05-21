@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // URL base del backend
 const BACKEND_BASE_URL = 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com';
 
-// Función auxiliar para manejar peticiones
+// Función para manejar todas las peticiones
 async function proxyRequest(request: NextRequest, params: { path: string[] }, method: string) {
   try {
     // Construir URL
@@ -24,8 +24,15 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }, me
       headers.append('Authorization', request.headers.get('authorization')!);
     }
     
+    console.log(`Enviando solicitud a: ${url}`);
+    
     // Configurar opciones
-    const options: RequestInit = { method, headers };
+    const options: RequestInit = { 
+      method, 
+      headers,
+      // Establecer un timeout razonable
+      signal: AbortSignal.timeout(30000),
+    };
     
     // Añadir body para métodos que lo requieren
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
@@ -38,7 +45,6 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }, me
     }
     
     // Hacer petición al backend
-    console.log(`Proxy request to: ${url}`);
     const response = await fetch(url, options);
     
     // Manejar respuesta
@@ -59,7 +65,7 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }, me
   } catch (error) {
     console.error('Error en proxy API:', error);
     return NextResponse.json(
-      { message: 'Error interno del servidor' },
+      { message: 'Error interno del servidor', error: String(error) },
       { status: 500 }
     );
   }
