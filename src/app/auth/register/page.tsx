@@ -155,10 +155,10 @@ export default function RegisterPage() {
         if (error.response.data.detail) {
           setErrorMessage(error.response.data.detail);
         } else {
-          setErrorMessage("Error en el registro. Por favor, inténtalo de nuevo.");
+          setErrorMessage("Registration error. Please try again.");
         }
       } else {
-        setErrorMessage("Error de conexión. Verifica tu conexión a internet e inténtalo de nuevo.");
+        setErrorMessage("Connection error. Please check your internet connection and try again.");
       }
     } finally {
       setIsLoading(false);
@@ -172,7 +172,7 @@ export default function RegisterPage() {
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" className="h-5 w-5 text-blue-500 hover:text-blue-700 hover:bg-transparent -mt-0.5">
             <HelpCircle className="h-4 w-4" />
-            <span className="sr-only">Información</span>
+            <span className="sr-only">Information</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent className="bg-blue-50 text-blue-800 border border-blue-200">
@@ -212,9 +212,9 @@ export default function RegisterPage() {
             </motion.div>
           </div>
 
-          <CardTitle className="text-center text-2xl text-blue-800">Crear Cuenta</CardTitle>
+          <CardTitle className="text-center text-2xl text-blue-800">Create account</CardTitle>
           <CardDescription className="text-center">
-            Únete a H₂O Allegiant para soluciones avanzadas de tratamiento de agua
+            Join H₂O Allegiant for advanced water treatment solutions
           </CardDescription>
         </CardHeader>
 
@@ -229,13 +229,13 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Sección: Datos personales */}
             <div className="space-y-1 mb-1">
-              <p className="text-xs font-medium text-blue-600">Datos personales</p>
+              <p className="text-xs font-medium text-blue-600">Personal Information</p>
               <div className="h-px bg-gradient-to-r from-transparent via-blue-100 to-transparent"></div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">Nombre</Label>
+                <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
@@ -247,7 +247,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName">Apellido</Label>
+                <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
@@ -260,13 +260,13 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Correo electrónico</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="tu@correo.com"
+                placeholder="you@email.com"
                 required
                 autoComplete="email"
                 className="focus-visible:ring-blue-500/30"
@@ -274,7 +274,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -288,14 +288,14 @@ export default function RegisterPage() {
 
             {/* Sección: Datos de empresa */}
             <div className="space-y-1 pt-2 mb-1">
-              <p className="text-xs font-medium text-blue-600">Datos de empresa</p>
+              <p className="text-xs font-medium text-blue-600">Company Information</p>
               <div className="h-px bg-gradient-to-r from-transparent via-blue-100 to-transparent"></div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <Label htmlFor="company">Nombre de Empresa</Label>
-                <InfoTooltip content="El nombre de su empresa para personalizar las soluciones" />
+                <Label htmlFor="company">Company Name</Label>
+                <InfoTooltip content="Your company name to personalize solutions" />
               </div>
               <Input
                 id="company"
@@ -308,14 +308,14 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <Label htmlFor="location">Ubicación</Label>
-                <InfoTooltip content="La ubicación nos ayuda a considerar normativas locales aplicables" />
+                <Label htmlFor="location">Location</Label>
+                <InfoTooltip content="Location helps us consider applicable local regulations" />
               </div>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={handleInputChange}
-                placeholder="Ciudad, Estado, País"
+                placeholder="City, State, Country"
                 className="focus-visible:ring-blue-500/30"
               />
             </div>
@@ -323,12 +323,12 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
-                  <Label htmlFor="sector">Sector Industrial</Label>
-                  <InfoTooltip content="El sector industrial permite ofrecer soluciones específicas para su área" />
+                  <Label htmlFor="sector">Industry Sector</Label>
+                  <InfoTooltip content="The industry sector allows us to offer specific solutions for your area" />
                 </div>
                 <Select onValueChange={handleSectorChange} value={selectedSector}>
                   <SelectTrigger className="focus-visible:ring-blue-500/30">
-                    <SelectValue placeholder="Seleccionar..." />
+                    <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-[240px]">
                     {INDUSTRY_SECTORS.map(sector => (
@@ -343,7 +343,7 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
                   <Label htmlFor="subsector">Subsector</Label>
-                  <InfoTooltip content="El subsector permite afinar aún más las recomendaciones técnicas" />
+                  <InfoTooltip content="The subsector allows us to further refine technical recommendations" />
                 </div>
                 <Select
                   onValueChange={handleSubsectorChange}
@@ -351,7 +351,7 @@ export default function RegisterPage() {
                   disabled={!selectedSector || subsectors.length === 0}
                 >
                   <SelectTrigger className="focus-visible:ring-blue-500/30">
-                    <SelectValue placeholder={selectedSector ? "Seleccionar..." : "Elija sector primero"} />
+                    <SelectValue placeholder={selectedSector ? "Select..." : "Choose sector first"} />
                   </SelectTrigger>
                   <SelectContent className="max-h-[200px]">
                     {subsectors.map(subsector => (
@@ -381,10 +381,10 @@ export default function RegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Creando cuenta...</span>
+                    <span>Creating an account...</span>
                   </div>
                 ) : (
-                  <span>Crear Cuenta</span>
+                  <span>Create an account</span>
                 )}
               </Button>
             </motion.div>
@@ -393,12 +393,12 @@ export default function RegisterPage() {
 
         <CardFooter className="flex justify-center border-t border-blue-50 pt-4 pb-6">
           <p className="text-sm">
-            ¿Ya tienes una cuenta?{" "}
+            Already have an account?{" "}
             <Link
               href="/auth/login"
               className="text-blue-700 font-medium hover:text-blue-800 hover:underline transition-colors"
             >
-              Iniciar Sesión
+              Sign in
             </Link>
           </p>
         </CardFooter>

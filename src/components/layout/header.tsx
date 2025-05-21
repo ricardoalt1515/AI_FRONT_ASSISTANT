@@ -31,7 +31,7 @@ export default function Header() {
   const pathname = usePathname()
   const router = useRouter()
 
-  // Detectar scroll para efectos visuales
+  // Detect scroll for visual effects
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10)
@@ -40,7 +40,7 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Verificar autenticación al cargar
+  // Verify authentication on load
   useEffect(() => {
     const checkAuth = () => {
       const isAuth = apiService.isAuthenticated();
@@ -53,19 +53,19 @@ export default function Header() {
             setUserData(JSON.parse(userDataStr));
           }
         } catch (e) {
-          console.error("Error cargando datos de usuario:", e);
+          console.error("Error loading user data:", e);
         }
       }
     };
 
     checkAuth();
 
-    // Escuchar cambios en el almacenamiento (para sincronizar entre pestañas)
+    // Listen for storage changes (to sync between tabs)
     window.addEventListener('storage', checkAuth);
     return () => window.removeEventListener('storage', checkAuth);
   }, []);
 
-  // Manejar cierre de sesión
+  // Handle logout
   const handleLogout = () => {
     apiService.logoutUser();
     setIsAuthenticated(false);
@@ -73,7 +73,7 @@ export default function Header() {
     router.push('/');
   };
 
-  // Obtener iniciales del usuario para el avatar
+  // Get user initials for avatar
   const getUserInitials = () => {
     if (!userData) return 'U';
     let initials = '';
@@ -82,13 +82,13 @@ export default function Header() {
     return initials || 'U';
   };
 
-  // Crear nueva consulta
+  // Create new consultation
   const handleNewConsultation = () => {
     if (pathname === '/chat') {
-      // Si ya estamos en el chat, emitir evento para nueva conversación
+      // If we're already in chat, emit event for new conversation
       window.dispatchEvent(new CustomEvent('newConversationStarted'));
     } else {
-      // Si no, navegar al chat
+      // If not, navigate to chat
       router.push('/chat');
     }
   };
@@ -108,7 +108,7 @@ export default function Header() {
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-300/30 to-transparent"></div>
 
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-        {/* Logo y título */}
+        {/* Logo and title */}
         <motion.div
           className="flex items-center gap-2"
           initial={{ opacity: 0 }}
@@ -149,7 +149,7 @@ export default function Header() {
           </Link>
         </motion.div>
 
-        {/* Navegación para pantallas medianas y grandes */}
+        {/* Navigation for medium and large screens */}
         <div className="hidden md:flex items-center gap-4">
           <div className="flex space-x-1">
             <Link href="/" className={cn(
@@ -159,7 +159,7 @@ export default function Header() {
               Home
             </Link>
 
-            {/* Mostrar AI Asistente solo si está autenticado */}
+            {/* Show AI Assistant only if authenticated */}
             {isAuthenticated && (
               <Link href="/chat" className={cn(
                 "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
@@ -170,11 +170,11 @@ export default function Header() {
             )}
           </div>
 
-          {/* Botones de autenticación o perfil de usuario */}
+          {/* Authentication buttons or user profile */}
           <div className="flex items-center gap-2 ml-2">
             {isAuthenticated ? (
               <>
-                {/* Botón Nueva Consulta */}
+                {/* New Conversation Button */}
                 <Button
                   onClick={handleNewConsultation}
                   className="bg-gradient-to-r from-blue-500 to-blue-600 
@@ -186,7 +186,7 @@ export default function Header() {
                   New Conversation
                 </Button>
 
-                {/* Menú de usuario */}
+                {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -217,19 +217,19 @@ export default function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/chat" className="cursor-pointer flex items-center">
                         <User className="mr-2 h-4 w-4" />
-                        <span>Chat IA</span>
+                        <span>AI Chat</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/proposals" className="cursor-pointer flex items-center">
                         <FileText className="mr-2 h-4 w-4" />
-                        <span>Mis Propuestas</span>
+                        <span>My Proposals</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/settings" className="cursor-pointer flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
-                        <span>Configuración</span>
+                        <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -238,7 +238,7 @@ export default function Header() {
                       onClick={handleLogout}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Cerrar sesión</span>
+                      <span>Log out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -252,7 +252,7 @@ export default function Header() {
                   className="text-blue-700 hover:text-blue-800 hover:bg-blue-50"
                 >
                   <Link href="/auth/login">
-                    Iniciar sesión
+                    Sign in
                   </Link>
                 </Button>
 
@@ -264,7 +264,7 @@ export default function Header() {
                   asChild
                 >
                   <Link href="/auth/register">
-                    Registrarse
+                    Sign up
                   </Link>
                 </Button>
               </>
@@ -272,7 +272,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Menú móvil */}
+        {/* Mobile menu */}
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
@@ -280,7 +280,7 @@ export default function Header() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                <span className="sr-only">Menú</span>
+                <span className="sr-only">Menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent className="w-[280px] bg-white">
@@ -290,7 +290,7 @@ export default function Header() {
                   <h2 className="text-xl font-bold text-blue-800">H₂O Allegiant</h2>
                 </div>
 
-                {/* Información de usuario en móvil */}
+                {/* User information on mobile */}
                 {isAuthenticated && userData && (
                   <div className="mb-4 p-4 bg-blue-50/50 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -331,13 +331,13 @@ export default function Header() {
                         "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                         pathname === "/proposals" && "bg-blue-50 font-medium"
                       )}>
-                        Mis Propuestas
+                        My Proposals
                       </Link>
                       <Link href="/settings" className={cn(
                         "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                         pathname === "/settings" && "bg-blue-50 font-medium"
                       )}>
-                        Configuración
+                        Settings
                       </Link>
                     </>
                   )}
@@ -360,7 +360,7 @@ export default function Header() {
                         className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
-                        Cerrar sesión
+                        Log out
                       </Button>
                     </>
                   ) : (
@@ -371,7 +371,7 @@ export default function Header() {
                         asChild
                       >
                         <Link href="/auth/login">
-                          Iniciar sesión
+                          Sign in
                         </Link>
                       </Button>
 
@@ -381,7 +381,7 @@ export default function Header() {
                         asChild
                       >
                         <Link href="/auth/register">
-                          Registrarse
+                          Sign up
                         </Link>
                       </Button>
                     </>

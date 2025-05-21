@@ -78,7 +78,7 @@ export default function LandingPage() {
                 variant="ghost"
                 className="text-sm font-medium text-blue-700 hover:text-blue-800 hover:bg-blue-50"
               >
-                Iniciar Sesión
+                Sign in
               </Button>
               <Button
                 className="bg-gradient-to-r from-blue-500 to-blue-600 

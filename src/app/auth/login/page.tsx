@@ -19,9 +19,9 @@ export default function LoginPage() {
     password: ""
   })
 
-  // Verificar si el usuario ya está autenticado
+  // Check if user is already authenticated
   useEffect(() => {
-    // Si el usuario ya está autenticado, redirigir al chat
+    // If user is already authenticated, redirect to chat
     if (apiService.isAuthenticated()) {
       router.push('/chat');
     }
@@ -30,7 +30,7 @@ export default function LoginPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
-    // Limpiar mensaje de error al editar
+    // Clear error message when editing
     if (errorMessage) setErrorMessage(null);
   };
 
@@ -40,26 +40,26 @@ export default function LoginPage() {
     setErrorMessage(null)
 
     try {
-      // Llamar a la API de login
+      // Call login API
       const response = await apiService.loginUser(formData.email, formData.password);
 
-      console.log("Login exitoso:", response);
+      console.log("Login successful:", response);
 
-      // Redireccionar al chat en caso de éxito
+      // Redirect to chat on success
       router.push('/chat');
     } catch (error: any) {
-      console.error("Error durante el inicio de sesión:", error);
-      // Manejar error de login
+      console.error("Login error:", error);
+      // Handle login error
       if (error.response) {
         if (error.response.status === 401) {
-          setErrorMessage("Correo electrónico o contraseña incorrectos.");
+          setErrorMessage("Incorrect email or password.");
         } else if (error.response.data && error.response.data.detail) {
           setErrorMessage(error.response.data.detail);
         } else {
-          setErrorMessage("Error en el inicio de sesión. Inténtalo de nuevo.");
+          setErrorMessage("Login error. Please try again.");
         }
       } else {
-        setErrorMessage("Error de conexión. Verifica tu internet e inténtalo de nuevo.");
+        setErrorMessage("Connection error. Check your internet and try again.");
       }
     } finally {
       setIsLoading(false);
@@ -69,7 +69,7 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-md mx-auto">
       <Card className="border-blue-100 shadow-lg">
-        {/* Banda decorativa superior */}
+        {/* Decorative top band */}
         <div className="h-1.5 bg-gradient-to-r from-blue-400 to-blue-600 w-full"></div>
 
         <CardHeader className="space-y-1">
@@ -89,14 +89,14 @@ export default function LoginPage() {
             </motion.div>
           </div>
 
-          <CardTitle className="text-center text-2xl text-blue-800">Iniciar Sesión</CardTitle>
+          <CardTitle className="text-center text-2xl text-blue-800">Sign in</CardTitle>
           <CardDescription className="text-center">
-            Ingresa tus credenciales para acceder a H₂O Allegiant
+            Enter your credentials to access H₂O Allegiant
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          {/* Mensaje de error */}
+          {/* Error message */}
           {errorMessage && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
               {errorMessage}
@@ -105,13 +105,13 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Correo electrónico</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="tu@correo.com"
+                placeholder="you@email.com"
                 required
                 autoComplete="email"
                 className="focus-visible:ring-blue-500/30"
@@ -120,12 +120,12 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">Password</Label>
                 <Link
                   href="#"
                   className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
                 >
-                  ¿Olvidaste tu contraseña?
+                  Forgot password?
                 </Link>
               </div>
               <Input
@@ -150,21 +150,21 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Iniciando sesión...
+                  Signing in...
                 </div>
-              ) : "Iniciar Sesión"}
+              ) : "Sign in"}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="flex justify-center border-t border-blue-50 pt-4">
           <p className="text-sm">
-            ¿No tienes una cuenta?{" "}
+            Don't have an account?{" "}
             <Link
               href="/auth/register"
               className="text-blue-700 font-medium hover:text-blue-800 hover:underline"
             >
-              Registrarse
+              Sign up
             </Link>
           </p>
         </CardFooter>

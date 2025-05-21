@@ -359,7 +359,7 @@ export default function ChatContainer() {
         const errorMessage = {
           id: `error-${Date.now()}`,
           role: "assistant" as const,
-          content: "Lo siento, hubo un error al iniciar la conversación. Por favor, inténtalo de nuevo.",
+          content: "Sorry, there was an error starting the conversation. Please try again.",
           created_at: new Date().toISOString(),
         };
         setMessages([errorMessage]);
@@ -439,7 +439,7 @@ export default function ChatContainer() {
         const systemMessage: Message = {
           id: `system-${Date.now()}`,
           role: "assistant" as const,
-          content: "📄 **Tu propuesta ha sido generada exitosamente.**\n\nEl documento PDF debería abrirse automáticamente. Si necesitas descargarlo de nuevo, escribe \"descargar propuesta\" o \"descargar pdf\".",
+          content: "📄 **Your proposal has been successfully generated.**\n\nThe PDF document should open automatically. If you need to download it again, type \"download proposal\" or \"download pdf\".",
           created_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, systemMessage]);
@@ -460,7 +460,7 @@ export default function ChatContainer() {
           const assistantMessage: Message = {
             id: data.id || `assistant-${Date.now()}`,
             role: "assistant" as const,
-            content: data.message || "¡Tu propuesta está lista! Se está descargando automáticamente.",
+            content: data.message || "Your proposal is ready! It's downloading automatically.",
             created_at: data.created_at || new Date().toISOString(),
           };
           setMessages((prev) => [...prev, assistantMessage]);
@@ -471,7 +471,7 @@ export default function ChatContainer() {
           const confirmationMessage: Message = {
             id: `system-${Date.now()}`,
             role: "assistant" as const,
-            content: "📄 Si la descarga no inició automáticamente, puedes escribir \"descargar pdf\" nuevamente, o revisa la configuración de ventanas emergentes en tu navegador.",
+            content: "📄 If the download didn't start automatically, you can type \"download pdf\" again, or check your browser's pop-up settings.",
             created_at: new Date().toISOString(),
           };
           setTimeout(() => {
@@ -484,7 +484,7 @@ export default function ChatContainer() {
           const errorMessage: Message = {
             id: `error-${Date.now()}`,
             role: "assistant" as const,
-            content: "❌ Lo siento, hubo un problema al descargar el PDF. Por favor intenta de nuevo escribiendo \"descargar pdf\".",
+            content: "❌ Sorry, there was a problem downloading the PDF. Please try again by typing \"download pdf\".",
             created_at: new Date().toISOString(),
           };
           setMessages((prev) => [...prev, errorMessage]);
@@ -510,7 +510,7 @@ export default function ChatContainer() {
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: "assistant" as const,
-        content: "Lo siento, ha ocurrido un error de comunicación. Por favor, inténtalo de nuevo o actualiza la página si el problema persiste.",
+        content: "Sorry, a communication error has occurred. Please try again or refresh the page if the problem persists.",
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -686,7 +686,7 @@ export default function ChatContainer() {
             >
               <div className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
                 <RefreshCw className="h-4 w-4 animate-spin-slow" />
-                <span>Nueva conversación iniciada</span>
+                <span>New conversation started</span>
               </div>
             </motion.div>
           )}
@@ -707,9 +707,9 @@ export default function ChatContainer() {
                 exit={{ scale: 0.9, opacity: 0 }}
                 className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
               >
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Iniciar nueva conversación?</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Start a new conversation?</h3>
                 <p className="text-gray-600 mb-6">
-                  La conversación actual se guardará en tu historial y podrás acceder a ella más tarde.
+                  The current conversation will be saved in your history and you can access it later.
                 </p>
 
                 <div className="flex justify-end gap-3">
@@ -717,14 +717,14 @@ export default function ChatContainer() {
                     variant="outline"
                     onClick={cancelNewConversation}
                   >
-                    Cancelar
+                    Cancel
                   </Button>
 
                   <Button
                     onClick={confirmNewConversation}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    Iniciar nueva
+                    Start new
                   </Button>
                 </div>
               </motion.div>
@@ -737,11 +737,11 @@ export default function ChatContainer() {
           <div className="absolute top-20 right-6 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm px-3 py-2 text-xs text-gray-500 flex flex-col gap-1 border border-blue-100">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>Iniciada: {conversationStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              <span>Started: {conversationStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-blue-600">{messageCount.user} mensajes</span> ·
-              <span className="text-blue-600">{messageCount.assistant} respuestas</span>
+              <span className="text-blue-600">{messageCount.user} messages</span> ·
+              <span className="text-blue-600">{messageCount.assistant} responses</span>
             </div>
           </div>
         )}
