@@ -1,11 +1,11 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Configuración de la URL del backend - Usa ruta relativa en producción
+// Configuración de la URL del backend - Usamos la URL completa de la API
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : '/api/v1';  // Ruta relativa a los nuevos endpoints v1
+  : 'https://api.h2oassistant.com/api';  // URL completa de la API
 
 console.log('API Base URL:', apiBaseUrl);
 
