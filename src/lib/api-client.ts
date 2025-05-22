@@ -5,7 +5,7 @@ import axios from 'axios';
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : '/api';  // Ruta relativa en producción
+  : '/api/v1';  // Ruta relativa a los nuevos endpoints v1
 
 console.log('API Base URL:', apiBaseUrl);
 
