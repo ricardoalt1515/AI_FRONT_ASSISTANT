@@ -78,32 +78,41 @@ export const apiService = {
   // Métodos de autenticación
   registerUser: async (userData: any) => {
     try {
-      const response = await apiClient.post('/auth/register', userData);
+      // Adaptar los datos para el formato que espera el backend
+      const backendData = {
+        email: userData.email,
+        password: userData.password,
+        first_name: userData.name?.split(' ')[0] || userData.first_name || 'Usuario',
+        last_name: userData.name?.split(' ').slice(1).join(' ') || userData.last_name || 'Anónimo'
+      };
 
+      const response = await apiClient.post('/auth/register', backendData);
+      
       if (response.data && response.data.token) {
-        // Almacenar token y datos del usuario en localStorage
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
+        return { success: true, data: response.data };
       }
-
-      return response.data;
+      return { success: false, error: 'No se recibió token de autenticación' };
     } catch (error) {
       console.error('Error en registro:', error);
       throw error;
     }
   },
 
-  loginUser: async (email: string, password: string) => {
+  loginUser: async (username: string, password: string) => {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      // El backend espera 'username' en lugar de 'email'
+      const response = await apiClient.post('/auth/login', { 
+        username, 
+        password 
+      });
 
       if (response.data && response.data.token) {
-        // Almacenar token y datos del usuario en localStorage
         localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('userData', JSON.stringify(response.data.user));
+        return { success: true, data: response.data };
       }
-
-      return response.data;
+      return { success: false, error: 'No se recibió token de autenticación' };
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
