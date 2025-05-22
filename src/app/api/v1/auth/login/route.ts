@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     
     // Preparar los datos para el backend
     const backendData = {
-      username: body.email, // El backend probablemente espera 'username' en lugar de 'email'
+      email: body.email, // El backend espera 'email', no 'username'
       password: body.password
     };
     
