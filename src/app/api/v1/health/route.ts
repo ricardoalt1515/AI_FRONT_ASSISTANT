@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // URL base del backend
-const BACKEND_BASE_URL = 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com';
+const BACKEND_BASE_URL = 'https://api.h2oassistant.com';
 
 export async function GET() {
   try {

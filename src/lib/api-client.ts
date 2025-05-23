@@ -1,11 +1,11 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Configuración de la URL del backend - Usamos la URL completa de la API directamente
+// Configuración de la URL del backend - Usamos la URL completa de la API
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : 'https://api.h2oassistant.com/api';  // URL completa de la API con HTTPS
+  : 'https://api.h2oassistant.com/api';  // URL completa de la API
 
 console.log('API Base URL:', apiBaseUrl);
 
@@ -86,7 +86,6 @@ export const apiService = {
         last_name: userData.name?.split(' ').slice(1).join(' ') || userData.last_name || 'Anónimo'
       };
 
-      // Enviar directamente al endpoint de auth en el backend
       const response = await apiClient.post('/auth/register', backendData);
       
       if (response.data && response.data.token) {
@@ -103,15 +102,14 @@ export const apiService = {
 
   loginUser: async (email: string, password: string) => {
     try {
-      // El backend espera 'email', NO 'username'
+      // El backend espera 'email', no 'username'
       const response = await apiClient.post('/auth/login', { 
-        email, // Usar email como espera el backend
+        email, 
         password 
       });
 
       if (response.data && response.data.token) {
         localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('userData', JSON.stringify(response.data.user));
         return { success: true, data: response.data };
       }
       return { success: false, error: 'No se recibió token de autenticación' };

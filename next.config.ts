@@ -7,7 +7,14 @@ const nextConfig = {
   env: {
     BACKEND_URL: 'https://api.h2oassistant.com',
   },
-  // Eliminamos los rewrites ya que ahora nos conectamos directamente al backend
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://api.h2oassistant.com/api/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

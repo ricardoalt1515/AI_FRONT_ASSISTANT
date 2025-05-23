@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // URL base del backend
-const BACKEND_BASE_URL = 'http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com';
+const BACKEND_BASE_URL = 'https://api.h2oassistant.com';
 
 // Función para manejar todas las peticiones
 async function proxyRequest(request: NextRequest, params: { path: string[] }, method: string) {

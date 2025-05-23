@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Hacer una petición simple al endpoint de salud
-    const response = await fetch('http://hydrous-alb-1088098552.us-east-1.elb.amazonaws.com/api/health', {
+    const response = await fetch('https://api.h2oassistant.com/api/health', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
