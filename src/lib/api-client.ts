@@ -78,6 +78,12 @@ export const apiService = {
   // Métodos de autenticación
   registerUser: async (userData: any) => {
     try {
+      // Validar datos requeridos
+      if (!userData.email || !userData.password) {
+        console.error('Error en registro: Faltan campos obligatorios (email o password)');
+        throw new Error('Email y contraseña son campos obligatorios');
+      }
+
       // Preparar datos completos para el backend según UserCreate model
       const backendData = {
         email: userData.email,
@@ -90,18 +96,54 @@ export const apiService = {
         subsector: userData.subsector || null
       };
 
-      console.log('Enviando datos completos al backend:', { ...backendData, password: '*****' });
+      console.log('Enviando datos completos al backend:', { 
+        ...backendData, 
+        password: backendData.password ? '*****' : '<VACÍO>' 
+      });
+      console.log('URL de destino:', `${apiBaseUrl}/auth/register`);
 
-      const response = await apiClient.post('/auth/register', backendData);
+      // Aumentar timeout para dar más tiempo al backend
+      const response = await apiClient.post('/auth/register', backendData, { 
+        timeout: 30000 // 30 segundos
+      });
       
+      console.log('Respuesta del backend:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        data: response.data ? 'Datos recibidos' : 'Sin datos'
+      });
+
       if (response.data && response.data.token) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
         return { success: true, data: response.data };
       }
       return { success: false, error: 'No se recibió token de autenticación' };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error en registro:', error);
+      
+      // Información de diagnóstico más detallada
+      if (error.response) {
+        // El servidor respondió con un código de estado fuera del rango 2xx
+        console.error('Detalles de error de respuesta:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      } else if (error.request) {
+        // La solicitud se realizó pero no se recibió respuesta
+        console.error('No se recibió respuesta del servidor. Detalles:', {
+          request: error.request._currentUrl || error.request.url || 'URL no disponible',
+          method: error.config?.method || 'Método no disponible',
+          timeout: error.config?.timeout || 'Timeout no especificado'
+        });
+      } else {
+        // Algo sucedió en la configuración de la solicitud que desencadenó un error
+        console.error('Error en la configuración de la solicitud:', error.message);
+      }
+      
       throw error;
     }
   },

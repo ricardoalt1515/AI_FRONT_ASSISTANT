@@ -126,6 +126,25 @@ export default function RegisterPage() {
     setIsLoading(true)
     setErrorMessage(null)
 
+    // Validar formulario
+    if (!formData.email) {
+      setErrorMessage("Email is required")
+      setIsLoading(false)
+      return
+    }
+
+    if (!formData.password) {
+      setErrorMessage("Password is required")
+      setIsLoading(false)
+      return
+    }
+
+    if (!formData.firstName || !formData.lastName) {
+      setErrorMessage("First name and last name are required")
+      setIsLoading(false)
+      return
+    }
+
     try {
       // Prepare data for API
       const registrationData = {
@@ -139,7 +158,10 @@ export default function RegisterPage() {
         password: formData.password
       };
 
-      console.log("Enviando datos de registro:", registrationData);
+      console.log("Enviando datos de registro:", {
+        ...registrationData,
+        password: registrationData.password ? "*****" : "" // Ocultar contraseña en logs pero mostrar si está vacía
+      });
 
       // Llamar a la API de registro
       const response = await apiService.registerUser(registrationData);
@@ -154,11 +176,15 @@ export default function RegisterPage() {
       if (error.response && error.response.data) {
         if (error.response.data.detail) {
           setErrorMessage(error.response.data.detail);
+        } else if (error.response.status === 400) {
+          setErrorMessage("Error en los datos de registro. Verifica todos los campos requeridos.");
         } else {
-          setErrorMessage("Registration error. Please try again.");
+          setErrorMessage("Error en el registro. Por favor intenta nuevamente.");
         }
+      } else if (error.code === "ERR_BAD_REQUEST") {
+        setErrorMessage("Error en los datos enviados. Verifica que todos los campos sean válidos.");
       } else {
-        setErrorMessage("Connection error. Please check your internet connection and try again.");
+        setErrorMessage("Error de conexión. Verifica tu conexión a internet e intenta nuevamente.");
       }
     } finally {
       setIsLoading(false);
