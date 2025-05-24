@@ -7,14 +7,7 @@ const nextConfig = {
   env: {
     BACKEND_URL: 'https://api.h2oassistant.com',
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://api.h2oassistant.com/api/:path*',
-      },
-    ];
-  },
+  // Eliminamos rewrites innecesarios - api-client.ts maneja conexión directa
 };
 
 module.exports = nextConfig;
