@@ -78,13 +78,19 @@ export const apiService = {
   // Métodos de autenticación
   registerUser: async (userData: any) => {
     try {
-      // Adaptar los datos para el formato que espera el backend
+      // Preparar datos completos para el backend según UserCreate model
       const backendData = {
         email: userData.email,
         password: userData.password,
-        first_name: userData.name?.split(' ')[0] || userData.first_name || 'Usuario',
-        last_name: userData.name?.split(' ').slice(1).join(' ') || userData.last_name || 'Anónimo'
+        first_name: userData.first_name || 'Usuario',
+        last_name: userData.last_name || 'Anónimo',
+        company_name: userData.company_name || null,
+        location: userData.location || null,
+        sector: userData.sector || null,
+        subsector: userData.subsector || null
       };
+
+      console.log('Enviando datos completos al backend:', { ...backendData, password: '*****' });
 
       const response = await apiClient.post('/auth/register', backendData);
       
