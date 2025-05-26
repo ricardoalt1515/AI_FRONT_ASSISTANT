@@ -16,24 +16,20 @@ interface ChatInputProps {
 export default function ChatInput({ onSendMessage, isTyping, isDisabled = false }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [rows, setRows] = useState(1);
   const [isFocused, setIsFocused] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-adjust height
+  // Auto-ajuste de altura optimizado
   useEffect(() => {
     if (textareaRef.current) {
-      // Reset height - important to shrink when text is deleted
-      textareaRef.current.style.height = 'auto';
-
-      // Calculate new height limited to 5 lines
-      const newHeight = Math.min(textareaRef.current.scrollHeight, 140);
-      textareaRef.current.style.height = `${newHeight}px`;
-
-      // Calculate approximate rows for visual effects
-      const lineHeight = 24; // approximately
-      setRows(Math.min(Math.ceil(newHeight / lineHeight), 5));
+      window.requestAnimationFrame(() => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+          textarea.style.height = 'auto';
+          textarea.style.height = Math.min(textarea.scrollHeight, 140) + 'px';
+        }
+      });
     }
   }, [message]);
 
@@ -234,7 +230,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
             "text-gray-700 transition-all rounded-lg bg-transparent",
             isDisabled && "text-gray-400"
           )}
-          rows={rows}
+          rows={1}
         />
 
         {/* Send button with animation */}

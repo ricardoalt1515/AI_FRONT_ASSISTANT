@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { motion } from "framer-motion";
 import { Message } from "@/types/chat";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ interface MessageItemProps {
   dropletMood?: 'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical';
 }
 
-export default function MessageItem({
+function MessageItem({
   message,
   isSequential = false,
   isLast = false,
@@ -35,30 +35,31 @@ export default function MessageItem({
     }
   }, []);
 
-  // Format time
-  const formattedTime = (() => {
+  // Format time - memoized to prevent recalculation on every render
+  const formattedTime = useMemo(() => {
     try {
       const date = new Date(message.created_at);
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } catch (e) {
       return "";
     }
-  })();
+  }, [message.created_at]);
 
-  // Copy to clipboard
-  const copyToClipboard = () => {
+  // Copy to clipboard - useCallback to prevent recreation on every render
+  const copyToClipboard = useCallback(() => {
     navigator.clipboard.writeText(message.content);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-  };
+  }, [message.content]);
 
-  // Detect if message contains code
-  const containsCode = message.content.includes("```");
+  // Detect if message contains code - memoized
+  const containsCode = useMemo(() => message.content.includes("```"), [message.content]);
 
-  // Detect if message contains technical parameters
-  const containsParameters = message.content.toLowerCase().includes("bod:") ||
-    message.content.toLowerCase().includes("cod:") ||
-    message.content.toLowerCase().includes("tss:");
+  // Detect if message contains technical parameters - memoized
+  const containsParameters = useMemo(() => {
+    const content = message.content.toLowerCase();
+    return content.includes("bod:") || content.includes("cod:") || content.includes("tss:");
+  }, [message.content]);
 
   return (
     <div
@@ -129,25 +130,30 @@ export default function MessageItem({
                   ),
 
                   // Code blocks with better design
-                  pre: ({ node, ...props }) => (
-                    <pre className="bg-gray-50 border border-gray-100 p-4 rounded-md overflow-x-auto text-xs my-3 text-gray-800 shadow-inner font-mono relative group">
-                      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            navigator.clipboard.writeText(
-                              ((props.children as any)?.props?.children || '').toString()
-                            );
-                          }}
-                          className="h-7 w-7 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                      <div {...props} />
-                    </pre>
+                  pre: ({ node, ...props }) => {
+                    // Memoized click handler for code copying
+                    const handleCopyClick = useCallback((e: React.MouseEvent) => {
+                      e.preventDefault();
+                      navigator.clipboard.writeText(
+                        ((props.children as any)?.props?.children || '').toString()
+                      );
+                    }, [props.children]);
+                    
+                    return (
+                      <pre className="bg-gray-50 border border-gray-100 p-4 rounded-md overflow-x-auto text-xs my-3 text-gray-800 shadow-inner font-mono relative group">
+                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCopyClick}
+                            className="h-7 w-7 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div {...props} />
+                      </pre>
+                    );
                   ),
                   code: ({ node, className, children, ...props }) => {
                     const match = /language-(\w+)/.exec(className || '');
