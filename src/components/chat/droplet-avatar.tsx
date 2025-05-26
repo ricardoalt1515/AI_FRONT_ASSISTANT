@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ interface DropletAvatarProps {
   pulse?: boolean;
 }
 
-export default function DropletAvatar({
+function DropletAvatar({
   mood = 'default',
   size = 'md',
   className,
@@ -33,28 +33,43 @@ export default function DropletAvatar({
     xl: 'h-32 w-32'
   };
 
-  // Randomly trigger ripple effect
+  // Randomly trigger ripple effect - optimizado con intervalos más largos para reducir la carga
   useEffect(() => {
     if (!animate) return;
 
-    const interval = setInterval(() => {
-      // Only activate ripple occasionally
-      if (Math.random() > 0.7) {
-        setRippleActive(true);
-        setTimeout(() => setRippleActive(false), 2000);
-      }
-    }, 3000);
+    // Usar requestAnimationFrame en lugar de setTimeout para mejor rendimiento
+    let animationFrameId: number;
+    let lastTriggerTime = 0;
+    const minInterval = 4000; // Intervalo mínimo entre animaciones (aumentado para reducir la carga)
 
-    // Technical pulse for technical modes
-    const techInterval = setInterval(() => {
-      if (mood === 'technical' || mood === 'processing') {
-        setTechPulse(prev => !prev);
+    const triggerAnimation = (time: number) => {
+      if (time - lastTriggerTime > minInterval) {
+        // Reducir la frecuencia de las animaciones aleatorias
+        if (Math.random() > 0.8) {
+          setRippleActive(true);
+          setWaveAmplitude(Math.random() * 0.3 + 0.6); // Amplitud reducida
+          
+          setTimeout(() => {
+            setRippleActive(false);
+          }, 1500); // Duración reducida
+          
+          lastTriggerTime = time;
+        }
+        
+        // Technical mode random pulse - reducido
+        if (mood === 'technical' && Math.random() > 0.7) {
+          setTechPulse(true);
+          setTimeout(() => setTechPulse(false), 800);
+        }
       }
-    }, 1500);
-
+      
+      animationFrameId = requestAnimationFrame(triggerAnimation);
+    };
+    
+    animationFrameId = requestAnimationFrame(triggerAnimation);
+    
     return () => {
-      clearInterval(interval);
-      clearInterval(techInterval);
+      cancelAnimationFrame(animationFrameId);
     };
   }, [animate, mood]);
 
@@ -183,8 +198,10 @@ export default function DropletAvatar({
               transition={{
                 repeat: Infinity,
                 duration: 4,
-                ease: "linear"
+                ease: "linear",
+                repeatDelay: 0
               }}
+              style={{ willChange: 'stroke-dashoffset' }}
             />
 
             {/* H₂O symbol on forehead */}
@@ -963,3 +980,6 @@ export default function DropletAvatar({
     </div>
   );
 }
+
+// Exportar como componente memoizado para prevenir re-renderizados innecesarios
+export default memo(DropletAvatar);

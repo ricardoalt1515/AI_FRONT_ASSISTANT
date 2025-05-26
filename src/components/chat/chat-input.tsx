@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ interface ChatInputProps {
   isDisabled?: boolean;
 }
 
-export default function ChatInput({ onSendMessage, isTyping, isDisabled = false }: ChatInputProps) {
+function ChatInput({ onSendMessage, isTyping, isDisabled = false }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -33,7 +33,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
     }
   }, [message]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
 
     if ((!message.trim() && !file) || isTyping || isDisabled) return;
@@ -46,16 +46,16 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-  };
+  }, [message, file, isTyping, isDisabled, onSendMessage, textareaRef]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e as any);
     }
-  };
+  }, [handleSubmit]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       // Validate file size (max 5MB)
@@ -73,19 +73,19 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
         }
       }, 100);
     }
-  };
+  }, [textareaRef]);
 
-  // Format file size
-  function formatFileSize(bytes: number): string {
+  // Format file size - memoizado
+  const formatFileSize = useCallback((bytes: number): string => {
     if (bytes < 1024) return bytes + ' B';
     const kb = bytes / 1024;
     if (kb < 1024) return kb.toFixed(1) + ' KB';
     const mb = kb / 1024;
     return mb.toFixed(1) + ' MB';
-  }
+  }, []);
 
-  // Get file icon based on type
-  function getFileIcon(fileName: string) {
+  // Get file icon based on type - memoizado
+  const getFileIcon = useCallback((fileName: string) => {
     const extension = fileName.split('.').pop()?.toLowerCase() || '';
 
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
@@ -95,7 +95,7 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
     } else {
       return <LucideFileIcon className="h-4 w-4" />;
     }
-  }
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="relative">
@@ -155,7 +155,8 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2 }}
+              style={{ willChange: "opacity" }}
             >
               {/* Water background with technical pattern */}
               <motion.div
@@ -167,8 +168,10 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
                 transition={{
                   repeat: Infinity,
                   duration: 6,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
+                  repeatDelay: 0
                 }}
+                style={{ willChange: "transform" }}
               />
 
               {/* Technical pattern */}
@@ -283,3 +286,6 @@ export default function ChatInput({ onSendMessage, isTyping, isDisabled = false 
     </form>
   );
 }
+
+// Exportar como componente memoizado para prevenir re-renderizados innecesarios
+export default memo(ChatInput);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Message } from "@/types/chat";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ interface MessageItemProps {
   dropletMood?: 'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical';
 }
 
-export default function MessageItem({
+function MessageItem({
   message,
   isSequential = false,
   isLast = false,
@@ -45,12 +45,12 @@ export default function MessageItem({
     }
   })();
 
-  // Copy to clipboard
-  const copyToClipboard = () => {
+  // Copy to clipboard - memoizado para evitar recreación en cada render
+  const copyToClipboard = useCallback(() => {
     navigator.clipboard.writeText(message.content);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-  };
+  }, [message.content]);
 
   // Detect if message contains code
   const containsCode = message.content.includes("```");
@@ -74,7 +74,8 @@ export default function MessageItem({
           className="flex-shrink-0 relative"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2, type: "spring", stiffness: 500 }}
+          style={{ willChange: "transform, opacity" }}
         >
           <DropletAvatar mood={dropletMood} />
         </motion.div>
@@ -95,7 +96,8 @@ export default function MessageItem({
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
+          style={{ willChange: "transform, opacity" }}
           className={cn(
             "px-5 py-3 transition-all duration-300 relative",
             isUser
@@ -111,6 +113,7 @@ export default function MessageItem({
             <div className="text-sm markdown-content relative z-10">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
+                skipHtml
                 components={{
                   // Tables with professional design
                   table: ({ node, ...props }) => (
@@ -436,3 +439,6 @@ export default function MessageItem({
     </div>
   );
 }
+
+// Exportar como componente memoizado para prevenir re-renderizados innecesarios
+export default memo(MessageItem);

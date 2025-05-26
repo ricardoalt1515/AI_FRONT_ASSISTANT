@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Message } from "@/types/chat";
@@ -11,6 +11,10 @@ import ChatInput from "./chat-input";
 import TypingIndicator from "./typing-indicator";
 import LoadingScreen from "./loading-screen";
 import { ArrowDown, RefreshCw } from "lucide-react";
+
+// Componentes optimizados mediante memoización
+const MemoMessageItem = memo(MessageItem);
+const MemoTypingIndicator = memo(TypingIndicator);
 
 export default function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -186,80 +190,18 @@ export default function ChatContainer() {
     }
   }, [isTyping, messages]);
 
-  const scrollToBottom = (behavior: "smooth" | "auto" = "smooth") => {
+  // Memoizado para evitar recrear la función en cada render
+  const scrollToBottom = useCallback((behavior: "smooth" | "auto" = "smooth") => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
         behavior,
         block: "end"
       });
     }
-  };
+  }, []);
 
-  // Función para manejar el clic en el botón de nueva conversación
-  const handleNewConversationClick = () => {
-    // Solo mostrar confirmación si hay mensajes en la conversación actual
-    if (messages.length > 1) { // Más de 1 porque el primer mensaje es el de bienvenida
-      setShowConfirmNewChat(true);
-    } else {
-      // Si no hay mensajes, iniciar nueva conversación directamente
-      resetConversation();
-    }
-  };
-
-  // Función para confirmar la creación de una nueva conversación
-  const confirmNewConversation = () => {
-    setShowConfirmNewChat(false);
-    resetConversation();
-  };
-
-  // Función para cancelar la creación de una nueva conversación
-  const cancelNewConversation = () => {
-    setShowConfirmNewChat(false);
-  };
-
-  const resetConversation = (newId?: string) => {
-    /* Eliminar conversación de localStorage */
-    localStorage.removeItem('currentConversationId');
-
-    setMessages([]);
-    setIsTyping(false);
-    setDropletMood('default');
-    setMessageCount({ user: 0, assistant: 0 });
-
-    if (newId) {
-      console.log("🔄 Reiniciando con nueva conversación ID:", newId);
-      setConversationId(newId);
-
-      /* Guardar nueva ID en localStorage */
-      localStorage.setItem('currentConversationId', newId);
-
-      setIsInitializing(false);
-
-      // Guardar timestamp de inicio de nueva conversación
-      const startTime = new Date();
-      setConversationStartTime(startTime);
-
-      // Mostrar indicador de nueva conversación
-      setShowNewChatIndicator(true);
-      setTimeout(() => setShowNewChatIndicator(false), 5000); // Ocultar después de 5 segundos
-
-      const welcomeMessage: Message = {
-        id: `welcome-${Date.now()}`,
-        role: "assistant" as const,
-        content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte con tu proyecto hoy?",
-        created_at: startTime.toISOString(),
-      };
-      setMessages([welcomeMessage]);
-      // Incrementar contador de mensajes del asistente
-      setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
-    } else {
-      setConversationId(null);
-      setIsInitializing(true);
-      startConversation();
-    }
-  };
-
-  const startConversation = async () => {
+  // Declaramos primero startConversation para evitar la referencia circular
+  const startConversation = useCallback(async () => {
     try {
       console.log("🚀 Iniciando nueva conversación...");
       setIsInitializing(true);
@@ -372,9 +314,76 @@ export default function ChatContainer() {
       alert("Error de conexión: No se pudo establecer una conexión con el servidor.");
       setIsInitializing(false);
     }
-  };
+  }, []);
 
-  const sendMessage = async (messageText: string, file?: File) => {
+  // Definimos resetConversation después de startConversation
+  const resetConversation = useCallback((newId?: string) => {
+    /* Eliminar conversación de localStorage */
+    localStorage.removeItem('currentConversationId');
+
+    setMessages([]);
+    setIsTyping(false);
+    setDropletMood('default');
+    setMessageCount({ user: 0, assistant: 0 });
+
+    if (newId) {
+      console.log("🔄 Reiniciando con nueva conversación ID:", newId);
+      setConversationId(newId);
+
+      /* Guardar nueva ID en localStorage */
+      localStorage.setItem('currentConversationId', newId);
+
+      setIsInitializing(false);
+
+      // Guardar timestamp de inicio de nueva conversación
+      const startTime = new Date();
+      setConversationStartTime(startTime);
+
+      // Mostrar indicador de nueva conversación
+      setShowNewChatIndicator(true);
+      setTimeout(() => setShowNewChatIndicator(false), 5000); // Ocultar después de 5 segundos
+
+      const welcomeMessage: Message = {
+        id: `welcome-${Date.now()}`,
+        role: "assistant" as const,
+        content: "Hola, soy H₂O Allegiant AI, tu ingeniero especializado en soluciones de tratamiento de agua. ¿En qué puedo ayudarte con tu proyecto hoy?",
+        created_at: startTime.toISOString(),
+      };
+      setMessages([welcomeMessage]);
+      // Incrementar contador de mensajes del asistente
+      setMessageCount(prev => ({ ...prev, assistant: prev.assistant + 1 }));
+    } else {
+      setConversationId(null);
+      setIsInitializing(true);
+      startConversation();
+    }
+  }, [startConversation]);
+  
+  // Función para manejar el clic en el botón de nueva conversación - memoizada
+  const handleNewConversationClick = useCallback(() => {
+    // Solo mostrar confirmación si hay mensajes en la conversación actual
+    if (messages.length > 1) { // Más de 1 porque el primer mensaje es el de bienvenida
+      setShowConfirmNewChat(true);
+    } else {
+      // Si no hay mensajes, iniciar nueva conversación directamente
+      resetConversation();
+    }
+  }, [messages, resetConversation]);
+
+  // Función para confirmar la creación de una nueva conversación - memoizada
+  const confirmNewConversation = useCallback(() => {
+    setShowConfirmNewChat(false);
+    resetConversation();
+  }, [resetConversation]);
+
+  // Función para cancelar la creación de una nueva conversación - memoizada
+  const cancelNewConversation = useCallback(() => {
+    setShowConfirmNewChat(false);
+  }, []);
+
+  // Quitamos esta declaración porque ya la hemos movido arriba
+
+  const sendMessage = useCallback(async (messageText: string, file?: File) => {
     // Verificar que hay un ID de conversación válido
     if (!conversationId) {
       console.error("❌ Error: Intentando enviar mensaje sin ID de conversación");
@@ -515,7 +524,7 @@ export default function ChatContainer() {
       };
       setMessages((prev) => [...prev, errorMessage]);
     }
-  };
+  }, [conversationId, isTyping, messageCount]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-5xl mx-auto relative">
@@ -526,6 +535,7 @@ export default function ChatContainer() {
         <motion.div
           className="absolute top-1/3 left-1/4 w-[45rem] h-[45rem] rounded-full bg-blue-200/10
                    filter blur-3xl opacity-40"
+          style={{ willChange: "transform" }}
           animate={{
             x: [0, 20, 0],
             y: [0, -20, 0],
@@ -540,6 +550,7 @@ export default function ChatContainer() {
         <motion.div
           className="absolute bottom-1/4 right-1/3 w-[40rem] h-[40rem] rounded-full bg-blue-300/10
                    filter blur-3xl opacity-30"
+          style={{ willChange: "transform" }}
           animate={{
             x: [0, -30, 0],
             y: [0, 20, 0],
@@ -600,7 +611,7 @@ export default function ChatContainer() {
             ) : (
               <AnimatePresence mode="popLayout">
                 <div className="space-y-6 pb-2">
-                  {messages.map((message, index) => (
+                  {messages.map((message, i) => (
                     <motion.div
                       key={message.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -611,12 +622,10 @@ export default function ChatContainer() {
                         ease: [0.4, 0.0, 0.2, 1]
                       }}
                     >
-                      <MessageItem
+                      <MemoMessageItem
                         message={message}
-                        isSequential={
-                          index > 0 && messages[index - 1].role === message.role
-                        }
-                        isLast={index === messages.length - 1}
+                        isSequential={i > 0 && messages[i - 1].role === message.role}
+                        isLast={i === messages.length - 1}
                         dropletMood={message.role === 'assistant' ? dropletMood : undefined}
                       />
                     </motion.div>
@@ -629,7 +638,7 @@ export default function ChatContainer() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, height: 0 }}
                     >
-                      <TypingIndicator mood={dropletMood} />
+                      <MemoTypingIndicator mood={dropletMood} />
                     </motion.div>
                   )}
 
