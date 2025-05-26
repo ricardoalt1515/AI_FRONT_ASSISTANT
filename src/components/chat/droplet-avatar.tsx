@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ interface DropletAvatarProps {
   pulse?: boolean;
 }
 
-function DropletAvatar({
+export default function DropletAvatar({
   mood = 'default',
   size = 'md',
   className,
@@ -25,78 +25,58 @@ function DropletAvatar({
   const [waveAmplitude, setWaveAmplitude] = useState(0);
   const [techPulse, setTechPulse] = useState(false);
 
-  // Size classes for different options - memoized to prevent recreating on every render
-  const sizeClasses = useMemo(() => ({
+  // Size classes for different options
+  const sizeClasses = {
     sm: 'h-9 w-9',
     md: 'h-12 w-12',
     lg: 'h-20 w-20',
     xl: 'h-32 w-32'
-  }), []);
+  };
 
-  // Randomly trigger ripple effect - optimized with reduced frequency
+  // Randomly trigger ripple effect
   useEffect(() => {
     if (!animate) return;
-    
-    let rippleTimerId: NodeJS.Timeout | null = null;
-    let intervalId: NodeJS.Timeout | null = null;
 
-    // Reduce the frequency of random ripples for better performance
-    intervalId = setInterval(() => {
-      // Only activate ripple occasionally and only if not already active
-      if (Math.random() > 0.8 && !rippleActive) {
+    const interval = setInterval(() => {
+      // Only activate ripple occasionally
+      if (Math.random() > 0.7) {
         setRippleActive(true);
-        rippleTimerId = setTimeout(() => setRippleActive(false), 2000);
+        setTimeout(() => setRippleActive(false), 2000);
       }
-    }, 4000); // Reduced frequency from 3000ms to 4000ms
+    }, 3000);
 
-    // Technical pulse with reduced frequency for technical modes
-    let techIntervalId: NodeJS.Timeout | null = null;
-    if (mood === 'technical' || mood === 'processing') {
-      techIntervalId = setInterval(() => {
+    // Technical pulse for technical modes
+    const techInterval = setInterval(() => {
+      if (mood === 'technical' || mood === 'processing') {
         setTechPulse(prev => !prev);
-      }, 2000); // Reduced frequency from 1500ms to 2000ms
-    }
+      }
+    }, 1500);
 
     return () => {
-      if (intervalId) clearInterval(intervalId);
-      if (rippleTimerId) clearTimeout(rippleTimerId);
-      if (techIntervalId) clearInterval(techIntervalId);
+      clearInterval(interval);
+      clearInterval(techInterval);
     };
-  }, [animate, mood, rippleActive]);
+  }, [animate, mood]);
 
-  // Control wave amplitude when speaking - optimized with RAF and reduced frequency
+  // Control wave amplitude when speaking
   useEffect(() => {
     if (mood === 'explaining') {
-      // Create a rippling effect based on "speech intensity" with reduced updates
+      // Create a rippling effect based on "speech intensity"
       const intensity = Math.random() * 0.5 + 0.5;
       const baseAmplitude = 2 + (intensity * 5);
-      
-      let frameId: number | null = null;
-      let lastTime = 0;
-      const intervalMs = 250; // Increased interval from 150ms to 250ms for better performance
 
-      // Use requestAnimationFrame for smoother animations and better performance
-      const updateWave = (timestamp: number) => {
-        if (!lastTime || timestamp - lastTime >= intervalMs) {
-          setWaveAmplitude(baseAmplitude * (0.7 + Math.random() * 0.6));
-          lastTime = timestamp;
-        }
-        
-        frameId = requestAnimationFrame(updateWave);
-      };
-      
-      frameId = requestAnimationFrame(updateWave);
-      
-      return () => {
-        if (frameId) cancelAnimationFrame(frameId);
-      };
+      const interval = setInterval(() => {
+        setWaveAmplitude(baseAmplitude * (0.7 + Math.random() * 0.6));
+      }, 150);
+
+      return () => clearInterval(interval);
     } else {
       setWaveAmplitude(0);
     }
   }, [mood]);
 
-  // Get facial expression based on mood - memoized to prevent unnecessary recalculations
-  const getFacialExpression = useMemo(() => {
+  // Get facial expression based on mood
+  const getFacialExpression = () => {
     // ViewBox coordinates
     const vb = { width: 24, height: 24 };
 
@@ -815,6 +795,10 @@ function DropletAvatar({
 
   return (
     <div className={cn(
+      "relative group",
+      sizeClasses[size],
+      className
+    )}>
       {/* External technical glow */}
       <motion.div
         className={cn(
