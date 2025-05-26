@@ -349,7 +349,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-1">
-                  <Label htmlFor="sector">Industry Sector</Label>
+                  <Label htmlFor="sector">Sector</Label>
                   <InfoTooltip content="The industry sector allows us to offer specific solutions for your area" />
                 </div>
                 <Select onValueChange={handleSectorChange} value={selectedSector}>
