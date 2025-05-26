@@ -17,12 +17,12 @@ interface MessageItemProps {
   dropletMood?: 'default' | 'thinking' | 'happy' | 'explaining' | 'processing' | 'technical';
 }
 
-export const MessageItem = ({
+export default function MessageItem({
   message,
   isSequential = false,
   isLast = false,
   dropletMood = 'default'
-}: MessageItemProps) => {
+}: MessageItemProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const isUser = message.role === "user";

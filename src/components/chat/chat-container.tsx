@@ -2,12 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FixedSizeList as List, ListOnScrollProps } from 'react-window';
 import { cn } from "@/lib/utils";
 import { Message } from "@/types/chat";
 import { apiService } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
-import { MessageItem } from "./message-item";
+import MessageItem from "./message-item";
 import ChatInput from "./chat-input";
 import TypingIndicator from "./typing-indicator";
 import LoadingScreen from "./loading-screen";
@@ -600,21 +599,42 @@ export default function ChatContainer() {
               </div>
             ) : (
               <AnimatePresence mode="popLayout">
-                {messages.map((msg, idx) => (
-                  <MessageItem
-                    key={msg.id}
-                    message={msg}
-                    isSequential={
-                      idx > 0 && messages[idx - 1].role === msg.role
-                    }
-                    isLast={idx === messages.length - 1}
-                    dropletMood={dropletMood}
-                  />
-                ))}
-                {isTyping && (
-                  <TypingIndicator mood={dropletMood} />
-                )}
-                <div ref={messagesEndRef} />
+                <div className="space-y-6 pb-2">
+                  {messages.map((message, index) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{
+                        duration: 0.4,
+                        ease: [0.4, 0.0, 0.2, 1]
+                      }}
+                    >
+                      <MessageItem
+                        message={message}
+                        isSequential={
+                          index > 0 && messages[index - 1].role === message.role
+                        }
+                        isLast={index === messages.length - 1}
+                        dropletMood={message.role === 'assistant' ? dropletMood : undefined}
+                      />
+                    </motion.div>
+                  ))}
+
+                  {/* Typing indicator */}
+                  {isTyping && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                    >
+                      <TypingIndicator mood={dropletMood} />
+                    </motion.div>
+                  )}
+
+                  <div ref={messagesEndRef} />
+                </div>
               </AnimatePresence>
             )}
           </div>
