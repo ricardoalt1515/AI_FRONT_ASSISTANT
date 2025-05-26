@@ -592,50 +592,30 @@ export default function ChatContainer() {
           {/* Glass background for messages area */}
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
 
-          {/* Messages content virtualized */}
-          <div className="relative z-10 h-full" style={{padding: 0}}>
+          {/* Messages content */}
+          <div className="relative z-10 px-4 sm:px-6 py-6 space-y-6">
             {isInitializing ? (
               <div className="h-full flex items-center justify-center">
                 <LoadingScreen />
               </div>
             ) : (
-              <>
-                <List
-                  height={containerRef.current ? containerRef.current.clientHeight : 500}
-                  itemCount={messages.length + (isTyping ? 1 : 0)}
-                  itemSize={104} // Ajusta según altura real de mensaje
-                  width={"100%"}
-                  style={{overflowX: 'hidden'}}
-                >
-                  {({ index, style }) => {
-                    // Última posición: TypingIndicator
-                    if (isTyping && index === messages.length) {
-                      return (
-                        <div style={style} key="typing-indicator">
-                          <TypingIndicator mood={dropletMood} />
-                        </div>
-                      );
+              <AnimatePresence mode="popLayout">
+                {messages.map((msg, idx) => (
+                  <MessageItem
+                    key={msg.id}
+                    message={msg}
+                    isSequential={
+                      idx > 0 && messages[idx - 1].role === msg.role
                     }
-                    // Mensaje normal
-                    const msg = messages[index];
-                    return (
-                      <div style={{ ...style, paddingLeft: 16, paddingRight: 16, paddingTop: 12, paddingBottom: 12 }} key={msg.id}>
-                        <MessageItem
-                          message={msg}
-                          isSequential={
-                            index > 0 && messages[index - 1].role === msg.role
-                          }
-                          isLast={index === messages.length - 1}
-                          dropletMood={dropletMood}
-                        />
-                        {index === messages.length - 1 && !isTyping && (
-                          <div ref={messagesEndRef} />
-                        )}
-                      </div>
-                    );
-                  }}
-                </List>
-              </>
+                    isLast={idx === messages.length - 1}
+                    dropletMood={dropletMood}
+                  />
+                ))}
+                {isTyping && (
+                  <TypingIndicator mood={dropletMood} />
+                )}
+                <div ref={messagesEndRef} />
+              </AnimatePresence>
             )}
           </div>
         </div>
