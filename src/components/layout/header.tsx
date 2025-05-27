@@ -101,11 +101,11 @@ export default function Header() {
       className={cn(
         "sticky top-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-blue-100/50 shadow-sm py-2"
-          : "bg-transparent border-b border-blue-100/10 py-4"
+          ? "bg-white/60 backdrop-blur-2xl border-b-2 border-cyan-300/40 shadow-xl py-2"
+          : "bg-white/40 backdrop-blur-xl border-b border-cyan-200/30 shadow-md py-4"
       )}
     >
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-300/30 to-transparent"></div>
+      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent blur-sm"></div>
 
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo and title */}
@@ -119,7 +119,7 @@ export default function Header() {
             <div className="relative">
               <div
                 className={cn(
-                  "absolute inset-0 rounded-full bg-blue-400/20 filter blur-md scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+                  "absolute inset-0 rounded-full bg-cyan-400/30 filter blur-lg scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
                   scrolled ? "scale-125" : "scale-150"
                 )}
               ></div>
@@ -127,10 +127,10 @@ export default function Header() {
               <DropletAvatar
                 size={scrolled ? "sm" : "md"}
                 mood="default"
-                pulse={false}
+                pulse={true}
                 className={cn(
-                  "transition-all duration-300 relative z-10",
-                  scrolled ? "h-8 w-8" : "h-10 w-10"
+                  "transition-all duration-300 relative z-10 animate-pulse group-hover:animate-bounce",
+                  scrolled ? "h-9 w-9" : "h-12 w-12"
                 )}
               />
             </div>
@@ -138,12 +138,12 @@ export default function Header() {
             <div>
               <h1
                 className={cn(
-                  "font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-blue-500 transition-all duration-300",
+                  "font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-700 to-blue-500 transition-all duration-300 drop-shadow-md",
                   scrolled ? "text-xl" : "text-2xl"
                 )}
               >
                 H₂O Allegiant
-                <span className="ml-1 font-light text-blue-600 bg-blue-50/80 px-1.5 py-0.5 rounded-sm text-sm">AI</span>
+                <span className="ml-1 font-light text-cyan-700 bg-cyan-100/80 px-2 py-0.5 rounded-full text-sm shadow-sm">AI</span>
               </h1>
             </div>
           </Link>
@@ -153,8 +153,8 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-4">
           <div className="flex space-x-1">
             <Link href="/" className={cn(
-              "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
-              pathname === "/" && "bg-blue-50"
+              "px-4 py-2 rounded-full text-sm font-semibold text-cyan-800 hover:bg-cyan-100/60 transition-colors shadow-sm",
+              pathname === "/" && "bg-cyan-100/80"
             )}>
               Home
             </Link>
@@ -162,8 +162,8 @@ export default function Header() {
             {/* Show AI Assistant only if authenticated */}
             {isAuthenticated && (
               <Link href="/chat" className={cn(
-                "px-3 py-2 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors",
-                pathname === "/chat" && "bg-blue-50"
+                "px-4 py-2 rounded-full text-sm font-semibold text-cyan-800 hover:bg-cyan-100/60 transition-colors shadow-sm",
+                pathname === "/chat" && "bg-cyan-100/80"
               )}>
                 AI Assistant
               </Link>
@@ -177,9 +177,7 @@ export default function Header() {
                 {/* New Conversation Button */}
                 <Button
                   onClick={handleNewConsultation}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 
-                    hover:from-blue-600 hover:to-blue-700 text-white
-                    shadow-sm hover:shadow-md transition-all"
+                  className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all px-5 py-2"
                   size="sm"
                 >
                   <Plus className="h-4 w-4 mr-1" />
@@ -189,15 +187,15 @@ export default function Header() {
                 {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8 border-2 border-blue-100">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white">
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 bg-white/60 shadow-md border-2 border-cyan-200 hover:border-cyan-400">
+                      <Avatar className="h-10 w-10 border-2 border-cyan-200">
+                        <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-blue-600 text-white">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-60 bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-cyan-100/60 p-2" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
