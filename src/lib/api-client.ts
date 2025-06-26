@@ -235,6 +235,8 @@ export const apiService = {
       const response = await apiClient.post('/chat/message', {
         conversation_id: conversationId,
         message: message
+      }, {
+        timeout: 120000 // 120 segundos para generación de propuestas
       });
 
       console.log('Respuesta del mensaje:', response.data);

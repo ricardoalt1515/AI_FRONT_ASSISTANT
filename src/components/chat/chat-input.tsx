@@ -103,33 +103,46 @@ function ChatInput({ onSendMessage, isTyping, isDisabled = false }: ChatInputPro
       <AnimatePresence>
         {file && (
           <motion.div
-            initial={{ opacity: 0, y: 10, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: 5, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-3 p-2.5 rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-white flex items-center justify-between shadow-sm overflow-hidden"
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.35, type: "spring" }}
+            className="mb-3 px-4 py-3 rounded-2xl border-2 border-cyan-200/60 bg-white/70 backdrop-blur-xl flex items-center gap-4 shadow-xl overflow-hidden relative"
           >
-            <div className="flex items-center gap-2.5">
+            {/* Vista previa de imagen */}
+            {file.type.startsWith("image/") ? (
+              <div className="h-14 w-14 rounded-xl overflow-hidden border-2 border-cyan-100 shadow-md flex items-center justify-center bg-cyan-50 animate-in fade-in zoom-in">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  className="object-cover h-full w-full"
+                  onLoad={e => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
+                />
+              </div>
+            ) : (
               <motion.div
-                className="h-9 w-9 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center shadow-sm"
-                whileHover={{ scale: 1.05 }}
+                className="h-12 w-12 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-xl flex items-center justify-center shadow-md"
+                whileHover={{ scale: 1.08 }}
               >
                 {getFileIcon(file.name)}
               </motion.div>
-              <div>
-                <span className="text-sm font-medium text-gray-700 truncate max-w-[200px] inline-block">{file.name}</span>
-                <span className="text-xs text-gray-500 ml-2">{formatFileSize(file.size)}</span>
-              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <span className="block text-base font-semibold text-cyan-900 truncate max-w-[180px]">
+                {file.name}
+              </span>
+              <span className="block text-xs text-cyan-600 mt-0.5">{formatFileSize(file.size)}</span>
+              <span className="block text-xs text-cyan-400 mt-0.5 capitalize">{file.type.split("/")[1] || "archivo"}</span>
             </div>
             <Button
               type="button"
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => setFile(null)}
-              className="h-7 w-7 rounded-full p-0 text-gray-500 hover:text-gray-700 transition-colors"
+              className="h-8 w-8 rounded-full p-0 text-cyan-400 hover:text-cyan-700 hover:bg-cyan-50 transition-colors"
             >
-              <span className="sr-only">Delete file</span>
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+              <span className="sr-only">Eliminar archivo</span>
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </Button>

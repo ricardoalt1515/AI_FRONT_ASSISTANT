@@ -30,8 +30,8 @@ async function proxyRequest(request: NextRequest, params: { path: string[] }, me
     const options: RequestInit = { 
       method, 
       headers,
-      // Establecer un timeout razonable
-      signal: AbortSignal.timeout(30000),
+      // Timeout extendido para generación de propuestas (120 segundos)
+      signal: AbortSignal.timeout(120000),
     };
     
     // Añadir body para métodos que lo requieren
