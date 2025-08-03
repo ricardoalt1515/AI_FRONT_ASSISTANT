@@ -1,11 +1,11 @@
 // src/lib/api-client.ts
 import axios from 'axios';
 
-// Configuración de la URL del backend - Usamos la URL completa de la API
+// Configuración de la URL del backend - Usamos variables de entorno
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : 'https://api.h2oassistant.com/api';  // URL completa de la API
+  : process.env.NEXT_PUBLIC_BACKEND_URL || 'http://hydrous-alb-new-915444011.us-east-1.elb.amazonaws.com/api';  // URL desde variable de entorno
 
 console.log('API Base URL:', apiBaseUrl);
 
