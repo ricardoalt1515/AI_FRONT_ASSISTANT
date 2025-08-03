@@ -15,7 +15,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000, // 60 segundos
+  timeout: 120000, // 2 minutos - timeout balanceado para propuestas
 });
 
 // Interceptor para añadir token de autenticación
@@ -236,7 +236,7 @@ export const apiService = {
         conversation_id: conversationId,
         message: message
       }, {
-        timeout: 120000 // 120 segundos para generación de propuestas
+        timeout: 180000 // 3 minutos para generación de propuestas
       });
 
       console.log('Respuesta del mensaje:', response.data);
