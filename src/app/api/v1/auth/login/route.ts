@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // URL base del backend
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://hydrous-alb-new-915444011.us-east-1.elb.amazonaws.com';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.h2oassistant.com';
 
 export async function POST(request: Request) {
   try {

@@ -5,7 +5,7 @@ import axios from 'axios';
 const isProduction = process.env.NODE_ENV === 'production';
 const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
   ? 'http://localhost:8000/api'  // Para desarrollo local
-  : process.env.NEXT_PUBLIC_BACKEND_URL || 'http://hydrous-alb-new-915444011.us-east-1.elb.amazonaws.com/api';  // URL desde variable de entorno
+  : process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.h2oassistant.com/api';  // URL HTTPS desde variable de entorno
 
 console.log('API Base URL:', apiBaseUrl);
 
