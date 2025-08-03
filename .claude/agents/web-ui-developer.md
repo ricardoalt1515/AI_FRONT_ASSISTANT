@@ -159,7 +159,6 @@ interface [ComponentName]Props {
 [Space for user feedback and design iterations]
 
 ```
-
 ## Iterative Feedback Loop
 
 After presenting initial design:
