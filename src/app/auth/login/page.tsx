@@ -157,7 +157,8 @@ export default function LoginPage() {
           </form>
         </CardContent>
 
-        <CardFooter className="flex justify-center border-t border-blue-50 pt-4">
+        {/* Registration disabled - users created by admin only */}
+        {/* <CardFooter className="flex justify-center border-t border-blue-50 pt-4">
           <p className="text-sm">
             Don't have an account?{" "}
             <Link
@@ -167,7 +168,7 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </div>
   )

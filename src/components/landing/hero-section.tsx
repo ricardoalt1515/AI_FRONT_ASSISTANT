@@ -114,7 +114,8 @@ export default function HeroSection() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
-                  <Button
+                  {/* Registration disabled - users created by admin only */}
+                  {/* <Button
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
                     asChild
@@ -122,7 +123,7 @@ export default function HeroSection() {
                     <Link href="/auth/register">
                       Iniciar Ahora
                     </Link>
-                  </Button>
+                  </Button> */}
 
                   <Button
                     variant="outline"
@@ -131,7 +132,7 @@ export default function HeroSection() {
                     asChild
                   >
                     <Link href="/auth/login">
-                      Ya tengo cuenta
+                      Iniciar Sesión
                     </Link>
                   </Button>
                 </div>
