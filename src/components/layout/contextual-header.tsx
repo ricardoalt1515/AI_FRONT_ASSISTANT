@@ -128,112 +128,49 @@ export function ContextualHeader({ projectId, className }: ContextualHeaderProps
             </div>
           </div>
 
-          {/* Status & Metrics */}
-          <div className="flex items-center space-x-4 flex-shrink-0">
-            {/* Status Badge */}
-            <div className="flex items-center space-x-2">
-              <Badge className={cn("px-3 py-1", statusInfo.color)}>
-                <StatusIcon className="h-3 w-3 mr-1" />
-                {statusInfo.label}
-              </Badge>
-              
-              {/* Priority Indicator - Desktop only */}
-              {deviceType !== 'mobile' && (
-                <span className={cn("text-sm font-medium", priorityInfo.color)}>
-                  {priorityInfo.emoji} {project.priority.toUpperCase()}
-                </span>
-              )}
-            </div>
+          {/* Core 3 KPIs Only */}
+          <div className="flex items-center space-x-6 flex-shrink-0">
+            {/* KPI 1: Status Badge */}
+            <Badge className={cn("px-3 py-1.5", statusInfo.color)}>
+              <StatusIcon className="h-3 w-3 mr-1.5" />
+              {statusInfo.label}
+            </Badge>
 
-            {/* Progress - Tablet+ */}
+            {/* KPI 2: Progress - Tablet+ */}
             {deviceType !== 'mobile' && (
-              <>
-                <Separator orientation="vertical" className="h-8" />
-                <div className="flex items-center space-x-2">
-                  <div className="text-right">
-                    <div className="text-sm font-semibold">
-                      {totalProgress}% Completo
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Progreso General
-                    </div>
+              <div className="flex items-center space-x-3">
+                <div className="text-right min-w-0">
+                  <div className="text-lg font-bold text-foreground">
+                    {totalProgress}%
                   </div>
-                  <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary transition-all duration-300"
-                      style={{ width: `${totalProgress}%` }}
-                    />
-                  </div>
+                  <div className="text-xs text-muted-foreground">Progreso</div>
                 </div>
-              </>
+                <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-300"
+                    style={{ width: `${totalProgress}%` }}
+                  />
+                </div>
+              </div>
             )}
 
-            {/* Financial Info - Desktop+ */}
+            {/* KPI 3: Financial Impact - Desktop+ */}
             {(deviceType === 'desktop' || deviceType === 'large') && (
-              <>
-                <Separator orientation="vertical" className="h-8" />
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="text-sm font-semibold">
-                        {formatCapex(project.financial.capexOriginal)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">CAPEX</div>
-                    </div>
+              <div className="flex items-center space-x-3">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                <div className="min-w-0">
+                  <div className="text-lg font-bold text-foreground">
+                    {formatCapex(project.financial.capexOriginal)}
                   </div>
-                  
-                  {project.financial.savings && (
-                    <div className="flex items-center space-x-2">
-                      <div>
-                        <div className="text-sm font-semibold text-success">
-                          -{formatCapex(project.financial.savings)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Ahorrado</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* Team Info - Large screens */}
-            {deviceType === 'large' && project.team.length > 0 && (
-              <>
-                <Separator orientation="vertical" className="h-8" />
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex -space-x-2">
-                    {project.team.slice(0, 3).map((member, idx) => (
-                      <div
-                        key={idx}
-                        className="h-8 w-8 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center"
-                        title={member.name}
-                      >
-                        <span className="text-xs font-medium text-primary">
-                          {member.name.split(' ').map(n => n[0]).join('')}
-                        </span>
-                      </div>
-                    ))}
-                    {project.team.length > 3 && (
-                      <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                        <span className="text-xs text-muted-foreground">
-                          +{project.team.length - 3}
-                        </span>
-                      </div>
-                    )}
+                  <div className="text-xs text-muted-foreground">
+                    {project.financial.savings ? 
+                      `Ahorrado ${formatCapex(project.financial.savings)}` : 
+                      'CAPEX Total'
+                    }
                   </div>
                 </div>
-              </>
+              </div>
             )}
-
-            {/* Last Activity */}
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {project.lastActivity}
-              </span>
-            </div>
 
             {/* Actions */}
             <div className="flex items-center space-x-2">

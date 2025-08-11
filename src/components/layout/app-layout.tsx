@@ -5,7 +5,7 @@ import { AppHeader } from "./app-header";
 import { AppSidebar } from "./app-sidebar";
 import { ContextualHeader } from "./contextual-header";
 import { ContextualFAB } from "./contextual-fab";
-import { SmartBreadcrumb } from "@/components/ui/breadcrumb";
+import { SmartBreadcrumb } from "@/components/ui/smart-breadcrumb";
 import { cn } from "@/lib/utils";
 import { useSidebarState } from "@/hooks/use-mobile";
 

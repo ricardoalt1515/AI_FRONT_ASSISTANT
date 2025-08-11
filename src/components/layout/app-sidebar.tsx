@@ -112,14 +112,19 @@ export function AppSidebar({ type = "dashboard", projectId, className }: AppSide
       variant="inset" 
       className={cn(
         "layout-sidebar transition-all duration-300 ease-out",
+        // Dashboard-specific styling
+        "sidebar-dashboard bg-gradient-to-b from-background via-background/95 to-background/90",
+        "border-r border-border/60 shadow-sm",
         adaptiveState === 'mobile-overlay' && "z-50",
         className
       )}
       data-adaptive-state={adaptiveState}
       data-device={deviceType}
+      data-sidebar-type="dashboard"
     >
       <SidebarHeader className={cn(
-        isMinimized ? "section-padding-xs" : "section-padding-sm"
+        isMinimized ? "section-padding-xs" : "section-padding-sm",
+        "bg-gradient-to-r from-primary/5 to-accent/5 border-b border-border/40"
       )}>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -128,20 +133,20 @@ export function AppSidebar({ type = "dashboard", projectId, className }: AppSide
               asChild
               className={cn(
                 isMinimized && "justify-center px-2",
-                "transition-all duration-200"
+                "transition-all duration-200 hover:bg-primary/10"
               )}
             >
               <Link href="/dashboard">
                 <div className={cn(
-                  "flex aspect-square items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all duration-200",
-                  isMinimized ? "size-6" : "size-8"
+                  "flex aspect-square items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg transition-all duration-200",
+                  isMinimized ? "size-6" : "size-10"
                 )}>
-                  <Droplets className={cn(isMinimized ? "size-3" : "size-4")} />
+                  <Droplets className={cn(isMinimized ? "size-3" : "size-5")} />
                 </div>
                 {!isMinimized && (
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="font-semibold whitespace-normal break-words sm:truncate" title="H₂O Allegiant">H₂O Allegiant</span>
-                    <span className="text-xs whitespace-normal break-words sm:truncate" title="Dashboard">Dashboard</span>
+                    <span className="font-bold text-foreground whitespace-normal break-words sm:truncate" title="H₂O Allegiant">H₂O Allegiant</span>
+                    <span className="text-xs text-primary font-medium whitespace-normal break-words sm:truncate" title="Dashboard Central">Dashboard Central</span>
                   </div>
                 )}
               </Link>
@@ -340,32 +345,44 @@ function ProjectSidebar({ projectId }: { projectId?: string }) {
   };
 
   return (
-    <Sidebar variant="inset" className="layout-sidebar">
-      <SidebarHeader className="section-padding-sm">
+    <Sidebar 
+      variant="inset" 
+      className={cn(
+        "layout-sidebar transition-all duration-300 ease-out",
+        // Project-specific styling - more focused and engineering-oriented
+        "sidebar-project bg-gradient-to-b from-slate-50 via-background to-background",
+        "border-r-2 border-gradient-to-b from-primary/20 to-accent/20 shadow-md"
+      )}
+      data-sidebar-type="project"
+    >
+      <SidebarHeader className="section-padding-sm bg-gradient-to-br from-primary/10 via-accent/5 to-background border-b border-primary/20">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="sm">
+            <SidebarMenuButton asChild size="sm" className="hover:bg-primary/10">
               <Link href="/dashboard">
                 <ChevronLeft className="h-4 w-4" />
-                <span>← Dashboard</span>
+                <span>← Dashboard Central</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
         
-        <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-primary/5 to-accent/5 border border-border/50">
+        <div className="mt-4 p-4 rounded-xl bg-gradient-to-br from-white via-primary/5 to-accent/5 border-2 border-primary/10 shadow-sm">
           <div className="flex items-start space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-              <Building2 className="h-4 w-4" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
+              <Building2 className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-heading-sm whitespace-normal break-words sm:truncate" title={project.name}>{project.name}</h3>
-              <p className="text-xs text-muted-foreground whitespace-normal break-words sm:truncate" title={project.client}>{project.client}</p>
-              <p className="text-xs text-muted-foreground/80">{project.location}</p>
-              <div className="mt-2">
+              <h3 className="text-base font-bold text-foreground whitespace-normal break-words sm:truncate" title={project.name}>{project.name}</h3>
+              <p className="text-sm text-muted-foreground font-medium whitespace-normal break-words sm:truncate" title={project.client}>{project.client}</p>
+              <p className="text-xs text-muted-foreground/80 mb-2">{project.location}</p>
+              <div>
                 <span className={cn(
-                  "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
-                  statusConfig[project.status]?.badgeClass || "bg-muted text-muted-foreground"
+                  "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border",
+                  statusConfig[project.status]?.color?.includes('amber') && "bg-amber-50 text-amber-700 border-amber-200",
+                  statusConfig[project.status]?.color?.includes('emerald') && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                  statusConfig[project.status]?.color?.includes('purple') && "bg-purple-50 text-purple-700 border-purple-200",
+                  !statusConfig[project.status]?.color && "bg-muted text-muted-foreground border-muted-foreground/20"
                 )}>
                   {statusConfig[project.status]?.label || project.status}
                 </span>
