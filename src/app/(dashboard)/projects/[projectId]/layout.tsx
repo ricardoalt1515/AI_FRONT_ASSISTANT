@@ -2,6 +2,7 @@ import React from 'react';
 import { ProjectProvider } from '@/contexts/project-context';
 import { ProjectSidebar } from '@/components/project/project-sidebar';
 import { ProjectHeader } from '@/components/project/project-header';
+import { ProjectSubnav } from '@/components/project/project-subnav';
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,8 @@ export default function ProjectLayout({ children, params }: ProjectLayoutProps) 
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Project Header */}
           <ProjectHeader />
+          {/* Project Sub Navigation */}
+          <ProjectSubnav />
           
           {/* Page Content */}
           <main className="flex-1 overflow-y-auto">

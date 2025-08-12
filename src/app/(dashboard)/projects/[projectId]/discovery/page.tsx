@@ -3,10 +3,10 @@
 import React from 'react';
 import { useProject } from '@/contexts/project-context';
 import { EnhancedChatContainer } from '@/components/chat/enhanced-chat-container';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useParams } from 'next/navigation';
 import {
   MessageSquare,
@@ -14,15 +14,15 @@ import {
   Clock,
   ArrowRight,
   Bot,
-  User,
   Target,
   MapPin,
-  Factory
+  Factory,
+  ChevronDown
 } from 'lucide-react';
 
 export default function DiscoveryPage() {
   const params = useParams<{ projectId: string }>();
-  const { project, currentPhase, phaseProgress, completePhase, transitionToPhase } = useProject();
+  const { project, currentPhase, phaseProgress, completePhase, transitionToPhase, isLoading } = useProject();
   
   const discoveryProgress = phaseProgress.discovery;
   const completedTasks = discoveryProgress?.tasks.filter(task => task.completed) || [];
@@ -39,6 +39,27 @@ export default function DiscoveryPage() {
     phase: 'Discovery & Requirements'
   };
 
+  if (isLoading) {
+    return (
+      <div className="h-full flex">
+        {/* Left (chat) skeleton */}
+        <div className="flex-1 p-4">
+          <div className="h-full w-full">
+            <Skeleton className="h-12 w-1/2 mb-4" />
+            <Skeleton className="h-[72vh] w-full" />
+          </div>
+        </div>
+        {/* Right sidebar skeleton */}
+        <div className="w-80 bg-gray-50 border-l border-gray-200 p-4 space-y-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-28 w-full" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex">
       {/* Main Chat Area */}
@@ -53,7 +74,8 @@ export default function DiscoveryPage() {
         />
       </div>
 
-      {/* Right Sidebar - Discovery Progress */}
+      {/* Right Sidebar - Discovery Progress */
+      }
       <div className="w-80 bg-gray-50 border-l border-gray-200 flex flex-col">
         {/* Phase Header */}
         <div className="p-4 bg-white border-b">
@@ -75,128 +97,103 @@ export default function DiscoveryPage() {
             <Progress value={discoveryProgress?.progress || 0} className="h-2" />
           </div>
         </div>
-
-        {/* Tasks Progress */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* Completed Tasks */}
-          {completedTasks.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Completed ({completedTasks.length})</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
+        {/* Compact Sidebar with Collapsible Sections */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* Tasks (Completed + Pending) */}
+          <Collapsible defaultOpen={false} className="group border rounded-md">
+            <CollapsibleTrigger className="group w-full p-3 flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="font-medium">Tasks</span>
+                <span className="text-muted-foreground">• {completedTasks.length} done • {pendingTasks.length} pending</span>
+              </div>
+              <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-3 pb-3 space-y-3">
+              {completedTasks.length > 0 && (
                 <div className="space-y-2">
+                  <div className="text-xs font-medium text-green-700">Completed</div>
                   {completedTasks.map((task) => (
-                    <div key={task.id} className="flex items-start space-x-2 p-2 bg-green-50 rounded-md">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div key={task.id} className="flex items-start gap-2 p-2 bg-green-50 rounded-md">
+                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                          {task.name}
-                        </div>
+                        <div className="text-sm font-medium line-clamp-1">{task.name}</div>
                         {task.description && (
-                          <div className="text-xs text-gray-600 line-clamp-2">
-                            {task.description}
-                          </div>
+                          <div className="text-xs text-muted-foreground line-clamp-2">{task.description}</div>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Pending Tasks */}
-          {pendingTasks.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-blue-500" />
-                  <span>Pending ({pendingTasks.length})</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
+              )}
+              {pendingTasks.length > 0 && (
                 <div className="space-y-2">
+                  <div className="text-xs font-medium text-blue-700">Pending</div>
                   {pendingTasks.map((task) => (
-                    <div key={task.id} className="flex items-start space-x-2 p-2 border rounded-md">
+                    <div key={task.id} className="flex items-start gap-2 p-2 border rounded-md">
                       <Clock className="h-4 w-4 text-gray-400 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                          {task.name}
-                        </div>
+                        <div className="text-sm font-medium line-clamp-1">{task.name}</div>
                         {task.description && (
-                          <div className="text-xs text-gray-600 line-clamp-2">
-                            {task.description}
-                          </div>
+                          <div className="text-xs text-muted-foreground line-clamp-2">{task.description}</div>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Project Context */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center space-x-2">
-                <Target className="h-4 w-4 text-purple-500" />
-                <span>Project Context</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-3">
-              <div className="flex items-center space-x-2">
+          <Collapsible defaultOpen={false} className="group border rounded-md">
+            <CollapsibleTrigger className="group w-full p-3 flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-purple-600" />
+                <span className="font-medium">Project Context</span>
+              </div>
+              <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-3 pb-3 space-y-3">
+              <div className="flex items-center gap-2">
                 <Factory className="h-4 w-4 text-gray-400" />
                 <div>
                   <div className="text-sm font-medium">{project?.sector || 'Municipal Treatment'}</div>
-                  <div className="text-xs text-gray-500">Industry Sector</div>
+                  <div className="text-xs text-muted-foreground">Industry Sector</div>
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-400" />
                 <div>
                   <div className="text-sm font-medium">{project?.location || 'México, CDMX'}</div>
-                  <div className="text-xs text-gray-500">Project Location</div>
+                  <div className="text-xs text-muted-foreground">Project Location</div>
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Target className="h-4 w-4 text-gray-400" />
                 <div>
                   <div className="text-sm font-medium">{project?.flowRate?.toLocaleString() || '25,000'} m³/day</div>
-                  <div className="text-xs text-gray-500">Treatment Capacity</div>
+                  <div className="text-xs text-muted-foreground">Treatment Capacity</div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </CollapsibleContent>
+          </Collapsible>
 
-          {/* AI Assistant Status */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center space-x-2">
-                <Bot className="h-4 w-4 text-green-500" />
-                <span>AI Assistant</span>
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  Active
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-2">
-                <div className="text-sm text-gray-600">
-                  I'm here to help gather all the technical requirements for your water treatment project.
-                </div>
-                <div className="text-xs text-gray-500">
-                  Ask me about flow rates, treatment standards, budget constraints, or any technical questions.
-                </div>
+          {/* AI Assistant */}
+          <Collapsible defaultOpen={false} className="group border rounded-md">
+            <CollapsibleTrigger className="group w-full p-3 flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <Bot className="h-4 w-4 text-green-600" />
+                <span className="font-medium">AI Assistant</span>
               </div>
-            </CardContent>
-          </Card>
+              <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-3 pb-3 space-y-2 text-sm text-muted-foreground">
+              <div>
+                I can help gather technical requirements (flow rates, standards, budget constraints, etc.).
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
         {/* Action Buttons */}

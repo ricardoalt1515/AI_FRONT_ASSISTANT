@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useParams } from 'next/navigation';
+import { StatsGrid } from '@/components/project/stats-grid';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -15,15 +17,19 @@ import {
   ShoppingCart,
   CheckCircle,
   Clock,
-  DollarSign,
   Users,
-  Calendar
+  Calendar,
+  ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProjectOverview() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, currentPhase, phaseProgress, getNextPhase } = useProject();
+  const [openPhaseId, setOpenPhaseId] = React.useState<string | null>(() => currentPhase?.id ?? null);
+  React.useEffect(() => {
+    setOpenPhaseId(currentPhase?.id ?? null);
+  }, [currentPhase?.id]);
   
   const phases = [
     {
@@ -102,27 +108,11 @@ export default function ProjectOverview() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Project Header */}
+      {/* KPIs */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {project?.name || 'Water Treatment Project'}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {project?.description || 'Advanced water treatment system design and implementation'}
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-green-600">
-              ${project?.estimatedValue?.toLocaleString() || '2,400,000'}
-            </div>
-            <div className="text-sm text-gray-500">Estimated Project Value</div>
-          </div>
-        </div>
-        
+        <StatsGrid compact />
         {/* Overall Progress */}
-        <div className="bg-white rounded-lg border p-6">
+        <div className="bg-white rounded-lg border p-6 mt-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Overall Progress</h3>
             <Badge variant="outline" className={getStatusColor(currentPhase?.status || 'pending')}>
@@ -137,60 +127,55 @@ export default function ProjectOverview() {
         </div>
       </div>
 
-      {/* Project Phases */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Project Phases (Collapsible) */}
+      <div className="space-y-3">
         {phases.map((phase, index) => {
           const isAccessible = canAccessPhase(phase.id);
           const isActive = currentPhase?.id === phase.id;
-          
+
           return (
-            <Card 
+            <Collapsible
               key={phase.id}
-              className={`transition-all duration-200 hover:shadow-md ${
-                isActive ? 'ring-2 ring-blue-500 bg-blue-50' : ''
-              } ${!isAccessible ? 'opacity-60' : ''}`}
+              open={openPhaseId === phase.id}
+              onOpenChange={(open) => setOpenPhaseId(open ? phase.id : null)}
+              className={`group border rounded-md bg-white ${!isAccessible ? 'opacity-60' : ''}`}
             >
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-3 rounded-xl ${phase.color}`}>
-                      <phase.icon className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{phase.name}</CardTitle>
-                      <div className="flex items-center space-x-2 mt-1">
-                        {getStatusIcon(phase.status)}
-                        <Badge variant="outline" className={getStatusColor(phase.status)}>
-                          {phase.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                    </div>
+              <CollapsibleTrigger className="group w-full px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${phase.color}`}>
+                    <phase.icon className="h-5 w-5" />
                   </div>
-                  <div className="text-right text-sm text-gray-500">
-                    Phase {index + 1}/4
+                  <div className="text-left">
+                    <div className="font-medium">{phase.name}</div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {getStatusIcon(phase.status)}
+                      <Badge variant="outline" className={getStatusColor(phase.status)}>
+                        {phase.status.replace('_', ' ')}
+                      </Badge>
+                      <span>• {phase.progress}%</span>
+                    </div>
                   </div>
                 </div>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-gray-600 mb-4">{phase.description}</p>
-                
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm mb-2">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span>Phase {index + 1}/4</span>
+                  <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-4 pb-4">
+                <p className="text-sm text-gray-600 mb-3">{phase.description}</p>
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs mb-1">
                     <span>Progress</span>
                     <span>{phase.progress}%</span>
                   </div>
                   <Progress value={phase.progress} className="h-2" />
                 </div>
-                
-                {/* Phase Actions */}
-                <div className="flex space-x-2">
+                <div className="flex gap-2">
                   <Button
                     asChild={isAccessible}
                     disabled={!isAccessible}
                     className="flex-1"
-                    variant={isActive ? "default" : phase.status === 'completed' ? "outline" : "default"}
+                    variant={isActive ? 'default' : phase.status === 'completed' ? 'outline' : 'default'}
                   >
                     {isAccessible ? (
                       <Link href={phase.url}>
@@ -204,19 +189,16 @@ export default function ProjectOverview() {
                       </div>
                     )}
                   </Button>
-                  
                   {phase.status === 'completed' && (
                     <Button variant="outline" size="icon">
                       <CheckCircle className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
-                
-                {/* Phase Details */}
                 {isActive && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium text-blue-900 mb-2">Current Focus</h4>
-                    <p className="text-sm text-blue-700">
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-1">Current Focus</h4>
+                    <p className="text-xs text-blue-700">
                       {phase.id === 'discovery' && 'Gathering requirements through AI conversation'}
                       {phase.id === 'proposal' && 'Generating technical proposal and cost analysis'}
                       {phase.id === 'engineering' && 'Creating detailed engineering specifications'}
@@ -224,8 +206,8 @@ export default function ProjectOverview() {
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </CollapsibleContent>
+            </Collapsible>
           );
         })}
       </div>
