@@ -6,8 +6,8 @@ import { ProjectTimeline } from "@/components/project/project-timeline";
 import { mockProjects } from "@/lib/mock-data";
 import { BarChart3 } from "lucide-react";
 
-export default async function ProjectProgressPage(props: { params: Promise<{ projectId: string }> }) {
-  const { projectId } = await props.params;
+export default async function ProjectProgressPage({ params }: { params: { projectId: string } }) {
+  const { projectId } = params;
   const project = mockProjects.find(p => p.id === projectId);
 
   if (!project) {

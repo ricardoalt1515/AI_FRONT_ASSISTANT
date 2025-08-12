@@ -16,8 +16,10 @@ import {
   Copy,
   RefreshCcw,
   Sparkles,
-  Zap
+  Zap,
+  Wrench
 } from 'lucide-react';
+import { InteractiveEngineeringPreview } from '@/components/project/interactive-engineering-preview';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +38,8 @@ interface Message {
     projectId?: string;
     proposalId?: string;
     calculationResults?: any;
+    engineeringPreview?: any;
+    proposalData?: any;
   };
   isGenerating?: boolean;
 }
@@ -111,11 +115,46 @@ export function EnhancedChatContainer({
         };
         setMessages(prev => [...prev, proposalMessage]);
 
-        // Simulate proposal generation
+        // Simulate proposal generation with engineering preview
         setTimeout(() => {
+          // Mock engineering preview data
+          const engineeringPreview = {
+            technical_data: {
+              flowRate: 25000,
+              capex: 2400000,
+              opex: 218400, // 22% reduction
+              efficiency: 95,
+              paybackYears: 4.2,
+              energyConsumption: 697,
+              footprint: 1200,
+              wasteReduction: 93.1
+            },
+            roi_analysis: {
+              total_value: 655000,
+              cost: 7500,
+              roi: 8633,
+              payback_months: 0.14,
+              net_savings: 647500
+            }
+          };
+
           setMessages(prev => prev.map(msg => 
             msg.id === proposalMessage.id 
-              ? { ...msg, isGenerating: false, content: `✅ **Proposal Generated Successfully!**\n\nYour technical proposal has been created with the following sections:\n\n📄 **Document Generated:**\n- Technical_Proposal_${Date.now()}.pdf\n- 45 pages with detailed specifications\n- Cost estimate: $2.4M\n\n**Key Highlights:**\n- Advanced membrane filtration system\n- 99.5% contaminant removal efficiency\n- Energy-optimized design\n- 25-year service life\n\nWould you like to download the proposal or make any modifications?` }
+              ? { 
+                ...msg, 
+                isGenerating: false, 
+                content: `✅ **Proposal Generated Successfully!**\n\nYour technical proposal has been created with the following sections:\n\n📄 **Document Generated:**\n- Technical_Proposal_${Date.now()}.pdf\n- 45 pages with detailed specifications\n- Cost estimate: $2.4M\n\n**Key Highlights:**\n- Advanced membrane filtration system\n- 99.5% contaminant removal efficiency\n- Energy-optimized design\n- 25-year service life\n\n🔧 **Engineering Phase Available:** Unlock advanced optimizations with 8,633% ROI\n\nWould you like to download the proposal or upgrade to the engineering phase?`,
+                metadata: {
+                  ...msg.metadata,
+                  engineeringPreview,
+                  proposalData: {
+                    flowRate: 25000,
+                    capex: 2400000,
+                    opex: 280000,
+                    efficiency: 95
+                  }
+                }
+              }
               : msg
           ));
           onProposalGenerated?.('proposal_' + Date.now());
@@ -287,6 +326,28 @@ export function EnhancedChatContainer({
                 </span>
               </div>
             </div>
+
+            {/* Interactive Engineering Preview */}
+            {message.type === 'proposal' && !message.isGenerating && message.metadata?.engineeringPreview && (
+              <div className="mt-6 animate-fade-in">
+                <InteractiveEngineeringPreview
+                  proposalData={message.metadata.proposalData}
+                  projectId={projectContext?.id}
+                  onUpgradeEngineering={() => {
+                    // Handle upgrade to engineering phase
+                    const upgradeMessage: Message = {
+                      id: Date.now().toString(),
+                      content: "🚀 **Engineering Phase Activated!**\n\nYour project has been upgraded to include:\n\n✅ **AI-Driven Process Optimization**\n✅ **Detailed Technical Specifications**\n✅ **3D CAD Models & Virtual Walkthroughs**\n✅ **Regulatory Compliance Package**\n✅ **Risk Analysis & Mitigation**\n\nExpected value creation: $655,000 with 8,633% ROI\n\nOur engineering team will begin optimization analysis within 24 hours.",
+                      sender: 'assistant',
+                      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      type: 'text'
+                    };
+                    setMessages(prev => [...prev, upgradeMessage]);
+                  }}
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
         ))}
 

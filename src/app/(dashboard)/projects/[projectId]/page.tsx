@@ -1,359 +1,268 @@
-"use client";
+'use client';
 
-import { ProjectTimeline } from "@/components/project/project-timeline";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React from 'react';
+import { useProject } from '@/contexts/project-context';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { useParams } from 'next/navigation';
 import { 
-  MessageSquare,
-  FileText,
-  Settings,
-  MoreVertical,
-  MapPin,
-  Building2,
-  Calendar,
+  ArrowRight, 
+  MessageSquare, 
+  FileText, 
+  Wrench, 
+  ShoppingCart,
+  CheckCircle,
+  Clock,
+  DollarSign,
   Users,
-  Zap
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { useState } from "react";
+  Calendar
+} from 'lucide-react';
+import Link from 'next/link';
 
-interface ProjectData {
-  id: string;
-  name: string;
-  location: string;
-  sector: string;
-  status: "proposal" | "engineering" | "procurement";
-  currentPhase: "proposal" | "engineering" | "procurement";
-  progress: {
-    proposal: number;
-    engineering: number;
-    procurement: number;
+export default function ProjectOverview() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const { project, currentPhase, phaseProgress, getNextPhase } = useProject();
+  
+  const phases = [
+    {
+      id: 'discovery',
+      name: 'Discovery & Requirements',
+      description: 'Define project requirements through AI-powered conversation',
+      icon: MessageSquare,
+      color: 'bg-blue-100 text-blue-700 border-blue-200',
+      status: phaseProgress.discovery.status,
+      progress: phaseProgress.discovery.progress,
+      url: `/projects/${projectId}/discovery`
+    },
+    {
+      id: 'proposal',
+      name: 'Technical Proposal',
+      description: 'AI-generated comprehensive technical proposal and cost analysis',
+      icon: FileText,
+      color: 'bg-green-100 text-green-700 border-green-200',
+      status: phaseProgress.proposal.status,
+      progress: phaseProgress.proposal.progress,
+      url: `/projects/${projectId}/proposal`
+    },
+    {
+      id: 'engineering',
+      name: 'Engineering Design',
+      description: 'Detailed engineering specifications, P&IDs, and technical drawings',
+      icon: Wrench,
+      color: 'bg-purple-100 text-purple-700 border-purple-200',
+      status: phaseProgress.engineering.status,
+      progress: phaseProgress.engineering.progress,
+      url: `/projects/${projectId}/engineering`
+    },
+    {
+      id: 'procurement',
+      name: 'Procurement & Sourcing',
+      description: 'Supplier selection, equipment sourcing, and cost optimization',
+      icon: ShoppingCart,
+      color: 'bg-orange-100 text-orange-700 border-orange-200',
+      status: phaseProgress.procurement.status,
+      progress: phaseProgress.procurement.progress,
+      url: `/projects/${projectId}/procurement`
+    }
+  ];
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'in_progress':
+        return <Clock className="h-5 w-5 text-blue-500" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-400" />;
+    }
   };
-  capex: number;
-  estimatedDays: number;
-  startDate: string;
-  estimatedCompletion: string;
-  assignedTeam: string[];
-  description: string;
-  client: string;
-}
 
-// Mock project data - replace with API call
-const mockProjects: Record<string, ProjectData> = {
-  "1": {
-    id: "1",
-    name: "Sistema Los Mochis",
-    location: "Los Mochis, Sinaloa",
-    sector: "Industrial - Alimentos",
-    status: "proposal",
-    currentPhase: "proposal",
-    progress: {
-      proposal: 90,
-      engineering: 0,
-      procurement: 0
-    },
-    capex: 150000,
-    estimatedDays: 24,
-    startDate: "2025-01-15",
-    estimatedCompletion: "2025-02-08",
-    assignedTeam: ["María García", "Carlos Ruiz", "Ana López"],
-    description: "Sistema de tratamiento de agua residual industrial para planta procesadora de alimentos",
-    client: "Industrias Alimentarias del Pacífico"
-  },
-  "2": {
-    id: "2",
-    name: "Planta Culiacán",
-    location: "Culiacán, Sinaloa",
-    sector: "Municipal",
-    status: "engineering",
-    currentPhase: "engineering",
-    progress: {
-      proposal: 100,
-      engineering: 75,
-      procurement: 0
-    },
-    capex: 280000,
-    estimatedDays: 21,
-    startDate: "2025-01-10",
-    estimatedCompletion: "2025-01-31",
-    assignedTeam: ["Roberto Silva", "Elena Morales"],
-    description: "Planta de tratamiento municipal con capacidad para 50,000 habitantes",
-    client: "Municipio de Culiacán"
-  }
-};
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-700';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-700';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700';
+      default:
+        return 'bg-gray-100 text-gray-500';
+    }
+  };
 
-export default function ProjectWorkspacePage() {
-  const params = useParams();
-  const projectId = params.projectId as string;
-  const [chatOpen, setChatOpen] = useState(false);
-  
-  // Get project data
-  const project = mockProjects[projectId];
-  
-  if (!project) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Proyecto no encontrado</p>
-      </div>
-    );
-  }
-
-  const statusConfig = {
-    proposal: { color: "bg-warning text-warning-foreground", label: "Propuesta" },
-    engineering: { color: "bg-success text-success-foreground", label: "Ingeniería" },
-    procurement: { color: "bg-primary text-primary-foreground", label: "Procurement" }
+  const canAccessPhase = (phaseId: string) => {
+    const phaseIndex = phases.findIndex(p => p.id === phaseId);
+    if (phaseIndex === 0) return true;
+    
+    const previousPhase = phases[phaseIndex - 1];
+    return previousPhase.status === 'completed';
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Project Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0">
-        <div className="flex items-start space-x-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Building2 className="h-6 w-6" />
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {project?.name || 'Water Treatment Project'}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {project?.description || 'Advanced water treatment system design and implementation'}
+            </p>
           </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-display-md font-bold">{project.name}</h1>
-            <div className="flex items-center space-x-4 mt-2 text-muted-foreground">
-              <div className="flex items-center space-x-1">
-                <MapPin className="h-4 w-4" />
-                <span className="text-sm">{project.location}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Building2 className="h-4 w-4" />
-                <span className="text-sm">{project.sector}</span>
-              </div>
-              <Badge className={statusConfig[project.status].color}>
-                {statusConfig[project.status].label}
-              </Badge>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-green-600">
+              ${project?.estimatedValue?.toLocaleString() || '2,400,000'}
             </div>
+            <div className="text-sm text-gray-500">Estimated Project Value</div>
           </div>
         </div>
         
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="outline"
-            onClick={() => setChatOpen(!chatOpen)}
-            className={chatOpen ? "bg-primary text-primary-foreground" : ""}
-          >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Chat del Proyecto
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/projects/${projectId}/documents`}>
-              <FileText className="h-4 w-4 mr-2" />
-              Documentos
-            </Link>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Settings className="h-4 w-4 mr-2" />
-                Configuración
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Users className="h-4 w-4 mr-2" />
-                Equipo
-              </DropdownMenuItem>
-              <DropdownMenuItem>Exportar Reporte</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
-                Archivar Proyecto
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* Overall Progress */}
+        <div className="bg-white rounded-lg border p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Overall Progress</h3>
+            <Badge variant="outline" className={getStatusColor(currentPhase?.status || 'pending')}>
+              {currentPhase?.name || 'Getting Started'}
+            </Badge>
+          </div>
+          <Progress value={project?.overallProgress || 15} className="h-2 mb-2" />
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>{project?.overallProgress || 15}% Complete</span>
+            <span>Est. completion: {project?.estimatedCompletion || '6-8 weeks'}</span>
+          </div>
         </div>
       </div>
 
-      {/* Project Overview Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="card-premium">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground">Cliente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-semibold">{project.client}</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-premium">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground">CAPEX</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-semibold">${project.capex.toLocaleString()}</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-premium">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground">Fecha Inicio</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <p className="font-semibold">{new Date(project.startDate).toLocaleDateString()}</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-premium">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground">Equipo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <p className="font-semibold">{project.assignedTeam.length} miembros</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className={`grid gap-6 ${chatOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-1'} transition-all duration-300`}>
-        {/* Timeline Section */}
-        <div className={chatOpen ? 'lg:col-span-2' : 'lg:col-span-1'}>
-          <ProjectTimeline
-            currentPhase={project.currentPhase}
-            progress={project.progress}
-            capex={project.capex}
-            estimatedDays={project.estimatedDays}
-            projectStatus="Excelente"
-          />
+      {/* Project Phases */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {phases.map((phase, index) => {
+          const isAccessible = canAccessPhase(phase.id);
+          const isActive = currentPhase?.id === phase.id;
           
-          {/* Project Description */}
-          <Card className="card-premium mt-6">
-            <CardHeader>
-              <CardTitle>Descripción del Proyecto</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground leading-relaxed">
-                {project.description}
-              </p>
-              
-              <div className="mt-6 p-4 bg-muted/30 rounded-lg">
-                <h4 className="font-semibold mb-3">Equipo Asignado</h4>
-                <div className="flex flex-wrap gap-2">
-                  {project.assignedTeam.map((member, index) => (
-                    <Badge key={index} variant="secondary">
-                      {member}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chat Panel */}
-        {chatOpen && (
-          <div className="lg:col-span-1">
-            <Card className="card-premium h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5 text-primary" />
-                  <span>Chat del Proyecto</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col h-[600px]">
-                {/* Chat Messages Area */}
-                <div className="flex-1 bg-muted/20 rounded-lg p-4 mb-4 overflow-y-auto">
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                        <Zap className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-background rounded-lg p-3 shadow-sm">
-                          <p className="text-sm">
-                            ¡Hola! Soy tu asistente de H₂O Allegiant. Te ayudaré a completar este proyecto de tratamiento de agua.
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">hace 2 horas</p>
-                      </div>
+          return (
+            <Card 
+              key={phase.id}
+              className={`transition-all duration-200 hover:shadow-md ${
+                isActive ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+              } ${!isAccessible ? 'opacity-60' : ''}`}
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-3 rounded-xl ${phase.color}`}>
+                      <phase.icon className="h-6 w-6" />
                     </div>
-                    
-                    <div className="flex items-start space-x-3 flex-row-reverse">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success/10">
-                        <span className="text-xs font-medium text-success">TU</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-primary text-primary-foreground rounded-lg p-3 shadow-sm ml-auto max-w-[80%]">
-                          <p className="text-sm">
-                            Perfecto, necesito completar los últimos detalles técnicos para la propuesta.
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1 text-right">hace 2 horas</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                        <Zap className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-background rounded-lg p-3 shadow-sm">
-                          <p className="text-sm">
-                            Excelente. Basándome en la información proporcionada, tengo algunas preguntas sobre el caudal de diseño y los parámetros de calidad del agua residual...
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">hace 2 horas</p>
+                    <div>
+                      <CardTitle className="text-lg">{phase.name}</CardTitle>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {getStatusIcon(phase.status)}
+                        <Badge variant="outline" className={getStatusColor(phase.status)}>
+                          {phase.status.replace('_', ' ')}
+                        </Badge>
                       </div>
                     </div>
                   </div>
+                  <div className="text-right text-sm text-gray-500">
+                    Phase {index + 1}/4
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                <p className="text-gray-600 mb-4">{phase.description}</p>
+                
+                {/* Progress Bar */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Progress</span>
+                    <span>{phase.progress}%</span>
+                  </div>
+                  <Progress value={phase.progress} className="h-2" />
                 </div>
                 
-                {/* Chat Input */}
-                <div className="border-t pt-4">
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Escribe tu mensaje..."
-                      className="flex-1 px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                    <Button size="sm">
-                      <MessageSquare className="h-4 w-4" />
+                {/* Phase Actions */}
+                <div className="flex space-x-2">
+                  <Button
+                    asChild={isAccessible}
+                    disabled={!isAccessible}
+                    className="flex-1"
+                    variant={isActive ? "default" : phase.status === 'completed' ? "outline" : "default"}
+                  >
+                    {isAccessible ? (
+                      <Link href={phase.url}>
+                        {phase.status === 'completed' ? 'Review' : phase.status === 'in_progress' ? 'Continue' : 'Start'}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    ) : (
+                      <div>
+                        Complete Previous Phase
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </div>
+                    )}
+                  </Button>
+                  
+                  {phase.status === 'completed' && (
+                    <Button variant="outline" size="icon">
+                      <CheckCircle className="h-4 w-4" />
                     </Button>
-                  </div>
+                  )}
                 </div>
+                
+                {/* Phase Details */}
+                {isActive && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-2">Current Focus</h4>
+                    <p className="text-sm text-blue-700">
+                      {phase.id === 'discovery' && 'Gathering requirements through AI conversation'}
+                      {phase.id === 'proposal' && 'Generating technical proposal and cost analysis'}
+                      {phase.id === 'engineering' && 'Creating detailed engineering specifications'}
+                      {phase.id === 'procurement' && 'Optimizing supplier selection and pricing'}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </div>
-        )}
+          );
+        })}
       </div>
 
       {/* Quick Actions */}
-      <div className="flex justify-center">
-        <div className="flex items-center space-x-4 p-4 bg-muted/30 rounded-lg">
-          <Button asChild>
-            <Link href={`/projects/${projectId}/chat`}>
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Abrir Chat Completo
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href={`/projects/${projectId}/documents`}>
-              <FileText className="h-4 w-4 mr-2" />
-              Ver Documentos
-            </Link>
-          </Button>
-          <Button variant="outline">
-            <Settings className="h-4 w-4 mr-2" />
-            Configurar
-          </Button>
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="p-4">
+            <div className="flex items-center space-x-3">
+              <MessageSquare className="h-8 w-8 text-blue-600" />
+              <div>
+                <h4 className="font-medium">Continue Chat</h4>
+                <p className="text-sm text-gray-600">Ask questions or refine requirements</p>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4">
+            <div className="flex items-center space-x-3">
+              <Users className="h-8 w-8 text-green-600" />
+              <div>
+                <h4 className="font-medium">Team Collaboration</h4>
+                <p className="text-sm text-gray-600">Invite team members and stakeholders</p>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4">
+            <div className="flex items-center space-x-3">
+              <Calendar className="h-8 w-8 text-purple-600" />
+              <div>
+                <h4 className="font-medium">Schedule Review</h4>
+                <p className="text-sm text-gray-600">Book a technical review session</p>
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

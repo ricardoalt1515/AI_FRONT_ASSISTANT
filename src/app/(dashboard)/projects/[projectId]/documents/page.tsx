@@ -5,8 +5,8 @@ import { DocumentsList } from "@/components/project/documents-list";
 import { mockProjects } from "@/lib/mock-data";
 import { FileText } from "lucide-react";
 
-export default async function ProjectDocumentsPage(props: { params: Promise<{ projectId: string }> }) {
-  const { projectId } = await props.params;
+export default async function ProjectDocumentsPage({ params }: { params: { projectId: string } }) {
+  const { projectId } = params;
   const project = mockProjects.find(p => p.id === projectId);
 
   if (!project) {

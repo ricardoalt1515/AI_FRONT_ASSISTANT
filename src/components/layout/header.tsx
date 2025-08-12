@@ -159,14 +159,22 @@ export default function Header() {
               Home
             </Link>
 
-            {/* Show AI Assistant only if authenticated */}
+            {/* Show navigation links only if authenticated */}
             {isAuthenticated && (
-              <Link href="/chat" className={cn(
-                "px-4 py-2 rounded-full text-sm font-semibold text-cyan-800 hover:bg-cyan-100/60 transition-colors shadow-sm",
-                pathname === "/chat" && "bg-cyan-100/80"
-              )}>
-                AI Assistant
-              </Link>
+              <>
+                <Link href="/projects" className={cn(
+                  "px-4 py-2 rounded-full text-sm font-semibold text-cyan-800 hover:bg-cyan-100/60 transition-colors shadow-sm",
+                  pathname.startsWith("/projects") && "bg-cyan-100/80"
+                )}>
+                  Projects
+                </Link>
+                <Link href="/chat" className={cn(
+                  "px-4 py-2 rounded-full text-sm font-semibold text-cyan-800 hover:bg-cyan-100/60 transition-colors shadow-sm",
+                  pathname === "/chat" && "bg-cyan-100/80"
+                )}>
+                  AI Assistant
+                </Link>
+              </>
             )}
           </div>
 
@@ -174,14 +182,16 @@ export default function Header() {
           <div className="flex items-center gap-2 ml-2">
             {isAuthenticated ? (
               <>
-                {/* New Conversation Button */}
+                {/* New Project Button */}
                 <Button
-                  onClick={handleNewConsultation}
                   className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all px-5 py-2"
                   size="sm"
+                  asChild
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Conversation
+                  <Link href="/onboarding">
+                    <Plus className="h-4 w-4 mr-1" />
+                    New Project
+                  </Link>
                 </Button>
 
                 {/* User menu */}
@@ -213,15 +223,15 @@ export default function Header() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/chat" className="cursor-pointer flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>AI Chat</span>
+                      <Link href="/projects" className="cursor-pointer flex items-center">
+                        <FileText className="mr-2 h-4 w-4" />
+                        <span>My Projects</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/proposals" className="cursor-pointer flex items-center">
-                        <FileText className="mr-2 h-4 w-4" />
-                        <span>My Proposals</span>
+                      <Link href="/chat" className="cursor-pointer flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>AI Chat</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -319,17 +329,17 @@ export default function Header() {
 
                   {isAuthenticated && (
                     <>
+                      <Link href="/projects" className={cn(
+                        "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
+                        pathname.startsWith("/projects") && "bg-blue-50 font-medium"
+                      )}>
+                        Projects
+                      </Link>
                       <Link href="/chat" className={cn(
                         "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
                         pathname === "/chat" && "bg-blue-50 font-medium"
                       )}>
                         AI Assistant
-                      </Link>
-                      <Link href="/proposals" className={cn(
-                        "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
-                        pathname === "/proposals" && "bg-blue-50 font-medium"
-                      )}>
-                        My Proposals
                       </Link>
                       <Link href="/settings" className={cn(
                         "py-2 px-3 rounded-md text-blue-700 hover:bg-blue-50 transition-colors",
@@ -345,12 +355,14 @@ export default function Header() {
                   {isAuthenticated ? (
                     <>
                       <Button
-                        onClick={handleNewConsultation}
                         className="w-full bg-gradient-to-r from-blue-500 to-blue-600 
                           hover:from-blue-600 hover:to-blue-700 text-white"
+                        asChild
                       >
-                        <Plus className="h-4 w-4 mr-1" />
-                        New Conversation
+                        <Link href="/onboarding">
+                          <Plus className="h-4 w-4 mr-1" />
+                          New Project
+                        </Link>
                       </Button>
                       <Button
                         onClick={handleLogout}

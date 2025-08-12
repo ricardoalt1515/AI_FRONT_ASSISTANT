@@ -100,8 +100,8 @@ export default function InteractiveHero() {
               className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
               asChild
             >
-              <Link href="/chat" prefetch={false}>
-                Start Now
+              <Link href="/onboarding" prefetch={false}>
+                Start Your Project
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
