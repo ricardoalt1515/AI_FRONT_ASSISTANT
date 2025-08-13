@@ -1,122 +1,63 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Grid3X3, List, BarChart3 } from "lucide-react";
+import { Plus, BarChart3 } from "lucide-react";
 import { ExecutiveKPIs } from "@/components/dashboard/metrics-cards";
 import { ActionsRequired } from "@/components/dashboard/actions-required";
 import { ProjectCards } from "@/components/dashboard/project-cards";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
 
-type ViewMode = "cards" | "list" | "analytics";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [viewMode, setViewMode] = useState<ViewMode>("cards");
 
   const handleNavigateToProject = (projectId: string) => {
     router.push(`/projects/${projectId}`);
   };
 
   return (
-    <div className="space-y-6 md:space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+    <div className="space-y-12">
+      {/* Page Header - Cleaner and More Spacious */}
+      <div className="flex flex-col space-y-6 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div className="min-w-0 flex-1">
-          <h1 className="text-display-md whitespace-normal break-words">Dashboard</h1>
-          <p className="text-body-lg mt-2 text-muted-foreground">
-            Gestiona todos tus proyectos de tratamiento de agua desde un solo lugar
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900">Workspace</h1>
+          <p className="mt-3 text-lg text-gray-600 max-w-2xl">
+            Gestiona tus proyectos de tratamiento de agua con inteligencia artificial
           </p>
         </div>
-        <div className="flex flex-shrink-0 items-center space-x-3">
-          <Button asChild className="whitespace-nowrap">
-            <Link href="/projects/create">
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Nuevo Proyecto</span>
-              <span className="sm:hidden">Nuevo</span>
+        <div className="flex flex-shrink-0">
+          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+            <Link href="/onboarding">
+              <Plus className="h-5 w-5 mr-2" />
+              Nuevo Proyecto
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Executive KPIs - Simplified for better UX */}
-      <section className="space-y-4 md:space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-heading-xl">Resumen Ejecutivo</h2>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Ver Detalles
-          </Button>
+      {/* Metrics Overview */}
+      <section className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Resumen</h2>
+          <p className="text-gray-600">Vista general de tu portfolio de proyectos</p>
         </div>
         <ExecutiveKPIs />
       </section>
 
       {/* Actions Required */}
-      <section>
+      <section className="space-y-8">
         <ActionsRequired />
       </section>
 
-      {/* All Projects */}
-      <section className="space-y-4 md:space-y-6">
-        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <h2 className="text-heading-xl min-w-0 flex-1 whitespace-normal break-words">Todos los Proyectos</h2>
-          
-          {/* View Toggle */}
-          <div className="flex flex-shrink-0 items-center space-x-1 rounded-lg border p-1">
-            <Button
-              variant={viewMode === "cards" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("cards")}
-              className="h-8 px-2 sm:px-3"
-            >
-              <Grid3X3 className="h-4 w-4" />
-              <span className="sr-only">Vista de tarjetas</span>
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="h-8 px-2 sm:px-3"
-            >
-              <List className="h-4 w-4" />
-              <span className="sr-only">Vista de lista</span>
-            </Button>
-            <Button
-              variant={viewMode === "analytics" ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("analytics")}
-              className="h-8 px-2 sm:px-3"
-            >
-              <BarChart3 className="h-4 w-4" />
-              <span className="sr-only">Vista de analytics</span>
-            </Button>
-          </div>
+      {/* Projects Section */}
+      <section className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Proyectos</h2>
+          <p className="text-gray-600">Todos tus proyectos activos y en desarrollo</p>
         </div>
 
-        {/* Projects Grid/List */}
-        <div className="min-w-0">
-          {viewMode === "cards" && (
-            <ProjectCards onNavigate={handleNavigateToProject} />
-          )}
-          
-          {viewMode === "list" && (
-            <div className="card-premium p-4 sm:p-6">
-              <p className="text-center text-muted-foreground">
-                Vista de lista - Por implementar
-              </p>
-            </div>
-          )}
-          
-          {viewMode === "analytics" && (
-            <div className="card-premium p-4 sm:p-6">
-              <p className="text-center text-muted-foreground">
-                Vista de analytics - Por implementar
-              </p>
-            </div>
-          )}
-        </div>
+        <ProjectCards onNavigate={handleNavigateToProject} />
       </section>
     </div>
   );

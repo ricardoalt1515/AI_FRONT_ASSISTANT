@@ -1,6 +1,20 @@
 // Mock data for H₂O Allegiant - Water Treatment Project Platform
 // Realistic data for $150K+ industrial water treatment projects
 
+import type { 
+  AIAgent, 
+  AIAgentsWorkflow, 
+  ProcurementComparison, 
+  DiscoverySession,
+  ExecutiveMetrics,
+  ValueCreationMetrics,
+  PremiumDashboardData,
+  ExtractedRequirement,
+  DiscoveryMessage,
+  QuickAction,
+  DiscoveryInsight
+} from '@/types/premium';
+
 export interface Project {
   id: string;
   name: string;
@@ -615,6 +629,677 @@ export const mockEquipmentQuotes: EquipmentQuote[] = [
     }
   }
 ];
+
+// PREMIUM AI AGENTS DATA
+
+export const mockAIAgents: AIAgent[] = [
+  {
+    id: 'agent-discovery',
+    name: 'Discovery Agent',
+    description: 'Extrae y valida requerimientos técnicos del cliente',
+    role: 'discovery',
+    status: 'completed',
+    progress: 100,
+    confidence: 95,
+    lastUpdate: '2025-01-15T10:32:00Z',
+    currentTask: 'Análisis completado - Sistema Los Mochis',
+    output: 'Requerimientos técnicos extraídos: caudal 500 m³/día, DBO5 1,200 mg/L, normativa NOM-002',
+    metrics: {
+      processing_time: 180,
+      accuracy_score: 95,
+      data_points_analyzed: 24,
+      recommendations_generated: 8
+    }
+  },
+  {
+    id: 'agent-engineering',
+    name: 'Engineering Agent',
+    description: 'Genera diseño de procesos y dimensionamiento de equipos',
+    role: 'engineering',
+    status: 'working',
+    progress: 75,
+    confidence: 88,
+    lastUpdate: '2025-01-15T11:15:00Z',
+    estimatedCompletion: '2025-01-15T11:45:00Z',
+    currentTask: 'Calculando dimensiones del clarificador secundario',
+    dependencies: ['agent-discovery'],
+    metrics: {
+      processing_time: 540,
+      accuracy_score: 88,
+      data_points_analyzed: 156,
+      recommendations_generated: 12
+    }
+  },
+  {
+    id: 'agent-procurement',
+    name: 'Procurement Agent',
+    description: 'Analiza proveedores y optimiza selección de equipos',
+    role: 'procurement',
+    status: 'waiting',
+    progress: 0,
+    confidence: 0,
+    lastUpdate: '2025-01-15T10:32:00Z',
+    currentTask: 'Esperando completar diseño de ingeniería',
+    dependencies: ['agent-engineering'],
+    metrics: {
+      processing_time: 0,
+      accuracy_score: 0,
+      data_points_analyzed: 0,
+      recommendations_generated: 0
+    }
+  },
+  {
+    id: 'agent-optimization',
+    name: 'Optimization Agent',
+    description: 'Optimiza CAPEX, OPEX y eficiencia energética',
+    role: 'optimization',
+    status: 'idle',
+    progress: 0,
+    confidence: 0,
+    lastUpdate: '2025-01-15T10:32:00Z',
+    currentTask: 'En espera de datos de procurement',
+    dependencies: ['agent-procurement'],
+    metrics: {
+      processing_time: 0,
+      accuracy_score: 0,
+      data_points_analyzed: 0,
+      recommendations_generated: 0
+    }
+  }
+];
+
+export const mockAIWorkflows: AIAgentsWorkflow[] = [
+  {
+    id: 'workflow-1',
+    projectId: '1',
+    status: 'in_progress',
+    agents: mockAIAgents,
+    timeline: [
+      {
+        id: 'tl1',
+        agentId: 'agent-discovery',
+        timestamp: '2025-01-15T10:00:00Z',
+        event: 'started',
+        message: 'Iniciando extracción de requerimientos técnicos',
+        duration: 0
+      },
+      {
+        id: 'tl2',
+        agentId: 'agent-discovery',
+        timestamp: '2025-01-15T10:32:00Z',
+        event: 'completed',
+        message: 'Requerimientos extraídos exitosamente - Confianza 95%',
+        duration: 1920
+      },
+      {
+        id: 'tl3',
+        agentId: 'agent-engineering',
+        timestamp: '2025-01-15T10:35:00Z',
+        event: 'started',
+        message: 'Iniciando diseño de proceso y dimensionamiento',
+        duration: 0
+      }
+    ],
+    overallProgress: 44,
+    overallConfidence: 75,
+    estimatedTotal: 45,
+    createdAt: '2025-01-15T10:00:00Z'
+  }
+];
+
+export const mockProcurementComparison: ProcurementComparison = {
+  id: 'proc-1',
+  projectId: '3',
+  equipmentType: 'Sistema MBR',
+  quotes: [
+    {
+      id: 'mbr-quote-1',
+      equipmentName: 'Sistema MBR (Biorreactor de Membrana)',
+      specifications: '750 m³/día, membranas PVDF, control automático',
+      supplier: 'Suez Water Technologies',
+      model: 'MBR-ZeeWeed-500',
+      price: 89500,
+      currency: 'USD',
+      deliveryTime: 16,
+      warranty: '3 años membranas, 2 años equipos',
+      localSupport: true,
+      certifications: ['NSF', 'ASME', 'ISO 9001'],
+      score: 94,
+      pros: [
+        'Tecnología MBR líder mundial',
+        'Membranas de alta durabilidad',
+        'Soporte técnico 24/7 en México',
+        'Eficiencia energética optimizada'
+      ],
+      cons: [
+        'Precio 8% superior al promedio',
+        'Requiere personal especializado'
+      ],
+      contactInfo: {
+        name: 'Ing. Patricia Sánchez',
+        email: 'patricia.sanchez@suez.com',
+        phone: '+52 33 2345 6789'
+      },
+      technicalSpecs: {
+        'Flux de membrana': '20 LMH',
+        'MLSS': '8000-12000 mg/L',
+        'Eficiencia DBO': '99%',
+        'Eficiencia patógenos': '99.99%',
+        'Consumo energético': '0.8 kWh/m³'
+      }
+    },
+    {
+      id: 'mbr-quote-2',
+      equipmentName: 'Sistema MBR (Biorreactor de Membrana)',
+      specifications: '750 m³/día, membranas PVDF, control automático',
+      supplier: 'Kubota Membrane',
+      model: 'KURION-750',
+      price: 82900,
+      currency: 'USD',
+      deliveryTime: 20,
+      warranty: '2 años completos',
+      localSupport: false,
+      certifications: ['JIS', 'CE', 'ISO 14001'],
+      score: 81,
+      pros: [
+        'Precio competitivo (-7%)',
+        'Tecnología japonesa confiable',
+        'Diseño compacto'
+      ],
+      cons: [
+        'Sin soporte local directo',
+        'Tiempo de entrega más largo',
+        'Documentación en inglés únicamente'
+      ],
+      contactInfo: {
+        name: 'Hiroshi Tanaka',
+        email: 'h.tanaka@kubota.com',
+        phone: '+81 6 6648 2111'
+      },
+      technicalSpecs: {
+        'Flux de membrana': '18 LMH',
+        'MLSS': '6000-10000 mg/L',
+        'Eficiencia DBO': '98%',
+        'Eficiencia patógenos': '99.9%',
+        'Consumo energético': '0.9 kWh/m³'
+      }
+    }
+  ],
+  comparison: {
+    criteria: [
+      {
+        id: 'price',
+        name: 'Precio',
+        description: 'Costo total del equipo',
+        weight: 0.25,
+        type: 'price',
+        format: 'number'
+      },
+      {
+        id: 'quality',
+        name: 'Calidad',
+        description: 'Calidad técnica y reputación',
+        weight: 0.3,
+        type: 'quality',
+        format: 'rating'
+      },
+      {
+        id: 'support',
+        name: 'Soporte',
+        description: 'Soporte técnico local',
+        weight: 0.2,
+        type: 'support',
+        format: 'rating'
+      },
+      {
+        id: 'delivery',
+        name: 'Entrega',
+        description: 'Tiempo de entrega',
+        weight: 0.15,
+        type: 'delivery',
+        format: 'number'
+      },
+      {
+        id: 'technical',
+        name: 'Técnico',
+        description: 'Especificaciones técnicas',
+        weight: 0.1,
+        type: 'technical',
+        format: 'rating'
+      }
+    ],
+    scores: {
+      'mbr-quote-1': {
+        'price': 75,
+        'quality': 95,
+        'support': 95,
+        'delivery': 85,
+        'technical': 90
+      },
+      'mbr-quote-2': {
+        'price': 85,
+        'quality': 80,
+        'support': 40,
+        'delivery': 75,
+        'technical': 85
+      }
+    },
+    weights: {
+      'price': 0.25,
+      'quality': 0.3,
+      'support': 0.2,
+      'delivery': 0.15,
+      'technical': 0.1
+    },
+    totalScores: {
+      'mbr-quote-1': 87.25,
+      'mbr-quote-2': 71.75
+    }
+  },
+  aiRecommendation: {
+    recommendedQuoteId: 'mbr-quote-1',
+    confidence: 94,
+    reasoning: [
+      'Suez ofrece la mejor relación calidad-precio considerando el soporte técnico local',
+      'Las membranas ZeeWeed tienen mayor durabilidad comprobada en aplicaciones similares',
+      'El soporte 24/7 local reduce significativamente los riesgos operacionales',
+      'La eficiencia energética superior (0.8 vs 0.9 kWh/m³) genera ahorros a largo plazo'
+    ],
+    alternatives: [
+      {
+        quoteId: 'mbr-quote-2',
+        reason: 'Opción más económica si el presupuesto es crítico',
+        confidence: 65
+      }
+    ],
+    riskFactors: [
+      'Dependencia de un solo proveedor para membranas',
+      'Costo de reposición de membranas cada 5-7 años'
+    ],
+    costBenefit: {
+      shortTerm: 82900, // Costo inmediato
+      longTerm: 195000, // Costo total 10 años
+      riskAdjusted: 168000 // Considerando riesgos
+    }
+  },
+  filters: {
+    priceRange: {
+      min: 80000,
+      max: 100000
+    },
+    deliveryTime: {
+      max: 25
+    },
+    localSupport: null,
+    certifications: [],
+    suppliers: []
+  },
+  sorting: {
+    field: 'aiRecommendation',
+    direction: 'desc'
+  },
+  selectedQuoteIds: ['mbr-quote-1'],
+  totalEstimate: 89500,
+  currency: 'USD',
+  createdAt: '2025-02-08T09:00:00Z',
+  updatedAt: '2025-02-08T15:30:00Z'
+};
+
+export const mockDiscoverySession: DiscoverySession = {
+  id: 'disc-1',
+  projectId: '1',
+  status: 'active',
+  requirements: [
+    {
+      id: 'req-1',
+      category: 'technical',
+      type: 'flow_rate',
+      value: 500,
+      unit: 'm³/día',
+      confidence: 95,
+      source: 'user_input',
+      timestamp: '2025-01-15T10:15:00Z',
+      validated: true,
+      critical: true
+    },
+    {
+      id: 'req-2',
+      category: 'technical',
+      type: 'dbo5',
+      value: 1200,
+      unit: 'mg/L',
+      confidence: 98,
+      source: 'user_input',
+      timestamp: '2025-01-15T10:15:00Z',
+      validated: true,
+      critical: true
+    },
+    {
+      id: 'req-3',
+      category: 'regulatory',
+      type: 'discharge_limits',
+      value: 'NOM-002',
+      confidence: 100,
+      source: 'user_input',
+      timestamp: '2025-01-15T10:30:00Z',
+      validated: true,
+      critical: true
+    },
+    {
+      id: 'req-4',
+      category: 'operational',
+      type: 'available_space',
+      value: 800,
+      unit: 'm²',
+      confidence: 100,
+      source: 'user_input',
+      timestamp: '2025-01-15T10:30:00Z',
+      validated: true,
+      critical: false
+    },
+    {
+      id: 'req-5',
+      category: 'financial',
+      type: 'budget_range',
+      value: '140000-160000',
+      unit: 'USD',
+      confidence: 85,
+      source: 'ai_inference',
+      timestamp: '2025-01-15T10:17:00Z',
+      validated: false,
+      critical: false
+    }
+  ],
+  confidence: 92,
+  completeness: 85,
+  chatMessages: [
+    {
+      id: '1',
+      type: 'system',
+      content: 'Chat iniciado para el proyecto Sistema Los Mochis. Soy tu especialista en tratamiento de agua industrial.',
+      timestamp: '2025-01-15T10:00:00Z'
+    },
+    {
+      id: '2', 
+      type: 'assistant',
+      content: '¡Hola! Soy tu consultor especializado en tratamiento de aguas residuales industriales. Veo que trabajaremos en el Sistema Los Mochis para procesamiento de alimentos.\n\nPara diseñar la solución óptima, necesito entender los parámetros de tu agua residual. ¿Podrías contarme sobre:\n\n• **Caudal de diseño** - ¿cuántos m³ procesas por día?\n• **Tipo de industria** - ¿qué alimentos procesan específicamente?\n• **Calidad del efluente** - ¿tienes análisis de DBO, DQO, grasas?',
+      timestamp: '2025-01-15T10:01:00Z',
+      confidence: 95
+    },
+    {
+      id: '3',
+      type: 'user',
+      content: 'Procesamos 500 m³/día de agua residual. Somos una planta procesadora de carnes y embutidos. Los análisis muestran DBO5 de 1,200 mg/L, DQO de 2,400 mg/L y grasas de 150 mg/L.',
+      timestamp: '2025-01-15T10:15:00Z',
+      extractedData: [
+        {
+          id: 'req-1',
+          category: 'technical',
+          type: 'flow_rate',
+          value: 500,
+          unit: 'm³/día',
+          confidence: 95,
+          source: 'user_input',
+          timestamp: '2025-01-15T10:15:00Z',
+          validated: true,
+          critical: true
+        },
+        {
+          id: 'req-2',
+          category: 'technical',
+          type: 'dbo5',
+          value: 1200,
+          unit: 'mg/L',
+          confidence: 98,
+          source: 'user_input',
+          timestamp: '2025-01-15T10:15:00Z',
+          validated: true,
+          critical: true
+        }
+      ]
+    },
+    {
+      id: '4',
+      type: 'assistant',
+      content: 'Perfecto, tengo el panorama técnico. Con 500 m³/día y esos parámetros de carga orgánica alta, recomiendo un tren de tratamiento robusto:\n\n**🔧 SISTEMA PROPUESTO:**\n• **Pretratamiento**: Desarenador + separador de grasas\n• **Tratamiento primario**: DAF (flotación) para grasas\n• **Tratamiento biológico**: Lodos activados aireación extendida\n• **Tratamiento terciario**: Sedimentación + filtros de arena\n\n**💰 CAPEX estimado**: $140,000 - $160,000 USD\n**⏱️ Tiempo construcción**: 3-4 meses\n\n¿Tienes restricciones de espacio? ¿Cuáles son los límites de descarga que debes cumplir?',
+      timestamp: '2025-01-15T10:17:00Z',
+      confidence: 88
+    },
+    {
+      id: '5',
+      type: 'user',
+      content: 'El espacio disponible es de 800 m². Los límites son NOM-002: DBO5 < 75 mg/L, DQO < 150 mg/L, grasas < 25 mg/L. También necesitamos cumplir con la normativa ambiental estatal.',
+      timestamp: '2025-01-15T10:30:00Z',
+      extractedData: [
+        {
+          id: 'req-4',
+          category: 'operational',
+          type: 'available_space',
+          value: 800,
+          unit: 'm²',
+          confidence: 100,
+          source: 'user_input',
+          timestamp: '2025-01-15T10:30:00Z',
+          validated: true,
+          critical: false
+        },
+        {
+          id: 'req-3',
+          category: 'regulatory',
+          type: 'discharge_limits',
+          value: 'NOM-002',
+          confidence: 100,
+          source: 'user_input',
+          timestamp: '2025-01-15T10:30:00Z',
+          validated: true,
+          critical: true
+        }
+      ]
+    },
+    {
+      id: '6',
+      type: 'assistant',
+      content: '¡Excelente! Con 800 m² tenemos espacio suficiente para un diseño optimizado. Para cumplir NOM-002 sin problemas y considerar futuras regulaciones más estrictas:\n\n**🎯 DISEÑO FINAL OPTIMIZADO:**\n\n**Pretratamiento (100 m²)**\n• Cárcamo de bombeo\n• Desarenador tipo vórtice\n• Trampa de grasas 15 m³\n\n**Tratamiento Primario (150 m²)**\n• Sistema DAF 30 m³/h\n• Eficiencia remoción: 85% grasas, 60% DBO\n\n**Tratamiento Biológico (400 m²)**\n• Reactor lodos activados 180 m³\n• Tiempo retención: 8.6 horas\n• Edad de lodos: 20 días\n• Clarificador secundario Ø12m\n\n**Tratamiento Lodos (150 m²)**\n• Espesador por gravedad\n• Digestión aerobia\n• Lechos de secado\n\n**📊 EFICIENCIAS GARANTIZADAS:**\n• DBO5: <30 mg/L (60% bajo límite)\n• DQO: <80 mg/L (47% bajo límite)\n• Grasas: <10 mg/L (60% bajo límite)\n\n**💰 INVERSIÓN FINAL: $152,000 USD**\n**⚡ Consumo eléctrico: 45 kW promedio**\n\n¿Te parece adecuado proceder con la **generación de la propuesta técnica completa**?',
+      timestamp: '2025-01-15T10:32:00Z',
+      confidence: 92
+    }
+  ],
+  quickActions: [
+    {
+      id: 'qa-1',
+      type: 'upload_document',
+      label: 'Subir análisis de agua',
+      description: 'Adjunta el análisis fisicoquímico completo',
+      icon: 'FileText',
+      urgent: false,
+      estimatedTime: '2 min',
+      onClick: () => {}
+    },
+    {
+      id: 'qa-2',
+      type: 'proceed_to_engineering',
+      label: 'Proceder a ingeniería',
+      description: 'Generar propuesta técnica completa',
+      icon: 'ArrowRight',
+      urgent: true,
+      estimatedTime: '15 min',
+      onClick: () => {}
+    },
+    {
+      id: 'qa-3',
+      type: 'clarify_requirement',
+      label: 'Aclarar presupuesto',
+      description: 'Confirmar rango de inversión disponible',
+      icon: 'DollarSign',
+      urgent: false,
+      estimatedTime: '1 min',
+      onClick: () => {}
+    }
+  ],
+  insights: [
+    {
+      id: 'ins-1',
+      type: 'optimization',
+      title: 'Oportunidad de ahorro energético',
+      description: 'Con aireación extendida se puede reducir el consumo eléctrico en 15%',
+      impact: 'medium',
+      confidence: 82,
+      relatedRequirements: ['req-1', 'req-2'],
+      recommendations: [
+        'Implementar control automático de oxígeno disuelto',
+        'Considerar blowers de alta eficiencia'
+      ],
+      timestamp: '2025-01-15T10:17:00Z'
+    },
+    {
+      id: 'ins-2',
+      type: 'compliance',
+      title: 'Cumplimiento regulatorio robusto',
+      description: 'El diseño propuesto excede los límites de descarga con margen de seguridad',
+      impact: 'high',
+      confidence: 95,
+      relatedRequirements: ['req-3'],
+      recommendations: [
+        'Diseño conservador permite futuras regulaciones más estrictas'
+      ],
+      timestamp: '2025-01-15T10:32:00Z'
+    }
+  ],
+  nextSteps: [
+    'Validar presupuesto disponible',
+    'Confirmar cronograma de implementación',
+    'Revisar permisos ambientales requeridos'
+  ],
+  estimatedDuration: 25,
+  actualDuration: 32,
+  createdAt: '2025-01-15T10:00:00Z',
+  updatedAt: '2025-01-15T10:32:00Z'
+};
+
+export const mockExecutiveMetrics: ExecutiveMetrics = {
+  activeProjects: {
+    value: 3,
+    change: 1,
+    trend: 'up',
+    period: 'este mes',
+    format: 'number'
+  },
+  totalCapex: {
+    value: 625000,
+    change: 195000,
+    trend: 'up',
+    period: 'este mes',
+    format: 'currency'
+  },
+  inProgress: {
+    value: 2,
+    change: 0,
+    trend: 'neutral',
+    period: 'sin cambios',
+    format: 'number'
+  },
+  successRate: {
+    value: 94,
+    change: 6,
+    trend: 'up',
+    period: 'último trimestre',
+    format: 'percentage',
+    target: 90
+  },
+  averageSavings: {
+    value: 32,
+    change: 8,
+    trend: 'up',
+    period: 'último trimestre',
+    format: 'percentage',
+    target: 25
+  },
+  timeToProposal: {
+    value: 18,
+    change: -6,
+    trend: 'up',
+    period: 'última semana',
+    format: 'time'
+  },
+  aiEfficiency: {
+    value: 87,
+    change: 12,
+    trend: 'up',
+    period: 'último mes',
+    format: 'percentage',
+    target: 85
+  },
+  clientSatisfaction: {
+    value: 96,
+    change: 3,
+    trend: 'up',
+    period: 'último trimestre',
+    format: 'percentage',
+    target: 95
+  }
+};
+
+export const mockValueCreation: ValueCreationMetrics = {
+  costSavings: {
+    total: 88000,
+    percentage: 22,
+    breakdown: {
+      equipment: 53000,
+      engineering: 25000,
+      operations: 10000
+    }
+  },
+  timeReduction: {
+    proposal: 6,
+    engineering: 8,
+    procurement: 5
+  },
+  qualityImprovements: {
+    accuracy: 94,
+    completeness: 91,
+    clientApproval: 96
+  }
+};
+
+export const mockPremiumDashboard: PremiumDashboardData = {
+  executiveMetrics: mockExecutiveMetrics,
+  valueCreation: mockValueCreation,
+  aiAgentsStatus: mockAIWorkflows,
+  recentProjects: mockProjects.slice(0, 3),
+  quickActions: [
+    {
+      id: 'qa-dash-1',
+      type: 'proceed_to_engineering',
+      label: 'Generar Propuesta Los Mochis',
+      description: 'Chat 90% completo - IA lista para generar',
+      icon: 'FileText',
+      urgent: true,
+      estimatedTime: '15 min',
+      onClick: () => {}
+    },
+    {
+      id: 'qa-dash-2',
+      type: 'selection_required',
+      label: 'Seleccionar Equipos Mazatlán',
+      description: '24 equipos cotizados - $53K en ahorros',
+      icon: 'ShoppingCart',
+      urgent: true,
+      estimatedTime: '30 min',
+      onClick: () => {}
+    },
+    {
+      id: 'qa-dash-3',
+      type: 'approval_needed',
+      label: 'Aprobar P&ID Culiacán',
+      description: 'Ingeniería 75% completa',
+      icon: 'CheckCircle',
+      urgent: false,
+      estimatedTime: '2 hrs',
+      onClick: () => {}
+    }
+  ],
+  insights: mockDiscoverySession.insights
+};
 
 // CHAT MESSAGES (more realistic for water treatment)
 export const mockChatMessages = [

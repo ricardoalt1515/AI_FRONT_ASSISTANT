@@ -3,7 +3,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppHeader } from "./app-header";
 import { AppSidebar } from "./app-sidebar";
-import { ContextualHeader } from "./contextual-header";
 import { ContextualFAB } from "./contextual-fab";
 import { SmartBreadcrumb } from "@/components/ui/smart-breadcrumb";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,6 @@ interface AppLayoutProps {
   children: React.ReactNode;
   sidebarType?: "dashboard" | "project";
   projectId?: string;
-  showContextualHeader?: boolean;
   showBreadcrumbs?: boolean;
   showFAB?: boolean;
   className?: string;
@@ -24,7 +22,6 @@ function AppLayoutInternal({
   children, 
   sidebarType = "dashboard", 
   projectId,
-  showContextualHeader = true,
   showBreadcrumbs = true,
   showFAB = true,
   className
@@ -49,11 +46,6 @@ function AppLayoutInternal({
       <div className="flex flex-1 flex-col min-w-0">
         {/* Global App Header - always visible */}
         <AppHeader className="flex-shrink-0" />
-        
-        {/* Contextual Project Header - shown for project pages */}
-        {showContextualHeader && (
-          <ContextualHeader projectId={projectId} className="flex-shrink-0" />
-        )}
         
         {/* Main Content Area with improved overflow handling */}
         <SidebarInset className="flex-1 overflow-auto p-0">

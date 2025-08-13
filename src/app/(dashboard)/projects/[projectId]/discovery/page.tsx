@@ -89,12 +89,9 @@ export default function DiscoveryPage() {
             </div>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Phase Progress</span>
-              <span className="font-medium">{discoveryProgress?.progress || 0}%</span>
-            </div>
-            <Progress value={discoveryProgress?.progress || 0} className="h-2" />
+          <div className="text-center">
+            <span className="text-2xl font-bold">{discoveryProgress?.progress || 0}%</span>
+            <p className="text-sm text-muted-foreground">Completado</p>
           </div>
         </div>
         {/* Compact Sidebar with Collapsible Sections */}

@@ -63,10 +63,10 @@ const fabActions = {
       urgent: false
     },
     {
-      id: 'view-progress',
-      label: 'Ver Progreso',
+      id: 'view-overview',
+      label: 'Ver Proyecto',
       icon: BarChart3,
-      href: (projectId: string) => `/projects/${projectId}/progress`,
+      href: (projectId: string) => `/projects/${projectId}`,
       color: 'bg-green-600 text-white hover:bg-green-700',
       urgent: false
     }

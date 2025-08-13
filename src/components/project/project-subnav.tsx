@@ -17,8 +17,7 @@ const navItems: NavItem[] = [
   { key: "proposal", label: "Proposal", href: (id) => `/projects/${id}/proposal` },
   { key: "engineering", label: "Engineering", href: (id) => `/projects/${id}/engineering` },
   { key: "procurement", label: "Procurement", href: (id) => `/projects/${id}/procurement` },
-  { key: "documents", label: "Documents", href: (id) => `/projects/${id}/documents` },
-  { key: "progress", label: "Progress", href: (id) => `/projects/${id}/progress` },
+  { key: "chat", label: "Chat", href: (id) => `/projects/${id}/chat` },
 ];
 
 export function ProjectSubnav() {
