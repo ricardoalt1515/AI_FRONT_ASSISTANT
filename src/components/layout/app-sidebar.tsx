@@ -77,7 +77,7 @@ const navigationItems = [
 const quickActions = [
   {
     title: "Nuevo Proyecto",
-    href: "/projects/create",
+    href: "/onboarding",
     icon: Plus
   },
   {
