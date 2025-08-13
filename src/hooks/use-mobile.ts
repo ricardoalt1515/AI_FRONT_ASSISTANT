@@ -7,7 +7,8 @@ const DESKTOP_BREAKPOINT = 1280 // Desktop: 1024px - 1279px
                                 // Large: >= 1280px
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop' | 'large'
-export type SidebarState = 'dashboard-expanded' | 'project-focused' | 'task-minimized' | 'mobile-overlay'
+// Simplified sidebar states
+export type SidebarState = 'expanded' | 'collapsed' | 'auto'
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
@@ -69,36 +70,76 @@ export function useDeviceType(): DeviceType {
   return deviceType
 }
 
-export function useSidebarState(): {
-  suggestedState: SidebarState
-  adaptiveState: SidebarState
-  deviceType: DeviceType
-  isMobile: boolean
-} {
+// Simplified sidebar persistence with localStorage + cookie fallback
+const SIDEBAR_STORAGE_KEY = 'h2o-sidebar-state'
+const SIDEBAR_COOKIE_NAME = 'sidebar_state'
+
+export function useSidebarPersistence() {
+  const [state, setState] = React.useState<SidebarState>('auto')
   const deviceType = useDeviceType()
   const isMobile = useIsMobile()
-  
-  const suggestedState = React.useMemo((): SidebarState => {
-    if (deviceType === 'mobile') {
-      return 'mobile-overlay'
+
+  // Load persisted state on mount
+  React.useEffect(() => {
+    const loadPersistedState = () => {
+      try {
+        // Try localStorage first
+        const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
+        if (stored && ['expanded', 'collapsed', 'auto'].includes(stored)) {
+          setState(stored as SidebarState)
+          return
+        }
+      } catch {
+        // Fallback to cookies if localStorage fails
+        const cookieValue = document.cookie
+          .split('; ')
+          .find(row => row.startsWith(SIDEBAR_COOKIE_NAME + '='))
+          ?.split('=')[1]
+        
+        if (cookieValue && ['expanded', 'collapsed', 'auto'].includes(cookieValue)) {
+          setState(cookieValue as SidebarState)
+          return
+        }
+      }
+      
+      // Default to auto for responsive behavior
+      setState('auto')
+    }
+
+    loadPersistedState()
+  }, [])
+
+  // Persist state changes
+  const setPersistedState = React.useCallback((newState: SidebarState) => {
+    setState(newState)
+    
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, newState)
+    } catch {
+      // Fallback to cookie
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${newState}; path=/; max-age=${60 * 60 * 24 * 7}`
+    }
+  }, [])
+
+  // Resolve actual state based on preference and device
+  const resolvedState = React.useMemo((): SidebarState => {
+    if (state === 'auto') {
+      // Auto mode: responsive behavior
+      if (isMobile) return 'collapsed'
+      if (deviceType === 'tablet') return 'collapsed'
+      return 'expanded'
     }
     
-    if (deviceType === 'tablet') {
-      return 'task-minimized'
-    }
-    
-    if (deviceType === 'desktop') {
-      return 'project-focused'
-    }
-    
-    // Large screens get full dashboard experience
-    return 'dashboard-expanded'
-  }, [deviceType])
+    // Respect user preference, but collapse on mobile regardless
+    if (isMobile) return 'collapsed'
+    return state
+  }, [state, deviceType, isMobile])
 
   return {
-    suggestedState,
-    adaptiveState: suggestedState,
+    state: resolvedState,
+    userPreference: state,
     deviceType,
-    isMobile
+    isMobile,
+    setState: setPersistedState
   }
 }

@@ -37,7 +37,7 @@ const PremiumAIAgentsFlow = ({
   expandedAgent, 
   className 
 }: PremiumAIAgentsFlowProps) => {
-  const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set([expandedAgent].filter(Boolean)));
+  const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set([expandedAgent].filter(Boolean) as string[]));
 
   const toggleAgent = (agentId: string) => {
     const newExpanded = new Set(expandedAgents);
@@ -137,6 +137,22 @@ const PremiumAIAgentsFlow = ({
     }
   };
 
+  // Handle missing workflow data defensively
+  if (!workflow) {
+    return (
+      <div className={cn('space-y-6 p-6', className)}>
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-muted-foreground">No hay datos de workflow disponibles</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const agents = workflow.agents || [];
+  const completedAgents = agents.filter(a => a.status === 'completed').length;
+
   return (
     <div className={cn('space-y-6', className)}>
       {/* Workflow Overview */}
@@ -145,35 +161,37 @@ const PremiumAIAgentsFlow = ({
           <CardTitle className="flex items-center gap-3">
             <Zap className="h-6 w-6 text-blue-600" />
             Pipeline de Agentes IA
-            <Badge variant="outline" className={getOverallStatusColor(workflow.status)}>
+            <Badge variant="outline" className={getOverallStatusColor(workflow.status || 'not_started')}>
               {workflow.status === 'in_progress' ? 'En Proceso' : 
                workflow.status === 'completed' ? 'Completado' : 
                workflow.status === 'error' ? 'Error' : 'No Iniciado'}
             </Badge>
           </CardTitle>
           <CardDescription>
-            Proyecto: {workflow.projectId} • Iniciado: {new Date(workflow.createdAt).toLocaleDateString()}
+            Proyecto: {workflow.projectId || workflow.projectName || 'Sin definir'} • Iniciado: {
+              workflow.createdAt ? new Date(workflow.createdAt).toLocaleDateString() : 'Fecha no disponible'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{workflow.overallProgress}%</div>
+              <div className="text-2xl font-bold text-blue-600">{workflow.overallProgress || 0}%</div>
               <div className="text-sm text-muted-foreground">Progreso Total</div>
             </div>
             <div className="text-center">
-              <div className={cn("text-2xl font-bold", getConfidenceColor(workflow.overallConfidence))}>
-                {workflow.overallConfidence}%
+              <div className={cn("text-2xl font-bold", getConfidenceColor(workflow.overallConfidence || 0))}>
+                {workflow.overallConfidence || 0}%
               </div>
               <div className="text-sm text-muted-foreground">Confianza</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{workflow.estimatedTotal}min</div>
+              <div className="text-2xl font-bold text-purple-600">{workflow.estimatedTotal || 0}min</div>
               <div className="text-sm text-muted-foreground">Tiempo Estimado</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {workflow.agents.filter(a => a.status === 'completed').length}/{workflow.agents.length}
+                {completedAgents}/{agents.length}
               </div>
               <div className="text-sm text-muted-foreground">Agentes Completados</div>
             </div>
@@ -183,19 +201,19 @@ const PremiumAIAgentsFlow = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span>Progreso del Pipeline</span>
-              <span>{workflow.overallProgress}%</span>
+              <span>{workflow.overallProgress || 0}%</span>
             </div>
-            <Progress value={workflow.overallProgress} className="h-3" />
+            <Progress value={workflow.overallProgress || 0} className="h-3" />
           </div>
         </CardContent>
       </Card>
 
       {/* Agents Flow */}
       <div className="space-y-4">
-        {workflow.agents.map((agent, index) => (
+        {agents.map((agent, index) => (
           <div key={agent.id} className="relative">
             {/* Connection Line */}
-            {index < workflow.agents.length - 1 && (
+            {index < agents.length - 1 && (
               <div className="absolute left-6 top-16 w-0.5 h-8 bg-border z-0" />
             )}
 
@@ -321,7 +339,7 @@ const PremiumAIAgentsFlow = ({
                           <h4 className="text-sm font-medium mb-2">Dependencias</h4>
                           <div className="flex flex-wrap gap-2">
                             {agent.dependencies.map((depId) => {
-                              const depAgent = workflow.agents.find(a => a.id === depId);
+                              const depAgent = agents.find(a => a.id === depId);
                               return depAgent ? (
                                 <Badge key={depId} variant="outline" className="text-xs">
                                   {depAgent.name}
@@ -329,7 +347,11 @@ const PremiumAIAgentsFlow = ({
                                     <CheckCircle className="h-3 w-3 ml-1 text-green-600" />
                                   )}
                                 </Badge>
-                              ) : null;
+                              ) : (
+                                <Badge key={depId} variant="outline" className="text-xs">
+                                  {depId}
+                                </Badge>
+                              );
                             })}
                           </div>
                         </div>
@@ -390,7 +412,7 @@ const PremiumAIAgentsFlow = ({
       </div>
 
       {/* Timeline */}
-      {workflow.timeline.length > 0 && (
+      {workflow?.timeline && workflow.timeline.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -404,13 +426,13 @@ const PremiumAIAgentsFlow = ({
           <CardContent>
             <div className="space-y-4">
               {workflow.timeline.slice().reverse().map((event, index) => {
-                const agent = workflow.agents.find(a => a.id === event.agentId);
+                const agent = workflow.agents?.find(a => a.id === event.agentId);
                 return (
-                  <div key={event.id} className="flex items-start gap-3">
+                  <div key={event.id || `event-${index}`} className="flex items-start gap-3">
                     <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{agent?.name}</span>
+                        <span className="text-sm font-medium">{agent?.name || 'Agente Desconocido'}</span>
                         <Badge variant="outline" className="text-xs">
                           {event.event === 'started' ? 'Iniciado' :
                            event.event === 'completed' ? 'Completado' :
@@ -423,9 +445,9 @@ const PremiumAIAgentsFlow = ({
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">{event.message}</p>
+                      <p className="text-sm text-muted-foreground">{event.message || 'Sin mensaje'}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(event.timestamp).toLocaleString()}
+                        {event.timestamp ? new Date(event.timestamp).toLocaleString() : 'Fecha desconocida'}
                       </p>
                     </div>
                   </div>

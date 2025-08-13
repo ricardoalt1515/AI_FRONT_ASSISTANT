@@ -1,14 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useProject } from '@/contexts/project-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useParams } from 'next/navigation';
-import { StatsGrid } from '@/components/project/stats-grid';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   ArrowRight, 
   MessageSquare, 
@@ -19,233 +17,257 @@ import {
   Clock,
   Users,
   Calendar,
-  ChevronDown
+  Brain,
+  Activity,
+  BarChart3,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
+import { mockProjects, mockAIWorkflows, mockProcurementComparison, mockDiscoverySession } from '@/lib/mock-data';
+import PremiumAIAgentsFlow from '@/components/agents/premium-ai-agents-flow';
+import PremiumProcurementWizard from '@/components/agents/premium-procurement-wizard';
+import PremiumDiscoveryChat from '@/components/chat/premium-discovery-chat';
 
-export default function ProjectOverview() {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { project, currentPhase, phaseProgress, getNextPhase } = useProject();
-  const [openPhaseId, setOpenPhaseId] = React.useState<string | null>(() => currentPhase?.id ?? null);
-  React.useEffect(() => {
-    setOpenPhaseId(currentPhase?.id ?? null);
-  }, [currentPhase?.id]);
+export default function ProjectWorkspace() {
+  const params = useParams<{ projectId: string }>();
+  const projectId = params.projectId;
   
-  const phases = [
-    {
-      id: 'discovery',
-      name: 'Discovery & Requirements',
-      description: 'Define project requirements through AI-powered conversation',
-      icon: MessageSquare,
-      color: 'bg-blue-100 text-blue-700 border-blue-200',
-      status: phaseProgress.discovery.status,
-      progress: phaseProgress.discovery.progress,
-      url: `/projects/${projectId}/discovery`
-    },
-    {
-      id: 'proposal',
-      name: 'Technical Proposal',
-      description: 'AI-generated comprehensive technical proposal and cost analysis',
-      icon: FileText,
-      color: 'bg-green-100 text-green-700 border-green-200',
-      status: phaseProgress.proposal.status,
-      progress: phaseProgress.proposal.progress,
-      url: `/projects/${projectId}/proposal`
-    },
-    {
-      id: 'engineering',
-      name: 'Engineering Design',
-      description: 'Detailed engineering specifications, P&IDs, and technical drawings',
-      icon: Wrench,
-      color: 'bg-purple-100 text-purple-700 border-purple-200',
-      status: phaseProgress.engineering.status,
-      progress: phaseProgress.engineering.progress,
-      url: `/projects/${projectId}/engineering`
-    },
-    {
-      id: 'procurement',
-      name: 'Procurement & Sourcing',
-      description: 'Supplier selection, equipment sourcing, and cost optimization',
-      icon: ShoppingCart,
-      color: 'bg-orange-100 text-orange-700 border-orange-200',
-      status: phaseProgress.procurement.status,
-      progress: phaseProgress.procurement.progress,
-      url: `/projects/${projectId}/procurement`
-    }
-  ];
+  // Find the project data
+  const project = mockProjects.find(p => p.id === projectId);
+  const workflow = mockAIWorkflows[0];
+  
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Proyecto no encontrado</p>
+      </div>
+    );
+  }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'in_progress':
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-400" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-700';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-700';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-700';
-      default:
-        return 'bg-gray-100 text-gray-500';
-    }
-  };
-
-  const canAccessPhase = (phaseId: string) => {
-    const phaseIndex = phases.findIndex(p => p.id === phaseId);
-    if (phaseIndex === 0) return true;
-    
-    const previousPhase = phases[phaseIndex - 1];
-    return previousPhase.status === 'completed';
-  };
+  const totalProgress = Math.round((project.progress.proposal + project.progress.engineering + project.progress.procurement) / 3);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* KPIs */}
-      <div className="mb-8">
-        <StatsGrid compact />
-        {/* Overall Progress */}
-        <div className="bg-white rounded-lg border p-6 mt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Overall Progress</h3>
-            <Badge variant="outline" className={getStatusColor(currentPhase?.status || 'pending')}>
-              {currentPhase?.name || 'Getting Started'}
-            </Badge>
+    <div className="space-y-6 p-6">
+      {/* Project Header */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
+            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+              <span>{project.location}</span>
+              <span>•</span>
+              <span>{project.industry}</span>
+              <span>•</span>
+              <span>Última actividad: {project.lastActivity}</span>
+            </div>
           </div>
-          <Progress value={project?.overallProgress || 15} className="h-2 mb-2" />
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{project?.overallProgress || 15}% Complete</span>
-            <span>Est. completion: {project?.estimatedCompletion || '6-8 weeks'}</span>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-blue-100 text-blue-800">
+              {project.status === 'proposal' ? 'Propuesta' :
+               project.status === 'engineering' ? 'Ingeniería' :
+               project.status === 'procurement' ? 'Procurement' : 'Desconocido'}
+            </Badge>
+            <Button variant="outline" size="sm">
+              <Settings className="h-4 w-4 mr-2" />
+              Configurar
+            </Button>
           </div>
         </div>
+
+        {/* Progress Overview */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="grid gap-6 md:grid-cols-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Progreso General</span>
+                  <span className="font-medium">{totalProgress}%</span>
+                </div>
+                <Progress value={totalProgress} className="h-2" />
+              </div>
+              
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  ${(project.financial.capexOriginal / 1000).toFixed(0)}K
+                </div>
+                <div className="text-xs text-muted-foreground">CAPEX Estimado</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{project.roi}%</div>
+                <div className="text-xs text-muted-foreground">ROI Proyectado</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">4</div>
+                <div className="text-xs text-muted-foreground">Agentes IA Activos</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Project Phases (Collapsible) */}
-      <div className="space-y-3">
-        {phases.map((phase, index) => {
-          const isAccessible = canAccessPhase(phase.id);
-          const isActive = currentPhase?.id === phase.id;
+      {/* AI Workspace Tabs */}
+      <Tabs defaultValue="pipeline" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="pipeline" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            Pipeline IA
+          </TabsTrigger>
+          <TabsTrigger value="discovery" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Discovery
+          </TabsTrigger>
+          <TabsTrigger value="procurement" className="flex items-center gap-2">
+            <ShoppingCart className="h-4 w-4" />
+            Procurement
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Documentos
+          </TabsTrigger>
+        </TabsList>
 
-          return (
-            <Collapsible
-              key={phase.id}
-              open={openPhaseId === phase.id}
-              onOpenChange={(open) => setOpenPhaseId(open ? phase.id : null)}
-              className={`group border rounded-md bg-white ${!isAccessible ? 'opacity-60' : ''}`}
-            >
-              <CollapsibleTrigger className="group w-full px-4 py-3 flex items-center justify-between">
+        {/* AI Pipeline Tab */}
+        <TabsContent value="pipeline" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Flujo de Agentes IA - {project.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PremiumAIAgentsFlow 
+                workflow={{
+                  ...workflow,
+                  projectName: project.name
+                }}
+                onAgentClick={(agentId) => console.log('Agent clicked:', agentId)}
+                onRetry={(agentId) => console.log('Retry agent:', agentId)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Discovery Tab */}
+        <TabsContent value="discovery" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Sesión de Discovery - {project.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PremiumDiscoveryChat 
+                session={{
+                  ...mockDiscoverySession,
+                  projectName: project.name
+                }}
+                onMessageSend={(message) => console.log('Message sent:', message)}
+                onRequirementValidate={(reqId, validated) => console.log('Requirement:', reqId, validated)}
+                onQuickAction={(actionId) => console.log('Quick action:', actionId)}
+                onProceedToEngineering={() => console.log('Proceed to engineering')}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Procurement Tab */}
+        <TabsContent value="procurement" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Análisis de Procurement - {project.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PremiumProcurementWizard 
+                comparison={{
+                  ...mockProcurementComparison,
+                  projectName: project.name
+                }}
+                onQuoteSelect={(quoteIds) => console.log('Quotes selected:', quoteIds)}
+                onFilterChange={(filters) => console.log('Filters changed:', filters)}
+                onProceed={() => console.log('Proceed with procurement')}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${phase.color}`}>
-                    <phase.icon className="h-5 w-5" />
+                  <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <FileText className="h-5 w-5" />
                   </div>
-                  <div className="text-left">
-                    <div className="font-medium">{phase.name}</div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {getStatusIcon(phase.status)}
-                      <Badge variant="outline" className={getStatusColor(phase.status)}>
-                        {phase.status.replace('_', ' ')}
-                      </Badge>
-                      <span>• {phase.progress}%</span>
-                    </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium">Propuesta Técnica</h4>
+                    <p className="text-sm text-muted-foreground">Generada por IA</p>
                   </div>
+                  <Badge variant="outline" className="text-xs">PDF</Badge>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span>Phase {index + 1}/4</span>
-                  <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="px-4 pb-4">
-                <p className="text-sm text-gray-600 mb-3">{phase.description}</p>
-                <div className="mb-3">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span>Progress</span>
-                    <span>{phase.progress}%</span>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                    <Wrench className="h-5 w-5" />
                   </div>
-                  <Progress value={phase.progress} className="h-2" />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    asChild={isAccessible}
-                    disabled={!isAccessible}
-                    className="flex-1"
-                    variant={isActive ? 'default' : phase.status === 'completed' ? 'outline' : 'default'}
-                  >
-                    {isAccessible ? (
-                      <Link href={phase.url}>
-                        {phase.status === 'completed' ? 'Review' : phase.status === 'in_progress' ? 'Continue' : 'Start'}
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    ) : (
-                      <div>
-                        Complete Previous Phase
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </div>
-                    )}
-                  </Button>
-                  {phase.status === 'completed' && (
-                    <Button variant="outline" size="icon">
-                      <CheckCircle className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                {isActive && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium text-blue-900 mb-1">Current Focus</h4>
-                    <p className="text-xs text-blue-700">
-                      {phase.id === 'discovery' && 'Gathering requirements through AI conversation'}
-                      {phase.id === 'proposal' && 'Generating technical proposal and cost analysis'}
-                      {phase.id === 'engineering' && 'Creating detailed engineering specifications'}
-                      {phase.id === 'procurement' && 'Optimizing supplier selection and pricing'}
-                    </p>
+                  <div className="flex-1">
+                    <h4 className="font-medium">P&ID Principal</h4>
+                    <p className="text-sm text-muted-foreground">Diagrama de proceso</p>
                   </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          );
-        })}
-      </div>
+                  <Badge variant="outline" className="text-xs">DWG</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                    <BarChart3 className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium">Lista de Equipos</h4>
+                    <p className="text-sm text-muted-foreground">BOM completa</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">XLS</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Quick Actions */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-4">
-            <div className="flex items-center space-x-3">
-              <MessageSquare className="h-8 w-8 text-blue-600" />
-              <div>
-                <h4 className="font-medium">Continue Chat</h4>
-                <p className="text-sm text-gray-600">Ask questions or refine requirements</p>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="flex items-center space-x-3">
-              <Users className="h-8 w-8 text-green-600" />
-              <div>
-                <h4 className="font-medium">Team Collaboration</h4>
-                <p className="text-sm text-gray-600">Invite team members and stakeholders</p>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="flex items-center space-x-3">
-              <Calendar className="h-8 w-8 text-purple-600" />
-              <div>
-                <h4 className="font-medium">Schedule Review</h4>
-                <p className="text-sm text-gray-600">Book a technical review session</p>
-              </div>
-            </div>
-          </Card>
-        </div>
+      <div className="flex items-center gap-2 pt-4 border-t">
+        <Button asChild>
+          <Link href={`/projects/${projectId}/chat`}>
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Abrir Chat
+          </Link>
+        </Button>
+        
+        <Button variant="outline" asChild>
+          <Link href={`/projects/${projectId}/engineering`}>
+            <Wrench className="h-4 w-4 mr-2" />
+            Ver Ingeniería
+          </Link>
+        </Button>
+        
+        <Button variant="outline">
+          <FileText className="h-4 w-4 mr-2" />
+          Generar Reporte
+        </Button>
       </div>
     </div>
   );

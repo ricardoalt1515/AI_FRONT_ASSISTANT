@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { 
   Search, 
   Bell,
@@ -44,20 +45,28 @@ export function AppHeader({ className }: AppHeaderProps) {
 
   return (
     <header className={cn(
-      "bg-white border-b border-border px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between sticky top-0 z-50 backdrop-blur-sm bg-white/95",
+      "bg-white/95 backdrop-blur-md border-b border-border/50 px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between sticky top-0 z-50 shadow-sm",
       className
     )}>
-      {/* Left Side - Logo & Search */}
+      {/* Left Side - Sidebar Trigger, Logo & Search */}
       <div className="flex items-center space-x-4">
-        {/* Logo - Only visible on large screens */}
-        {deviceType === 'large' && (
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Droplets className="h-4 w-4" />
+        {/* Sidebar Trigger - Always visible and more prominent */}
+        <SidebarTrigger className="h-10 w-10 hover:bg-muted transition-all duration-200 rounded-lg border border-border/20 hover:border-border/40" />
+        
+        {/* Logo with AI Badge - Visible on tablet+ */}
+        {(deviceType === 'tablet' || deviceType === 'desktop' || deviceType === 'large') && (
+          <Link href="/dashboard" className="flex items-center space-x-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg">
+              <Droplets className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">H₂O Allegiant</span>
-              <span className="text-xs text-muted-foreground">Water Treatment Platform</span>
+              <div className="flex items-center gap-2">
+                <span className="text-base font-bold text-foreground">H₂O Allegiant</span>
+                <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 text-xs px-2 py-0.5">
+                  AI-Powered
+                </Badge>
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">Water Treatment Platform</span>
             </div>
           </Link>
         )}

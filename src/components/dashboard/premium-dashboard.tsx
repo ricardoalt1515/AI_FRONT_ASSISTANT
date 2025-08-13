@@ -266,8 +266,8 @@ export function PremiumDashboard({ executiveMetrics, valueMetrics, projects, qui
                     <p className="text-sm text-green-600">ROI: {project.roi}%</p>
                   </div>
                   <div className="w-24">
-                    <Progress value={project.progress} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">{project.progress}% complete</p>
+                    <Progress value={typeof project.progress === 'object' ? Math.max(project.progress.proposal, project.progress.engineering, project.progress.procurement) : project.progress} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">{typeof project.progress === 'object' ? Math.max(project.progress.proposal, project.progress.engineering, project.progress.procurement) : project.progress}% complete</p>
                   </div>
                   <Button variant="ghost" size="sm">
                     <ArrowRight className="h-4 w-4" />
@@ -281,3 +281,5 @@ export function PremiumDashboard({ executiveMetrics, valueMetrics, projects, qui
     </div>
   );
 }
+
+export default PremiumDashboard;

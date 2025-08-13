@@ -6,7 +6,7 @@ import { AppSidebar } from "./app-sidebar";
 import { ContextualFAB } from "./contextual-fab";
 import { SmartBreadcrumb } from "@/components/ui/smart-breadcrumb";
 import { cn } from "@/lib/utils";
-import { useSidebarState } from "@/hooks/use-mobile";
+import { useSidebarPersistence } from "@/hooks/use-mobile";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -26,12 +26,12 @@ function AppLayoutInternal({
   showFAB = true,
   className
 }: AppLayoutProps) {
-  const { adaptiveState, deviceType } = useSidebarState();
+  const { deviceType, isMobile } = useSidebarPersistence();
   
-  // Adaptive layout classes with proper overflow handling
+  // Simplified layout classes
   const layoutClasses = cn(
     "flex min-h-screen w-full transition-all duration-300 ease-out bg-background",
-    adaptiveState === 'mobile-overlay' ? "flex-col" : "flex-row",
+    isMobile ? "flex-col" : "flex-row",
     className
   );
 
@@ -44,19 +44,17 @@ function AppLayoutInternal({
       />
       
       <div className="flex flex-1 flex-col min-w-0">
-        {/* Global App Header - always visible */}
-        <AppHeader className="flex-shrink-0" />
+        {/* Global App Header - always visible with updated height */}
+        <AppHeader className="flex-shrink-0 h-16" />
         
         {/* Main Content Area with improved overflow handling */}
         <SidebarInset className="flex-1 overflow-auto p-0">
           <div className={cn(
             "min-h-full container mx-auto",
-            // Adaptive padding based on state
-            adaptiveState === 'dashboard-expanded' ? "px-8 py-6" :
-            adaptiveState === 'project-focused' ? "px-6 py-5" :
-            adaptiveState === 'task-minimized' ? "px-4 py-4" : "px-4 py-4",
-            // Mobile adjustments
-            deviceType === 'mobile' && "px-4 py-3",
+            // Responsive padding
+            deviceType === 'mobile' ? "px-4 py-3" :
+            deviceType === 'tablet' ? "px-4 py-4" :
+            deviceType === 'desktop' ? "px-6 py-5" : "px-8 py-6",
             // Container constraints to prevent overflow
             "max-w-full"
           )}>
@@ -72,10 +70,10 @@ function AppLayoutInternal({
             {/* Page Content with proper spacing */}
             <div className={cn(
               "min-h-0 flex-1",
-              // Content spacing adapted to context
-              adaptiveState === 'dashboard-expanded' ? "space-y-8" :
-              adaptiveState === 'project-focused' ? "space-y-6" :
-              "space-y-4"
+              // Responsive content spacing
+              deviceType === 'mobile' ? "space-y-4" :
+              deviceType === 'tablet' ? "space-y-4" :
+              deviceType === 'desktop' ? "space-y-6" : "space-y-8"
             )}>
               {children}
             </div>

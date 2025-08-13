@@ -5,7 +5,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { cva, VariantProps } from "class-variance-authority"
 import { PanelLeftIcon } from "lucide-react"
 
-import { useIsMobile, useDeviceType, useSidebarState, type SidebarState } from "@/hooks/use-mobile"
+import { useIsMobile, useDeviceType, useSidebarPersistence, type SidebarState } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,18 +25,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state"
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
-const SIDEBAR_WIDTH_MINIMIZED = "4rem"
-const SIDEBAR_WIDTH_FOCUSED = "20rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
+// Simplified width constants
+const SIDEBAR_WIDTH = "16rem"      // 240px - Expanded
+const SIDEBAR_WIDTH_MOBILE = "18rem" // 288px - Mobile overlay
+const SIDEBAR_WIDTH_ICON = "4rem"    // 64px - Collapsed
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
-  adaptiveState: SidebarState
+  userPreference: SidebarState
   open: boolean
   setOpen: (open: boolean) => void
   openMobile: boolean
@@ -44,7 +41,7 @@ type SidebarContextProps = {
   isMobile: boolean
   deviceType: ReturnType<typeof useDeviceType>
   toggleSidebar: () => void
-  getCurrentWidth: () => string
+  setPreference: (preference: SidebarState) => void
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -71,14 +68,22 @@ function SidebarProvider({
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
-  const { isMobile, deviceType, suggestedState } = useSidebarState()
+  const { state: resolvedState, userPreference, deviceType, isMobile, setState } = useSidebarPersistence()
   const [openMobile, setOpenMobile] = React.useState(false)
-  const [adaptiveState, setAdaptiveState] = React.useState<SidebarState>(suggestedState)
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen)
   const open = openProp ?? _open
+  
+  // Sync resolved state with open state
+  React.useEffect(() => {
+    const shouldBeOpen = resolvedState === 'expanded'
+    if (open !== shouldBeOpen && !openProp) {
+      _setOpen(shouldBeOpen)
+    }
+  }, [resolvedState, open, openProp])
+  
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
@@ -88,39 +93,24 @@ function SidebarProvider({
         _setOpen(openState)
       }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      // Update user preference if not auto
+      if (userPreference !== 'auto') {
+        setState(openState ? 'expanded' : 'collapsed')
+      }
     },
-    [setOpenProp, open]
+    [setOpenProp, open, userPreference, setState]
   )
-
-  // Update adaptive state based on device changes
-  React.useEffect(() => {
-    setAdaptiveState(suggestedState)
-  }, [suggestedState])
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
-
-  // Get current width based on adaptive state
-  const getCurrentWidth = React.useCallback((): string => {
-    if (isMobile) return SIDEBAR_WIDTH_MOBILE
-    
-    switch (adaptiveState) {
-      case 'dashboard-expanded':
-        return SIDEBAR_WIDTH_FOCUSED
-      case 'project-focused':
-        return SIDEBAR_WIDTH
-      case 'task-minimized':
-        return open ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_MINIMIZED
-      case 'mobile-overlay':
-        return SIDEBAR_WIDTH_MOBILE
-      default:
-        return SIDEBAR_WIDTH
+    if (isMobile) {
+      setOpenMobile((open) => !open)
+    } else {
+      const newState = resolvedState === 'expanded' ? 'collapsed' : 'expanded'
+      setState(newState)
+      setOpen(newState === 'expanded')
     }
-  }, [adaptiveState, isMobile, open])
+  }, [isMobile, resolvedState, setState, setOpen, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -140,12 +130,12 @@ function SidebarProvider({
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = open ? "expanded" : "collapsed"
+  const state = resolvedState === 'expanded' ? "expanded" : "collapsed"
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
       state,
-      adaptiveState,
+      userPreference,
       open,
       setOpen,
       isMobile,
@@ -153,23 +143,26 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
-      getCurrentWidth,
+      setPreference: setState,
     }),
-    [state, adaptiveState, open, setOpen, isMobile, deviceType, openMobile, setOpenMobile, toggleSidebar, getCurrentWidth]
+    [state, userPreference, open, setOpen, isMobile, deviceType, openMobile, setOpenMobile, toggleSidebar, setState]
   )
+
+  const getCurrentWidth = () => {
+    if (isMobile) return SIDEBAR_WIDTH_MOBILE
+    return resolvedState === 'expanded' ? SIDEBAR_WIDTH : SIDEBAR_WIDTH_ICON
+  }
 
   return (
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
-          data-adaptive-state={adaptiveState}
+          data-state={state}
           style={
             {
               "--sidebar-width": getCurrentWidth(),
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-              "--sidebar-width-minimized": SIDEBAR_WIDTH_MINIMIZED,
-              "--sidebar-width-focused": SIDEBAR_WIDTH_FOCUSED,
               ...style,
             } as React.CSSProperties
           }
@@ -198,7 +191,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, adaptiveState, deviceType, openMobile, setOpenMobile, getCurrentWidth } = useSidebar()
+  const { isMobile, state, deviceType, openMobile, setOpenMobile } = useSidebar()
 
   if (collapsible === "none") {
     return (
@@ -240,14 +233,10 @@ function Sidebar({
     )
   }
 
-  // Determine if we should use push layout (non-mobile) or overlay (mobile)
-  const shouldUsePushLayout = !isMobile && adaptiveState !== 'mobile-overlay'
-  
   return (
     <div
       className="group peer text-sidebar-foreground hidden md:block"
       data-state={state}
-      data-adaptive-state={adaptiveState}
       data-device={deviceType}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-variant={variant}
@@ -255,43 +244,25 @@ function Sidebar({
       data-slot="sidebar"
     >
       {/* Push layout - creates space for main content */}
-      {shouldUsePushLayout && (
-        <div
-          data-slot="sidebar-gap"
-          className={cn(
-            "relative bg-transparent transition-[width] duration-300 ease-out flex-shrink-0",
-            "group-data-[side=right]:rotate-180",
-            // Dynamic width based on adaptive state with overflow prevention
-            adaptiveState === 'task-minimized' && state === 'collapsed' 
-              ? "w-(--sidebar-width-minimized) min-w-(--sidebar-width-minimized)"
-              : "w-(--sidebar-width) min-w-(--sidebar-width)",
-            variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))] group-data-[collapsible=icon]:min-w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-              : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[collapsible=icon]:min-w-(--sidebar-width-icon)"
-          )}
-        />
-      )}
+      <div
+        data-slot="sidebar-gap"
+        className={cn(
+          "relative bg-transparent transition-[width] duration-300 ease-out flex-shrink-0",
+          "group-data-[side=right]:rotate-180",
+          "w-(--sidebar-width) min-w-(--sidebar-width)",
+          variant === "floating" || variant === "inset"
+            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))] group-data-[collapsible=icon]:min-w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
+            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[collapsible=icon]:min-w-(--sidebar-width-icon)"
+        )}
+      />
       
       <div
         data-slot="sidebar-container"
         className={cn(
-          "h-svh transition-[left,right,width] duration-300 ease-out md:flex",
-          // Push vs Fixed positioning
-          shouldUsePushLayout 
-            ? "relative z-10 w-(--sidebar-width)" 
-            : "fixed inset-y-0 z-10 hidden w-(--sidebar-width)",
-          side === "left"
-            ? shouldUsePushLayout ? "" : "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-            : shouldUsePushLayout ? "" : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          // Adaptive styling based on state
+          "h-svh transition-[left,right,width] duration-300 ease-out md:flex relative z-10 w-(--sidebar-width)",
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-            : cn(
-                "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
-                shouldUsePushLayout
-                  ? "" // No border for push layout as it's part of main layout
-                  : "group-data-[side=left]:border-r group-data-[side=right]:border-l"
-              ),
+            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
           className
         )}
         {...props}
@@ -303,13 +274,8 @@ function Sidebar({
             "bg-sidebar flex h-full w-full flex-col transition-all duration-300 ease-out overflow-hidden",
             variant === "floating" 
               ? "border-sidebar-border rounded-lg border shadow-sm"
-              : shouldUsePushLayout
-                ? "border-r border-sidebar-border" // Add border for push layout
-                : "",
-            // Adaptive padding and layout with overflow prevention
-            adaptiveState === 'task-minimized' && state === 'collapsed'
-              ? "items-center px-2"
-              : "px-0"
+              : "border-r border-sidebar-border",
+            state === 'collapsed' ? "items-center px-2" : "px-0"
           )}
         >
           {children}
@@ -371,25 +337,20 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 }
 
 function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
-  const { adaptiveState, deviceType, isMobile } = useSidebar()
+  const { deviceType, isMobile } = useSidebar()
   
   return (
     <main
       data-slot="sidebar-inset"
-      data-adaptive-state={adaptiveState}
       data-device={deviceType}
       className={cn(
         "bg-background relative flex flex-1 flex-col transition-all duration-300 ease-out min-w-0",
-        // Push layout: content takes remaining space with overflow protection
-        !isMobile && adaptiveState !== 'mobile-overlay' 
-          ? "w-auto" 
-          : "w-full",
+        // Content takes remaining space with overflow protection
+        "w-auto",
         // Inset variant styles
         "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
-        // Responsive adaptive spacing based on state and screen size
-        adaptiveState === 'dashboard-expanded' ? "p-4 lg:p-6" :
-        adaptiveState === 'project-focused' ? "p-3 md:p-4" :
-        adaptiveState === 'task-minimized' ? "p-2 md:p-3" : "p-3 md:p-4",
+        // Responsive spacing
+        "p-3 md:p-4 lg:p-6",
         className
       )}
       {...props}
