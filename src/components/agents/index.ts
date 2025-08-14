@@ -2,7 +2,7 @@
 // H₂O Allegiant - AI Agents Components Export
 // =============================================================================
 
-export { AIAgentsFlow, agentPhases } from './ai-agents-flow'
+// Removed AIAgentsFlow - component eliminated
 export { ProcurementWizard } from './procurement-wizard'
 export { ProcurementSummary } from './procurement-summary'
 export { AgentWorkflowDisplay } from './agent-workflow-display'

@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { mockProjects } from "@/lib/mock-data";
+import { mockProjects } from "@/lib/mock-workspace-data";
 import { useSidebarState } from "@/hooks/use-mobile";
 
 const BreadcrumbRoot = React.forwardRef<

@@ -58,7 +58,7 @@ export * from './chat/typing-indicator'
 export * from './chat/droplet-avatar'
 
 export * from './project/project-chat'
-export * from './project/project-timeline'
+// Removed project-timeline - using workspace version
 export * from './project/documents-list'
 
 export * from './agents/agent-workflow-display'

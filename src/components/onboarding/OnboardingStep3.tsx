@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -109,13 +111,13 @@ export default function OnboardingStep3({ segment, onNext, onBack }: OnboardingS
     }
   };
 
-  const progress = 75; // 75% of total onboarding
+  const progress = 75;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-gray-900">Meet Your AI Team</h1>
+    <>
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="text-center space-y-4">
+          <h1 className="text-3xl font-bold text-gray-900">Meet Your AI Team</h1>
         <p className="text-xl text-gray-600">
           Four specialized AI agents will work together to create your perfect water treatment solution
         </p>
@@ -178,7 +180,10 @@ export default function OnboardingStep3({ segment, onNext, onBack }: OnboardingS
             }`}>
               <CardHeader className={`bg-${aiAgents[activeAgent].color}-50 border-b border-${aiAgents[activeAgent].color}-100`}>
                 <CardTitle className={`text-${aiAgents[activeAgent].color}-900 flex items-center space-x-3`}>
-                  <aiAgents[activeAgent].icon className={`h-6 w-6 text-${aiAgents[activeAgent].color}-600`} />
+                  {(() => {
+                    const IconComponent = aiAgents[activeAgent].icon;
+                    return <IconComponent className={`h-6 w-6 text-${aiAgents[activeAgent].color}-600`} />;
+                  })()}
                   <span>{aiAgents[activeAgent].name}</span>
                   <Badge variant="outline" className={`text-${aiAgents[activeAgent].color}-700 border-${aiAgents[activeAgent].color}-300`}>
                     Step {activeAgent + 1}
@@ -248,6 +253,7 @@ export default function OnboardingStep3({ segment, onNext, onBack }: OnboardingS
           Set Up My Dashboard
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

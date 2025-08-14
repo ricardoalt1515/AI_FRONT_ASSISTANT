@@ -2,7 +2,7 @@
 
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockProjects } from "@/lib/mock-data";
+import { mockProjects } from "@/lib/mock-workspace-data";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 

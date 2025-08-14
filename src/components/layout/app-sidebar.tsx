@@ -8,9 +8,7 @@ import {
   MessageSquare,
   HelpCircle,
   Plus,
-  Building2,
-  BarChart3,
-  Bot
+  Building2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -48,7 +46,7 @@ const StatusDot = ({ status }: { status: string }) => {
   );
 };
 
-// Main navigation items - Fixed top section
+// Main navigation items - Simplified 
 const navigationItems = [
   {
     title: "Dashboard",
@@ -60,16 +58,6 @@ const navigationItems = [
     href: "/projects", 
     icon: FolderOpen,
     badge: mockProjects.length
-  },
-  {
-    title: "AI Agents",
-    href: "/agents",
-    icon: Bot
-  },
-  {
-    title: "Reportes",
-    href: "/reports", 
-    icon: BarChart3
   }
 ];
 
