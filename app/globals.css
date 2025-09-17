@@ -1,0 +1,313 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* 🌊 H₂O ALLEGIANT - PREMIUM WATER TREATMENT DESIGN SYSTEM 2024 */
+
+  /* === CORE COLORS === */
+  --background: #fafbfc;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #334155;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+
+  /* === PRIMARY WATER THEME === */
+  --primary: #0891b2;
+  --primary-foreground: #ffffff;
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f7fa;
+  --primary-500: #0891b2;
+  --primary-600: #0e7490;
+  --primary-700: #0c5f7a;
+  --primary-900: #0a4c63;
+
+  /* === SECONDARY EMERALD === */
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
+  --accent: #14b8a6;
+  --accent-foreground: #ffffff;
+
+  /* === NEUTRAL GRAYS === */
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #ffffff;
+  --ring: rgba(8, 145, 178, 0.2);
+
+  /* === STATUS COLORS === */
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* === TECHNICAL INDICATORS === */
+  --optimal: #22c55e;
+  --caution: #eab308;
+  --critical: #ef4444;
+  --processing: #3b82f6;
+
+  /* === CHART PALETTE === */
+  --chart-1: #0891b2;
+  --chart-2: #14b8a6;
+  --chart-3: #06b6d4;
+  --chart-4: #22d3ee;
+  --chart-5: #67e8f9;
+
+  /* === DESIGN TOKENS === */
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* === SHADOWS === */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  /* === SIDEBAR SYSTEM === */
+  --sidebar-background: #ffffff;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: #0891b2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #475569;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: rgba(8, 145, 178, 0.1);
+  --sidebar-width: 16rem;
+  --sidebar-width-mobile: 18rem;
+  --sidebar: hsl(0 0% 98%);
+}
+
+/* Map project variables to Tailwind v4 color tokens */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+}
+
+.dark {
+  /* 🌙 DARK MODE - PREMIUM WATER TREATMENT THEME */
+
+  /* === CORE COLORS === */
+  --background: #0a0e1a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #e2e8f0;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+
+  /* === PRIMARY WATER THEME === */
+  --primary: #22d3ee;
+  --primary-foreground: #0a0e1a;
+  --primary-50: #0a1421;
+  --primary-100: #0c1e2e;
+  --primary-500: #22d3ee;
+  --primary-600: #0891b2;
+  --primary-700: #0e7490;
+  --primary-900: #164e63;
+
+  /* === SECONDARY === */
+  --secondary: #334155;
+  --secondary-foreground: #e2e8f0;
+  --accent: #14b8a6;
+  --accent-foreground: #0a0e1a;
+
+  /* === NEUTRAL GRAYS === */
+  --muted: #262626;
+  --muted-foreground: #a1a1aa;
+  --border: #374151;
+  --input: #374151;
+  --ring: rgba(34, 211, 238, 0.3);
+
+  /* === STATUS COLORS === */
+  --success: #22c55e;
+  --success-foreground: #0a0e1a;
+  --warning: #fbbf24;
+  --warning-foreground: #0a0e1a;
+  --destructive: #f87171;
+  --destructive-foreground: #0a0e1a;
+
+  /* === TECHNICAL INDICATORS === */
+  --optimal: #34d399;
+  --caution: #fbbf24;
+  --critical: #f87171;
+  --processing: #60a5fa;
+
+  /* === CHART PALETTE === */
+  --chart-1: #22d3ee;
+  --chart-2: #14b8a6;
+  --chart-3: #06b6d4;
+  --chart-4: #67e8f9;
+  --chart-5: #a7f3d0;
+
+  /* === SIDEBAR SYSTEM === */
+  --sidebar-background: #1e293b;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #22d3ee;
+  --sidebar-primary-foreground: #0a0e1a;
+  --sidebar-accent: #374151;
+  --sidebar-accent-foreground: #d1d5db;
+  --sidebar-border: #374151;
+  --sidebar-ring: rgba(34, 211, 238, 0.2);
+  --sidebar: hsl(240 5.9% 10%);
+}
+
+@layer base {
+  * {
+    /* Use @apply with generated tokens */
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+/* 🎨 PREMIUM ANIMATIONS & EFFECTS - H₂O ALLEGIANT 2024 */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(8, 145, 178, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(8, 145, 178, 0.4); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* === ANIMATION CLASSES === */
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(8, 145, 178, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+/* === PREMIUM GRADIENTS === */
+.gradient-primary {
+  background: linear-gradient(135deg, #0891b2 0%, #14b8a6 50%, #22d3ee 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(8, 145, 178, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #0891b2 0%, #14b8a6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === GLASS MORPHISM === */
+.glass-effect {
+  backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(8, 145, 178, 0.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .glass-effect {
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(34, 211, 238, 0.1);
+}
+
+/* === MODERN CARD EFFECTS === */
+.modern-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease-in-out;
+}
+
+.modern-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+
+/* === INTERACTIVE STATES === */
+.interactive {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.interactive:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Removed duplicate base layer to avoid conflicting resets */
