@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import DropletAvatar from "@/components/chat/droplet-avatar"
-import { apiService } from "@/lib/api-client"
-import { ArrowRight, Sparkles, CheckCircle } from "lucide-react"
-import { motion } from "framer-motion"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import DropletAvatar from "@/components/chat/droplet-avatar";
+import { apiService } from "@/lib/api-client";
+import { ArrowRight, Sparkles, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function HeroSection() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userData, setUserData] = useState<any>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
-    const isAuth = apiService.isAuthenticated()
-    setIsAuthenticated(isAuth)
+    const isAuth = apiService.isAuthenticated();
+    setIsAuthenticated(isAuth);
 
     if (isAuth) {
-      const userDataStr = localStorage.getItem('userData')
+      const userDataStr = localStorage.getItem("userData");
       if (userDataStr) {
-        setUserData(JSON.parse(userDataStr))
+        setUserData(JSON.parse(userDataStr));
       }
     }
-  }, [])
+  }, []);
 
   return (
     <section className="relative min-h-[80vh] flex items-center">
@@ -50,7 +50,8 @@ export default function HeroSection() {
                 </h1>
 
                 <p className="text-xl text-blue-700/80 leading-relaxed">
-                  Continúa optimizando tus soluciones de tratamiento de agua con IA avanzada.
+                  Continúa optimizando tus soluciones de tratamiento de agua con
+                  IA avanzada.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
@@ -71,9 +72,7 @@ export default function HeroSection() {
                     className="border-blue-200 text-blue-700 hover:bg-blue-50"
                     asChild
                   >
-                    <Link href="/proposals">
-                      Ver Propuestas
-                    </Link>
+                    <Link href="/proposals">Ver Propuestas</Link>
                   </Button>
                 </div>
 
@@ -83,13 +82,17 @@ export default function HeroSection() {
                     <p className="text-2xl font-bold text-blue-800">
                       {userData.consultations_count || 0}
                     </p>
-                    <p className="text-sm text-blue-600">Consultas realizadas</p>
+                    <p className="text-sm text-blue-600">
+                      Consultas realizadas
+                    </p>
                   </div>
                   <div className="bg-white/80 p-4 rounded-lg border border-blue-100">
                     <p className="text-2xl font-bold text-blue-800">
                       {userData.proposals_count || 0}
                     </p>
-                    <p className="text-sm text-blue-600">Propuestas generadas</p>
+                    <p className="text-sm text-blue-600">
+                      Propuestas generadas
+                    </p>
                   </div>
                 </div>
               </>
@@ -110,20 +113,18 @@ export default function HeroSection() {
                 </h1>
 
                 <p className="text-xl text-blue-700/80 leading-relaxed">
-                  Soluciones avanzadas de ingeniería y diseño de tratamiento de agua potenciadas por IA.
+                  Soluciones avanzadas de ingeniería y diseño de tratamiento de
+                  agua potenciadas por IA.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
-                  {/* Registration disabled - users created by admin only */}
-                  {/* <Button
+                  <Button
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
                     asChild
                   >
-                    <Link href="/auth/register">
-                      Iniciar Ahora
-                    </Link>
-                  </Button> */}
+                    <Link href="/auth/register">Iniciar Ahora</Link>
+                  </Button>
 
                   <Button
                     variant="outline"
@@ -131,9 +132,7 @@ export default function HeroSection() {
                     className="border-blue-200 text-blue-700 hover:bg-blue-50"
                     asChild
                   >
-                    <Link href="/auth/login">
-                      Iniciar Sesión
-                    </Link>
+                    <Link href="/auth/login">Ya tengo cuenta</Link>
                   </Button>
                 </div>
               </>
@@ -156,5 +155,5 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
