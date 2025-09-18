@@ -1,0 +1,246 @@
+/* Definición forzada de colores Hydrous */
+:root {
+  --color-hydrous-50: #f0f9ff;
+  --color-hydrous-100: #e0f2fe;
+  --color-hydrous-200: #bae6fd;
+  --color-hydrous-300: #7dd3fc;
+  --color-hydrous-400: #38bdf8;
+  --color-hydrous-500: #0ea5e9;
+  --color-hydrous-600: #0284c7;
+  --color-hydrous-700: #0369a1;
+  --color-hydrous-800: #075985;
+  --color-hydrous-900: #0c4a6e;
+}
+
+/* Backgrounds de gradiente intensos */
+.bg-gradient-water-blue {
+  background: linear-gradient(135deg, var(--color-hydrous-400), var(--color-hydrous-600)) !important;
+}
+
+.bg-gradient-water-light {
+  background: linear-gradient(135deg, var(--color-hydrous-50), var(--color-hydrous-200)) !important;
+}
+
+.bg-gradient-header {
+  background: linear-gradient(to right, rgba(240, 249, 255, 0.9), rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.9)) !important;
+}
+
+/* Efectos de sombra intensos */
+.shadow-water {
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3) !important;
+}
+
+.shadow-water-inner {
+  box-shadow: inset 0 2px 10px rgba(7, 89, 133, 0.15) !important;
+}
+
+.shadow-water-lg {
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4) !important;
+}
+
+/* Clases intensificadas para backgrounds */
+.bg-hydrous-50 {
+  background-color: var(--color-hydrous-50) !important;
+}
+
+.bg-hydrous-100 {
+  background-color: var(--color-hydrous-100) !important;
+}
+
+.bg-hydrous-200 {
+  background-color: var(--color-hydrous-200) !important;
+}
+
+.bg-hydrous-300 {
+  background-color: var(--color-hydrous-300) !important;
+}
+
+.bg-hydrous-400 {
+  background-color: var(--color-hydrous-400) !important;
+}
+
+.bg-hydrous-500 {
+  background-color: var(--color-hydrous-500) !important;
+}
+
+.bg-hydrous-600 {
+  background-color: var(--color-hydrous-600) !important;
+}
+
+/* Texto con color hydrous intensificado */
+.text-hydrous-600 {
+  color: var(--color-hydrous-600) !important;
+}
+
+.text-hydrous-700 {
+  color: var(--color-hydrous-700) !important;
+}
+
+.text-hydrous-800 {
+  color: var(--color-hydrous-800) !important;
+}
+
+/* Bordes hydrous intensificados */
+.border-hydrous-100 {
+  border-color: var(--color-hydrous-100) !important;
+}
+
+.border-hydrous-200 {
+  border-color: var(--color-hydrous-200) !important;
+}
+
+.border-hydrous-300 {
+  border-color: var(--color-hydrous-300) !important;
+}
+
+/* Asegurar que los gradientes se aplican */
+.from-hydrous-300 {
+  --tw-gradient-from: var(--color-hydrous-300) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(125, 211, 252, 0)) !important;
+}
+
+.from-hydrous-400 {
+  --tw-gradient-from: var(--color-hydrous-400) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(56, 189, 248, 0)) !important;
+}
+
+.from-hydrous-500 {
+  --tw-gradient-from: var(--color-hydrous-500) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(14, 165, 233, 0)) !important;
+}
+
+.to-hydrous-500 {
+  --tw-gradient-to: var(--color-hydrous-500) !important;
+}
+
+.to-hydrous-600 {
+  --tw-gradient-to: var(--color-hydrous-600) !important;
+}
+
+.to-hydrous-700 {
+  --tw-gradient-to: var(--color-hydrous-700) !important;
+}
+
+/* Definiciones específicas para animaciones de agua */
+@keyframes water-ripple {
+  0% { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes water-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes water-float {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15px, -10px); }
+  50% { transform: translate(5px, 10px); }
+  75% { transform: translate(-10px, -7px); }
+}
+
+@keyframes water-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+@keyframes water-sine {
+  0%, 100% { transform: translateY(0) skewX(0); }
+  25% { transform: translateY(-5px) skewX(2deg); }
+  50% { transform: translateY(0) skewX(0); }
+  75% { transform: translateY(5px) skewX(-2deg); }
+}
+
+@keyframes progress-bar {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+/* Clases forzadas para las animaciones */
+.animate-water-ripple {
+  animation: water-ripple 2s linear infinite !important;
+}
+
+.animate-water-wave {
+  animation: water-wave 3s ease-in-out infinite !important;
+}
+
+.animate-water-float {
+  animation: water-float 15s ease-in-out infinite !important;
+}
+
+.animate-water-pulse {
+  animation: water-pulse 10s ease-in-out infinite !important;
+}
+
+.animate-water-sine {
+  animation: water-sine 4s ease-in-out infinite !important;
+}
+
+.animate-progress-bar {
+  animation: progress-bar 2s ease-out forwards !important;
+}
+
+/* Delays para animaciones */
+.animation-delay-500 {
+  animation-delay: 500ms !important;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1000ms !important;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1500ms !important;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2000ms !important;
+}
+
+/* Hacer que las sombras y efectos sean más evidentes */
+.hover\:shadow-md:hover {
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2) !important;
+}
+
+.hover\:shadow-lg:hover {
+  box-shadow: 0 10px 20px rgba(56, 189, 248, 0.25) !important;
+}
+
+.hover\:shadow-xl:hover {
+  box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Efectos de blur intensificados */
+.backdrop-blur-md {
+  backdrop-filter: blur(12px) !important;
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px) !important;
+}
+
+.filter.blur-3xl {
+  filter: blur(48px) !important;
+}
+
+.filter.blur-2xl {
+  filter: blur(24px) !important;
+}
+
+.filter.blur-xl {
+  filter: blur(16px) !important;
+}
+
+/* Reforzar clases de opacidad */
+.opacity-70 {
+  opacity: 0.7 !important;
+}
+
+.opacity-60 {
+  opacity: 0.6 !important;
+}
+
+.opacity-50 {
+  opacity: 0.5 !important;
+}

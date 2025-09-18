@@ -1,0 +1,122 @@
+/* src/app/animations.css */
+
+/* Efectos avanzados de agua que no pueden definirse completamente en Tailwind */
+
+/* Efecto de ondulación para hover */
+.ripple-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-on-hover::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(56, 189, 248, 0.4);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.ripple-on-hover:hover::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(100, 100);
+    opacity: 0;
+  }
+}
+
+/* Burbujas de mensaje específicas */
+.droplet-message {
+  position: relative;
+  border-top-left-radius: 4px !important;
+}
+
+.droplet-message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 20px;
+  height: 20px;
+  background: inherit;
+  border-left: 1px solid rgba(186, 230, 253, 0.7);
+  border-bottom: 1px solid rgba(186, 230, 253, 0.7);
+  border-bottom-left-radius: 20px;
+  border-top: 0;
+  border-right: 0;
+  z-index: -1;
+}
+
+/* Mejoras para la lista personalizada con íconos de gota */
+.custom-water-list {
+  list-style: none;
+  padding-left: 1.5rem;
+}
+
+.custom-water-list li {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.custom-water-list li::before {
+  content: '';
+  position: absolute;
+  left: -1.25rem;
+  top: 0.25rem;
+  width: 0.5rem;
+  height: 0.75rem;
+  background-color: #38bdf8;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+/* Efecto de línea de flujo de agua */
+.water-flow-line {
+  position: relative;
+}
+
+.water-flow-line::after {
+  content: '';
+  position: absolute;
+  height: 1px;
+  width: 100%;
+  bottom: -4px;
+  left: 0;
+  background: linear-gradient(to right, #7dd3fc, #bae6fd);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.water-flow-line:hover::after {
+  transform: scaleX(1);
+}
+
+/* Efecto de vidrio para paneles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Efecto de vidrio azul oscuro */
+.glass-dark-blue {
+  background: rgba(7, 89, 133, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(12, 74, 110, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: white;
+}
