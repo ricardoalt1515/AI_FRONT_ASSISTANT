@@ -1,55 +1,56 @@
 // src/lib/api-client.ts
-import axios from 'axios';
+import axios from "axios";
 
 // Configuración de la URL del backend - Usamos variables de entorno
-const isProduction = process.env.NODE_ENV === 'production';
-const apiBaseUrl = process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true'
-  ? 'http://localhost:8000/api'  // Para desarrollo local
-  : process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.h2oassistant.com/api';  // URL HTTPS desde variable de entorno
+const isProduction = process.env.NODE_ENV === "production";
+const apiBaseUrl =
+  process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === "true"
+    ? "http://localhost:8000/api" // Para desarrollo local
+    : process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.h2oassistant.com/api"; // URL HTTPS desde variable de entorno
 
-console.log('API Base URL:', apiBaseUrl);
+console.log("API Base URL:", apiBaseUrl);
 
 // Cliente axios con configuración base
 const apiClient = axios.create({
   baseURL: apiBaseUrl,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-  timeout: 300000, // 5 minutos - timeout extendido para propuestas complejas
+  timeout: 600000, // 5 minutos - timeout extendido para propuestas complejas
 });
 
 // Interceptor para añadir token de autenticación
-apiClient.interceptors.request.use(config => {
+apiClient.interceptors.request.use((config) => {
   // Obtener token del almacenamiento local
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem("authToken");
   if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
+    config.headers["Authorization"] = `Bearer ${token}`;
   }
   return config;
 });
 
 // Interceptor para manejar errores de autenticación
 apiClient.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     // Verificar si es un error de autenticación (401)
     if (error.response && error.response.status === 401) {
-      console.warn('Token expirado o inválido. Redirigiendo a login...');
-      
+      console.warn("Token expirado o inválido. Redirigiendo a login...");
+
       // Limpiar datos de autenticación
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-      localStorage.removeItem('currentConversationId');
-      
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("currentConversationId");
+
       // Redirigir a la página de login
       // Solo redirigir si estamos en el navegador y no en un entorno SSR
-      if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+      if (typeof window !== "undefined") {
+        window.location.href = "/auth/login";
       }
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 // Variables para tracking del estado del backend
@@ -80,70 +81,78 @@ export const apiService = {
     try {
       // Validar datos requeridos
       if (!userData.email || !userData.password) {
-        console.error('Error en registro: Faltan campos obligatorios (email o password)');
-        throw new Error('Email y contraseña son campos obligatorios');
+        console.error(
+          "Error en registro: Faltan campos obligatorios (email o password)",
+        );
+        throw new Error("Email y contraseña son campos obligatorios");
       }
 
       // Preparar datos completos para el backend según UserCreate model
       const backendData = {
         email: userData.email,
         password: userData.password,
-        first_name: userData.first_name || 'Usuario',
-        last_name: userData.last_name || 'Anónimo',
+        first_name: userData.first_name || "Usuario",
+        last_name: userData.last_name || "Anónimo",
         company_name: userData.company_name || null,
         location: userData.location || null,
         sector: userData.sector || null,
-        subsector: userData.subsector || null
+        subsector: userData.subsector || null,
       };
 
-      console.log('Enviando datos completos al backend:', { 
-        ...backendData, 
-        password: backendData.password ? '*****' : '<VACÍO>' 
+      console.log("Enviando datos completos al backend:", {
+        ...backendData,
+        password: backendData.password ? "*****" : "<VACÍO>",
       });
-      console.log('URL de destino:', `${apiBaseUrl}/auth/register`);
+      console.log("URL de destino:", `${apiBaseUrl}/auth/register`);
 
       // Aumentar timeout para dar más tiempo al backend
-      const response = await apiClient.post('/auth/register', backendData, { 
-        timeout: 30000 // 30 segundos
+      const response = await apiClient.post("/auth/register", backendData, {
+        timeout: 30000, // 30 segundos
       });
-      
-      console.log('Respuesta del backend:', {
+
+      console.log("Respuesta del backend:", {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers,
-        data: response.data ? 'Datos recibidos' : 'Sin datos'
+        data: response.data ? "Datos recibidos" : "Sin datos",
       });
 
       if (response.data && response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('userData', JSON.stringify(response.data.user));
+        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("userData", JSON.stringify(response.data.user));
         return { success: true, data: response.data };
       }
-      return { success: false, error: 'No se recibió token de autenticación' };
+      return { success: false, error: "No se recibió token de autenticación" };
     } catch (error: any) {
-      console.error('Error en registro:', error);
-      
+      console.error("Error en registro:", error);
+
       // Información de diagnóstico más detallada
       if (error.response) {
         // El servidor respondió con un código de estado fuera del rango 2xx
-        console.error('Detalles de error de respuesta:', {
+        console.error("Detalles de error de respuesta:", {
           status: error.response.status,
           statusText: error.response.statusText,
           data: error.response.data,
-          headers: error.response.headers
+          headers: error.response.headers,
         });
       } else if (error.request) {
         // La solicitud se realizó pero no se recibió respuesta
-        console.error('No se recibió respuesta del servidor. Detalles:', {
-          request: error.request._currentUrl || error.request.url || 'URL no disponible',
-          method: error.config?.method || 'Método no disponible',
-          timeout: error.config?.timeout || 'Timeout no especificado'
+        console.error("No se recibió respuesta del servidor. Detalles:", {
+          request:
+            error.request._currentUrl ||
+            error.request.url ||
+            "URL no disponible",
+          method: error.config?.method || "Método no disponible",
+          timeout: error.config?.timeout || "Timeout no especificado",
         });
       } else {
         // Algo sucedió en la configuración de la solicitud que desencadenó un error
-        console.error('Error en la configuración de la solicitud:', error.message);
+        console.error(
+          "Error en la configuración de la solicitud:",
+          error.message,
+        );
       }
-      
+
       throw error;
     }
   },
@@ -151,31 +160,31 @@ export const apiService = {
   loginUser: async (email: string, password: string) => {
     try {
       // El backend espera 'email', no 'username'
-      const response = await apiClient.post('/auth/login', { 
-        email, 
-        password 
+      const response = await apiClient.post("/auth/login", {
+        email,
+        password,
       });
 
       if (response.data && response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem("authToken", response.data.token);
         return { success: true, data: response.data };
       }
-      return { success: false, error: 'No se recibió token de autenticación' };
+      return { success: false, error: "No se recibió token de autenticación" };
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error("Error en login:", error);
       throw error;
     }
   },
 
   logoutUser: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('currentConversationId');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("currentConversationId");
     return true;
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem('authToken');
+    return !!localStorage.getItem("authToken");
   },
 
   isInitializing: () => {
@@ -185,23 +194,23 @@ export const apiService = {
   getCurrentUser: async () => {
     try {
       // Primero intentar obtener de localStorage por eficiencia
-      const userDataStr = localStorage.getItem('userData');
+      const userDataStr = localStorage.getItem("userData");
       if (userDataStr) {
         return JSON.parse(userDataStr);
       }
 
       // Si no está en localStorage, obtener del servidor
-      const response = await apiClient.get('/auth/me');
+      const response = await apiClient.get("/auth/me");
 
       // Actualizar almacenamiento local con datos más frescos
       if (response.data && response.data.user) {
-        localStorage.setItem('userData', JSON.stringify(response.data.user));
+        localStorage.setItem("userData", JSON.stringify(response.data.user));
         return response.data.user;
       }
 
       return null;
     } catch (error) {
-      console.error('Error obteniendo usuario actual:', error);
+      console.error("Error obteniendo usuario actual:", error);
       throw error;
     }
   },
@@ -212,58 +221,70 @@ export const apiService = {
       // Asegurarse que el backend está iniciado
       await initializeBackend().catch(() => {
         // Continuar incluso si falla la inicialización
-        console.warn('Continuando sin confirmación de backend');
+        console.warn("Continuando sin confirmación de backend");
       });
 
-      const requestBody = Object.keys(customContext).length > 0 ? { customContext } : {};
-      console.log('Enviando solicitud para iniciar conversación:', requestBody);
+      const requestBody =
+        Object.keys(customContext).length > 0 ? { customContext } : {};
+      console.log("Enviando solicitud para iniciar conversación:", requestBody);
 
-      const response = await apiClient.post('/chat/start', requestBody);
-      console.log('Respuesta al iniciar conversación:', response.data);
+      const response = await apiClient.post("/chat/start", requestBody);
+      console.log("Respuesta al iniciar conversación:", response.data);
 
       return response.data;
     } catch (error) {
-      console.error('Error iniciando conversación:', error);
+      console.error("Error iniciando conversación:", error);
       throw error;
     }
   },
 
   sendMessage: async (conversationId: string, message: string) => {
     try {
-      console.log(`Enviando mensaje a conversación ${conversationId}:`, message);
+      console.log(
+        `Enviando mensaje a conversación ${conversationId}:`,
+        message,
+      );
 
-      const response = await apiClient.post('/chat/message', {
-        conversation_id: conversationId,
-        message: message
-      }, {
-        timeout: 300000 // 5 minutos para generación de propuestas complejas
-      });
+      const response = await apiClient.post(
+        "/chat/message",
+        {
+          conversation_id: conversationId,
+          message: message,
+        },
+        {
+          timeout: 600000, // 5 minutos para generación de propuestas complejas
+        },
+      );
 
-      console.log('Respuesta del mensaje:', response.data);
+      console.log("Respuesta del mensaje:", response.data);
       return response.data;
     } catch (error) {
-      console.error('Error enviando mensaje:', error);
+      console.error("Error enviando mensaje:", error);
       throw error;
     }
   },
 
-  uploadDocument: async (conversationId: string, file: File, message?: string) => {
+  uploadDocument: async (
+    conversationId: string,
+    file: File,
+    message?: string,
+  ) => {
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('conversation_id', conversationId);
+      formData.append("file", file);
+      formData.append("conversation_id", conversationId);
       if (message) {
-        formData.append('message', message);
+        formData.append("message", message);
       }
 
-      const response = await apiClient.post('/documents/upload', formData, {
+      const response = await apiClient.post("/documents/upload", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
     } catch (error) {
-      console.error('Error subiendo documento:', error);
+      console.error("Error subiendo documento:", error);
       throw error;
     }
   },
@@ -271,18 +292,21 @@ export const apiService = {
   downloadProposal: async (conversationId: string) => {
     try {
       // Configurar para recibir blob
-      const response = await apiClient.get(`/chat/${conversationId}/download-pdf`, {
-        responseType: 'blob'
-      });
+      const response = await apiClient.get(
+        `/chat/${conversationId}/download-pdf`,
+        {
+          responseType: "blob",
+        },
+      );
 
       // Crear URL y trigger de descarga
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
 
       // Extraer nombre del archivo del header Content-Disposition si existe
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = 'propuesta.pdf';
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = "propuesta.pdf";
 
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
@@ -291,17 +315,17 @@ export const apiService = {
         }
       }
 
-      link.setAttribute('download', filename);
+      link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
 
       return url;
     } catch (error) {
-      console.error('Error descargando propuesta:', error);
+      console.error("Error descargando propuesta:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default apiService;
